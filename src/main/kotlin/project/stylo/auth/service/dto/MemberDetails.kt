@@ -1,0 +1,24 @@
+package project.stylo.auth.service.dto
+
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.UserDetails
+import project.stylo.web.domain.Member
+
+data class MemberDetails(val member: Member) : UserDetails {
+    override fun getAuthorities(): Collection<GrantedAuthority> =
+        listOf(SimpleGrantedAuthority(member.role.name))
+
+    override fun getUsername(): String = member.email
+
+    override fun getPassword(): String = member.password
+
+    override fun isAccountNonExpired(): Boolean = true
+
+    override fun isAccountNonLocked(): Boolean = true
+
+    override fun isCredentialsNonExpired(): Boolean = true
+
+    override fun isEnabled(): Boolean = true
+}
+

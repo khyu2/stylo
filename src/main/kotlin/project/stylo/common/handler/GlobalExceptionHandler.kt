@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
+import org.springframework.web.servlet.resource.NoResourceFoundException
 import project.stylo.common.exception.BaseException
 
 @ControllerAdvice
@@ -25,6 +26,19 @@ class GlobalExceptionHandler {
         redirectAttributes.addFlashAttribute("error", e.exceptionType.message)
         val referer = request.getHeader("referer") ?: request.requestURI
         return "redirect:$referer"
+    }
+
+    @ExceptionHandler(NoResourceFoundException::class)
+    fun handleNoResourceFoundException(
+        e: NoResourceFoundException,
+        request: HttpServletRequest,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        logger.error("페이지를 찾을 수 없습니다: ${e.message}")
+
+        redirectAttributes.addFlashAttribute("error", "요청한 페이지를 찾을 수 없습니다.")
+        val referer = request.getHeader("referer") ?: request.requestURI
+        return "not-found"
     }
 
     @ExceptionHandler(Exception::class)

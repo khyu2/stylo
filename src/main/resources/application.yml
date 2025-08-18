@@ -3,7 +3,7 @@ spring:
     name: stylo-shopping-mall
 
   datasource:
-    url: jdbc:postgresql://localhost:5555/test
+    url: jdbc:postgresql://localhost:5555/stylo
     username: postgres
     password: root
     driver-class-name: org.postgresql.Driver
