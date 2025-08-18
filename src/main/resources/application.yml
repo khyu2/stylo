@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: stylo-shopping-mall
+
+  datasource:
+    url: jdbc:postgresql://localhost:5555/test
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+
+  # 세션 설정
+  session:
+    timeout: 30m # 30분
+    cookie:
+      name: JSESSIONID
+      http-only: true
+      secure: false # HTTPS 사용 시 true로 변경
+
+# 서버 설정
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+# 로깅 설정
+logging:
+  level:
+    project.stylo: DEBUG
+    org.springframework.security: DEBUG
+
+# MinIO 설정
+minio:
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+  accessKey: ${MINIO_ACCESS_KEY:root}
+  secretKey: ${MINIO_SECRET_KEY:root1234}
+
+# Swagger 설정
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
