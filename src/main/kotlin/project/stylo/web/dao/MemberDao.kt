@@ -3,24 +3,46 @@ package project.stylo.web.dao
 import org.jooq.DSLContext
 import org.jooq.generated.tables.JMember
 import org.springframework.stereotype.Repository
+import project.stylo.common.exception.BaseException
+import project.stylo.common.exception.BaseExceptionType
 import project.stylo.web.domain.Member
+import project.stylo.web.domain.enums.MemberRole
 
 @Repository
 class MemberDao(
     private val dsl: DSLContext
 ) {
-
     companion object {
         private val MEMBER = JMember.MEMBER
     }
 
-    fun findById(id: Long) = dsl
-        .selectFrom(MEMBER)
-        .where(MEMBER.MEMBER_ID.eq(id))
-        .fetchOneInto(Member::class.java)
+    fun existsByEmail(email: String): Boolean =
+        dsl.selectCount()
+            .from(MEMBER)
+            .where(MEMBER.EMAIL.eq(email))
+            .fetchOne(0, Int::class.java)!! > 0
 
-    fun findByEmail(email: String) = dsl
-        .selectFrom(MEMBER)
-        .where(MEMBER.EMAIL.eq(email))
-        .fetchOneInto(Member::class.java)
+    fun findById(id: Long) =
+        dsl.selectFrom(MEMBER)
+            .where(MEMBER.MEMBER_ID.eq(id))
+            .fetchOneInto(Member::class.java)
+
+    fun findByEmail(email: String) =
+        dsl.selectFrom(MEMBER)
+            .where(MEMBER.EMAIL.eq(email))
+            .fetchOneInto(Member::class.java)
+
+    fun save(member: Member): Member {
+        val id = dsl.insertInto(MEMBER)
+            .set(MEMBER.EMAIL, member.email)
+            .set(MEMBER.PASSWORD, member.password)
+            .set(MEMBER.NAME, member.name)
+            .set(MEMBER.ROLE, member.role.name)
+            .set(MEMBER.IS_TERM, member.isTerm)
+            .set(MEMBER.IS_MARKETING, member.isMarketing)
+            .returning(MEMBER.MEMBER_ID)
+            .fetchOneInto(Long::class.java)
+
+        return findById(id!!) ?: throw BaseException(BaseExceptionType.INTERNAL_SERVER_ERROR)
+    }
 }

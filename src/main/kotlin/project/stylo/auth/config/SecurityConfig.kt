@@ -33,36 +33,6 @@ class SecurityConfig(
             .sessionManagement { session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             }
-            .formLogin {
-                it.loginPage("/login")
-                    .loginProcessingUrl("/login")
-                    .usernameParameter("email")
-                    .passwordParameter("password")
-                    .successHandler { request, response, authentication ->
-                        response.sendRedirect("/")
-                    }
-                    .failureHandler { request, response, exception ->
-                        response.sendRedirect("/login?error=true")
-                    }
-                    .permitAll()
-            }
-            .rememberMe {
-                it.key("REMEMBER_ME_KEY")
-                    .rememberMeParameter("remember-me")
-                    .tokenValiditySeconds(60 * 60 * 24 * 14) // 14 days
-                    .alwaysRemember(false)
-                    .useSecureCookie(true) // HTTPS 환경에서만 쿠키 사용
-                    .userDetailsService(memberDetailsService)
-            }
-            .logout {
-                it.logoutSuccessUrl("/")
-                    .invalidateHttpSession(true)
-                    .deleteCookies("JSESSIONID")
-            }
-            .httpBasic { it.disable() }
-            .headers { it.frameOptions { config -> config.sameOrigin() } }
-            .userDetailsService(memberDetailsService)
-
             .authorizeHttpRequests {
                 it.requestMatchers(
                     "/",
@@ -74,10 +44,37 @@ class SecurityConfig(
                     "/favicon.ico",
                     "/swagger-ui/**",
                     "/api-docs/**",
+                    "/error"
                 ).permitAll()
                 it.requestMatchers("/admin/**").hasRole("ADMIN")
                 it.anyRequest().authenticated()
             }
+            .formLogin {
+                it.loginPage("/login")
+                    .loginProcessingUrl("/login")
+                    .usernameParameter("email")
+                    .passwordParameter("password")
+                    .defaultSuccessUrl("/", true)
+                    .failureUrl("/login?error=true")
+                    .permitAll()
+            }
+            .rememberMe {
+                it.key("REMEMBER_ME_KEY")
+                    .rememberMeParameter("remember-me")
+                    .tokenValiditySeconds(60 * 60 * 24 * 14) // 14 days
+                    .alwaysRemember(false)
+                    .useSecureCookie(false) // HTTPS 환경에서만 쿠키 사용
+                    .userDetailsService(memberDetailsService)
+            }
+            .logout {
+                it.logoutUrl("/logout")
+                it.logoutSuccessUrl("/")
+                it.invalidateHttpSession(true)
+                it.deleteCookies("JSESSIONID", "REMEMBER_ME")
+            }
+            .httpBasic { it.disable() }
+            .headers { it.frameOptions { config -> config.sameOrigin() } }
+            .userDetailsService(memberDetailsService)
             .build()
     }
 

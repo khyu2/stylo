@@ -21,7 +21,7 @@ class GlobalExceptionHandler {
         request: HttpServletRequest,
         redirectAttributes: RedirectAttributes
     ): String {
-        logger.error("오류가 발생했습니다: ${e.exceptionType.code} - ${e.exceptionType.message}")
+        logger.warn("오류가 발생했습니다: ${e.exceptionType.code} - ${e.exceptionType.message}")
 
         redirectAttributes.addFlashAttribute("error", e.exceptionType.message)
         val referer = request.getHeader("referer") ?: request.requestURI
@@ -31,13 +31,8 @@ class GlobalExceptionHandler {
     @ExceptionHandler(NoResourceFoundException::class)
     fun handleNoResourceFoundException(
         e: NoResourceFoundException,
-        request: HttpServletRequest,
-        redirectAttributes: RedirectAttributes
     ): String {
         logger.error("페이지를 찾을 수 없습니다: ${e.message}")
-
-        redirectAttributes.addFlashAttribute("error", "요청한 페이지를 찾을 수 없습니다.")
-        val referer = request.getHeader("referer") ?: request.requestURI
         return "not-found"
     }
 
@@ -47,7 +42,7 @@ class GlobalExceptionHandler {
         request: HttpServletRequest,
         redirectAttributes: RedirectAttributes
     ): String {
-        logger.error("알 수 없는 오류가 발생했습니다: ${e.message}", e)
+        logger.warn("알 수 없는 오류가 발생했습니다: ${e.message}", e)
 
         redirectAttributes.addFlashAttribute("error", "알 수 없는 오류가 발생했습니다. 관리자에게 문의해주세요.")
         val referer = request.getHeader("referer") ?: request.requestURI

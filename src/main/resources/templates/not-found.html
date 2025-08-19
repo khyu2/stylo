@@ -1,33 +1,35 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - 페이지를 찾을 수 없습니다 | Stylo</title>
-    <link rel="stylesheet" th:href="@{/css/output.css}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>페이지를 찾을 수 없습니다</title>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center">
-    <div class="max-w-md mx-auto text-center">
-        <div class="mb-8">
-            <div class="text-9xl font-bold text-primary-600 mb-4">404</div>
-            <h1 class="text-3xl font-bold text-gray-900 mb-4">페이지를 찾을 수 없습니다</h1>
-            <p class="text-gray-600 mb-8">
-                요청하신 페이지가 존재하지 않거나 이동되었을 수 있습니다.
-            </p>
-        </div>
-        
-        <div class="space-y-4">
-            <a href="/" class="btn btn-primary block w-full">
-                홈으로 돌아가기
-            </a>
-            <button onclick="history.back()" class="btn btn-secondary block w-full">
-                이전 페이지로
-            </button>
-        </div>
-        
-        <div class="mt-12 text-sm text-gray-500">
-            <p>문제가 지속되면 고객센터에 문의해주세요.</p>
+<body>
+    <div layout:fragment="content">
+        <div class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center">
+            <div class="max-w-md mx-auto text-center">
+                <div class="mb-8">
+                    <div class="text-9xl font-bold text-primary-600 mb-4">404</div>
+                    <h1 class="text-3xl font-bold text-gray-900 mb-4">페이지를 찾을 수 없습니다</h1>
+                    <p class="text-gray-600 mb-8">
+                        요청하신 페이지가 존재하지 않거나 이동되었을 수 있습니다.
+                    </p>
+                </div>
+                
+                <div class="space-y-4">
+                    <a href="/" class="btn btn-primary block w-full">
+                        홈으로 돌아가기
+                    </a>
+                    <button onclick="history.back()" class="btn btn-secondary block w-full">
+                        이전 페이지로
+                    </button>
+                </div>
+                
+                <div class="mt-12 text-sm text-gray-500">
+                    <p>문제가 지속되면 고객센터에 문의해주세요.</p>
+                </div>
+            </div>
         </div>
     </div>
 </body>

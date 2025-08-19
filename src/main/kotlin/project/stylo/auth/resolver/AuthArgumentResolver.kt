@@ -42,7 +42,7 @@ class AuthArgumentResolver : HandlerMethodArgumentResolver {
 
         val principal = authentication.principal
         if (principal !is MemberDetails) {
-            logger.error("인증된 사용자 정보가 CustomUserDetails 타입이 아닙니다: $principal")
+            logger.error("인증된 사용자 정보가 MemberDetails 타입이 아닙니다: $principal")
             throw BaseException(BaseExceptionType.UNAUTHORIZED)
         }
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ko">
 <head>
     <meta charset="UTF-8">
 </head>
@@ -26,39 +26,43 @@
                 
                 <!-- User Menu -->
                 <div class="flex items-center space-x-4">
-                    <!-- Search -->
-                    <div class="relative hidden md:block">
-                        <input type="text" placeholder="상품 검색..." 
-                               class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </div>
-                    </div>
-                    
                     <!-- Cart -->
-                    <a href="/cart" class="text-gray-500 hover:text-primary-600 transition-colors">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
-                        </svg>
+                    <a href="/cart" sec:authorize="isAuthenticated()" class="text-gray-500 hover:text-primary-600 transition-colors relative">
+                        <i data-lucide="shopping-cart" class="h-6 w-6"></i>
+                        <!-- Cart Badge -->
+                        <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
                     </a>
                     
                     <!-- User Menu (Guest) -->
-                    <div th:if="${#authentication.principal == 'anonymousUser'}" class="flex items-center space-x-2">
+                    <div sec:authorize="isAnonymous()" class="flex items-center space-x-2">
                         <a href="/login" class="btn btn-secondary text-sm">로그인</a>
                         <a href="/register" class="btn btn-primary text-sm">회원가입</a>
                     </div>
                     
                     <!-- User Menu (Logged in) -->
-                    <div th:unless="${#authentication.principal == 'anonymousUser'}" class="relative">
-                        <button class="flex items-center space-x-2 text-gray-700 hover:text-primary-600 transition-colors">
-                            <span th:text="${#authentication.principal.name}">사용자</span>
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
+                    <div sec:authorize="isAuthenticated()" class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" class="flex items-center space-x-2 text-gray-700 hover:text-primary-600 transition-colors">
+                            <span sec:authentication="principal.member.name">사용자</span>&nbsp;님
+                            <i data-lucide="chevron-down" class="h-4 w-4 transition-transform" :class="{ 'rotate-180': open }"></i>
                         </button>
-                        <!-- Dropdown menu would go here -->
+                        <!-- Dropdown menu -->
+                        <div x-show="open" 
+                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter-start="transform opacity-0 scale-95"
+                             x-transition:enter-end="transform opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-75"
+                             x-transition:leave-start="transform opacity-100 scale-100"
+                             x-transition:leave-end="transform opacity-0 scale-95"
+                             @click.away="open = false"
+                             class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+                            <div class="py-1">
+                                <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">프로필</a>
+                                <a href="/orders" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">주문 내역</a>
+                                <a href="/wishlist" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">위시리스트</a>
+                                <hr class="my-1 border-gray-200">
+                                <a href="/logout" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">로그아웃</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

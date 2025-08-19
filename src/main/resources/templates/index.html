@@ -1,18 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stylo - 패션 커머스</title>
-    <link rel="stylesheet" th:href="@{/css/output.css}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
-    <!-- Header -->
-    <header th:replace="~{layout/header :: header}"></header>
-    
-    <!-- Main Content -->
-    <main class="flex-grow">
+<body>
+    <div layout:fragment="content">
         <!-- Hero Section -->
         <div class="relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100">
             <div class="max-w-7xl mx-auto">
@@ -59,9 +52,7 @@
                     <div class="space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10">
                         <div class="relative">
                             <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white">
-                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                </svg>
+                                <i data-lucide="truck" class="h-6 w-6"></i>
                             </div>
                             <p class="ml-16 text-lg leading-6 font-medium text-gray-900">빠른 배송</p>
                             <p class="mt-2 ml-16 text-base text-gray-500">
@@ -71,9 +62,7 @@
 
                         <div class="relative">
                             <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white">
-                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <i data-lucide="shield-check" class="h-6 w-6"></i>
                             </div>
                             <p class="ml-16 text-lg leading-6 font-medium text-gray-900">품질 보장</p>
                             <p class="mt-2 ml-16 text-base text-gray-500">
@@ -83,9 +72,7 @@
 
                         <div class="relative">
                             <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white">
-                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                </svg>
+                                <i data-lucide="heart" class="h-6 w-6"></i>
                             </div>
                             <p class="ml-16 text-lg leading-6 font-medium text-gray-900">고객 만족</p>
                             <p class="mt-2 ml-16 text-base text-gray-500">
@@ -158,9 +145,6 @@
                 </div>
             </div>
         </div>
-    </main>
-    
-    <!-- Footer -->
-    <footer th:replace="~{layout/footer :: footer}"></footer>
+    </div>
 </body>
 </html>
