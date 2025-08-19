@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ? ${title} + ' - Stylo' : 'Stylo - 패션 커머스'">Stylo - 패션 커머스</title>
+    <link rel="stylesheet" th:href="@{/css/output.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <th:block th:replace="${head} ?: ~{}" />
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header th:replace="~{layout/header :: header}"></header>
+    
+    <!-- Main Content -->
+    <main class="flex-grow">
+        <th:block th:replace="${content}" />
+    </main>
+    
+    <!-- Footer -->
+    <footer th:replace="~{layout/footer :: footer}"></footer>
+    
+    <th:block th:replace="${scripts} ?: ~{}" />
+</body>
+</html>

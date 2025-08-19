@@ -89,8 +89,6 @@ class SecurityConfig(
             allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
             allowedHeaders = listOf("*")
             allowCredentials = true
-            addExposedHeader("Authorization")
-            addExposedHeader("Refresh-Authorization")
         }
 
         return UrlBasedCorsConfigurationSource().apply {
