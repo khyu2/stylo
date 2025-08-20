@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>프로필 - Stylo</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="bg-gray-50 min-h-screen">
+            <!-- Page Header -->
+            <div class="bg-white border-b border-gray-200">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="py-6">
+                        <h1 class="text-3xl font-bold text-gray-900">프로필</h1>
+                        <p class="mt-2 text-gray-600">개인정보와 배송지 정보를 관리하세요</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <!-- Flash Messages -->
+                <div th:if="${success}" class="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
+                    <div class="flex">
+                        <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mr-3"></i>
+                        <p class="text-sm text-green-800" th:text="${success}"></p>
+                    </div>
+                </div>
+                <div th:if="${error}" class="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+                    <div class="flex">
+                        <i data-lucide="alert-circle" class="w-5 h-5 text-red-400 mr-3"></i>
+                        <p class="text-sm text-red-800" th:text="${error}"></p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <!-- Sidebar -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6">
+                            <!-- Profile Photo Section -->
+                            <div class="text-center mb-6">
+                                <div class="relative inline-block">
+                                    <div class="w-20 h-20 lg:w-24 lg:h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                                        <img th:id="profileImage" th:if="${#authentication.principal.profileUrl}" th:src="${#authentication.principal.profileUrl}"
+                                             alt="프로필 사진" class="w-full h-full object-cover">
+                                        <i data-lucide="user" class="w-10 h-10 lg:w-12 lg:h-12 text-gray-400" th:unless="${#authentication.principal.profileUrl}"></i>
+                                    </div>
+                                    <button type="button" onclick="document.getElementById('profileImageInput').click()" 
+                                            class="absolute -bottom-1 -right-1 bg-primary-600 text-white rounded-full p-1.5 hover:bg-primary-700 transition-colors">
+                                        <i data-lucide="camera" class="w-3 h-3"></i>
+                                    </button>
+                                    <input type="file" id="profileImageInput" accept="image/*" class="hidden" onchange="uploadProfileImage(this)">
+                                </div>
+                                <h3 class="mt-3 text-base lg:text-lg font-semibold text-gray-900" sec:authentication="principal.member.name">사용자명</h3>
+                                <p class="text-sm text-gray-500" sec:authentication="principal.member.email">user@example.com</p>
+                            </div>
+
+                            <!-- Navigation -->
+                            <nav class="space-y-1">
+                                <a href="#profile" class="flex items-center px-3 py-2 text-sm font-medium text-primary-600 bg-primary-50 rounded-md">
+                                    <i data-lucide="user" class="w-4 h-4 mr-2"></i>
+                                    개인정보
+                                </a>
+                                <a href="#address" class="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-md transition-colors">
+                                    <i data-lucide="map-pin" class="w-4 h-4 mr-2"></i>
+                                    배송지 관리
+                                </a>
+                                <a href="#security" class="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-md transition-colors">
+                                    <i data-lucide="shield" class="w-4 h-4 mr-2"></i>
+                                    보안 설정
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <!-- Main Content -->
+                    <div class="lg:col-span-3 space-y-6">
+                        <!-- Profile Information -->
+                        <div id="profile" class="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <div class="px-4 lg:px-6 py-4 border-b border-gray-200">
+                                <h2 class="text-lg font-semibold text-gray-900">개인정보</h2>
+                                <p class="text-sm text-gray-600">기본적인 개인정보를 수정할 수 있습니다</p>
+                            </div>
+                            <div class="p-4 lg:p-6">
+                                <form th:action="@{/profile/update}" method="post" class="space-y-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+                                        <div>
+                                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">이름</label>
+                                            <input type="text" id="name" name="name" 
+                                                   th:value="${member.name}"
+                                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                        </div>
+                                        <div>
+                                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+                                            <input type="email" id="email" name="email" 
+                                                   th:value="${member.email}"
+                                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-end">
+                                        <button type="submit" class="btn btn-primary">정보 수정</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Address Management -->
+                        <div id="address" class="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <div class="px-4 lg:px-6 py-4 border-b border-gray-200">
+                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                                    <div>
+                                        <h2 class="text-lg font-semibold text-gray-900">배송지 관리</h2>
+                                        <p class="text-sm text-gray-600">배송지를 추가하고 관리할 수 있습니다</p>
+                                    </div>
+                                    <button class="btn btn-primary text-sm w-full sm:w-auto" onclick="openAddressModal()">
+                                        <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                                        배송지 추가
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="p-4 lg:p-6">
+                                <!-- Default Address -->
+                                <div class="mb-6">
+                                    <h3 class="text-md font-medium text-gray-900 mb-4">기본 배송지</h3>
+                                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                                            <div class="flex-1">
+                                                <div class="flex items-center mb-2">
+                                                    <span class="bg-primary-100 text-primary-800 text-xs font-medium px-2 py-1 rounded-full mr-2">기본</span>
+                                                    <span class="font-medium text-gray-900">홍길동</span>
+                                                </div>
+                                                <p class="text-gray-600 text-sm mb-1">010-1234-5678</p>
+                                                <p class="text-gray-600 text-sm">서울특별시 강남구 테헤란로 123, 456호 (우편번호: 06123)</p>
+                                            </div>
+                                            <div class="flex space-x-2">
+                                                <button class="text-gray-400 hover:text-primary-600 transition-colors">
+                                                    <i data-lucide="edit" class="w-4 h-4"></i>
+                                                </button>
+                                                <button class="text-gray-400 hover:text-red-600 transition-colors">
+                                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Other Addresses -->
+                                <div>
+                                    <h3 class="text-md font-medium text-gray-900 mb-4">추가 배송지</h3>
+                                    <div class="space-y-4">
+                                        <div class="border border-gray-200 rounded-lg p-4">
+                                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                                                <div class="flex-1">
+                                                    <div class="flex items-center mb-2">
+                                                        <span class="font-medium text-gray-900">김철수</span>
+                                                    </div>
+                                                    <p class="text-gray-600 text-sm mb-1">010-9876-5432</p>
+                                                    <p class="text-gray-600 text-sm">부산광역시 해운대구 해운대로 456, 789호 (우편번호: 48000)</p>
+                                                </div>
+                                                <div class="flex space-x-2">
+                                                    <button class="text-gray-400 hover:text-primary-600 transition-colors">
+                                                        <i data-lucide="edit" class="w-4 h-4"></i>
+                                                    </button>
+                                                    <button class="text-gray-400 hover:text-red-600 transition-colors">
+                                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security Settings -->
+                        <div id="security" class="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <div class="px-4 lg:px-6 py-4 border-b border-gray-200">
+                                <h2 class="text-lg font-semibold text-gray-900">보안 설정</h2>
+                                <p class="text-sm text-gray-600">비밀번호 변경 및 보안 설정을 관리합니다</p>
+                            </div>
+                            <div class="p-4 lg:p-6">
+                                <form th:action="@{/profile/change-password}" method="post" class="space-y-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+                                        <div>
+                                            <label for="currentPassword" class="block text-sm font-medium text-gray-700 mb-2">현재 비밀번호</label>
+                                            <input type="password" id="currentPassword" name="currentPassword" 
+                                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                        </div>
+                                        <div></div>
+                                        <div>
+                                            <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-2">새 비밀번호</label>
+                                            <input type="password" id="newPassword" name="newPassword" 
+                                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                        </div>
+                                        <div>
+                                            <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">새 비밀번호 확인</label>
+                                            <input type="password" id="confirmPassword" name="confirmPassword" 
+                                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-end">
+                                        <button type="submit" class="btn btn-primary">비밀번호 변경</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Address Modal -->
+        <div id="addressModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50" x-data="{ open: false }" x-show="open">
+            <div class="flex items-center justify-center min-h-screen p-4">
+                <div class="bg-white rounded-lg shadow-xl max-w-md w-full" @click.away="open = false">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">배송지 추가</h3>
+                    </div>
+                    <form class="p-6 space-y-4">
+                        <div>
+                            <label for="addressName" class="block text-sm font-medium text-gray-700 mb-2">배송지명</label>
+                            <input type="text" id="addressName" name="addressName" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        </div>
+                        <div>
+                            <label for="recipientName" class="block text-sm font-medium text-gray-700 mb-2">수령인</label>
+                            <input type="text" id="recipientName" name="recipientName" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        </div>
+                        <div>
+                            <label for="recipientPhone" class="block text-sm font-medium text-gray-700 mb-2">연락처</label>
+                            <input type="tel" id="recipientPhone" name="recipientPhone" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        </div>
+                        <div>
+                            <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-2">우편번호</label>
+                            <div class="flex space-x-2">
+                                <input type="text" id="postalCode" name="postalCode" 
+                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                <button type="button" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">검색</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="address1" class="block text-sm font-medium text-gray-700 mb-2">기본주소</label>
+                            <input type="text" id="address1" name="address1" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        </div>
+                        <div>
+                            <label for="address2" class="block text-sm font-medium text-gray-700 mb-2">상세주소</label>
+                            <input type="text" id="address2" name="address2" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="isDefault" name="isDefault" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                            <label for="isDefault" class="ml-2 block text-sm text-gray-700">기본 배송지로 설정</label>
+                        </div>
+                        <div class="flex justify-end space-x-3 pt-4">
+                            <button type="button" @click="open = false" class="btn btn-secondary">취소</button>
+                            <button type="submit" class="btn btn-primary">저장</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script layout:fragment="scripts">
+        function openAddressModal() {
+            const modal = document.getElementById('addressModal');
+            modal.classList.remove('hidden');
+        }
+
+        function closeAddressModal() {
+            const modal = document.getElementById('addressModal');
+            modal.classList.add('hidden');
+        }
+
+        function uploadProfileImage(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            fetch('/profile/upload-profile-image', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log(data);
+
+                    // 프로필 이미지 업데이트
+                    const profileImage = document.querySelector('#profileImage');
+                    if (profileImage) {
+                        profileImage.src = data.data;
+                    } else {
+                        // 이미지가 없었던 경우 새로 생성
+                        const imageContainer = document.querySelector('#profileImage');
+                        imageContainer.innerHTML = `<img src="${data.data}" alt="프로필 사진" class="w-full h-full object-cover">`;
+                    }
+                    
+                    // 성공 메시지 표시
+                    showMessage('프로필 이미지가 성공적으로 업로드되었습니다.', 'success');
+                } else {
+                    showMessage('프로필 이미지 업로드에 실패했습니다: ' + data.error, 'error');
+                }
+            })
+            .catch(error => {
+                showMessage('프로필 이미지 업로드 중 오류가 발생했습니다.', 'error');
+            });
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `mb-6 ${type === 'success' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} border rounded-md p-4`;
+            messageDiv.innerHTML = `
+                <div class="flex">
+                    <i data-lucide="${type === 'success' ? 'check-circle' : 'alert-circle'}" class="w-5 h-5 ${type === 'success' ? 'text-green-400' : 'text-red-400'} mr-3"></i>
+                    <p class="text-sm ${type === 'success' ? 'text-green-800' : 'text-red-800'}">${message}</p>
+                </div>
+            `;
+            
+            const container = document.querySelector('.max-w-7xl.mx-auto');
+            container.insertBefore(messageDiv, container.firstChild);
+            
+            // 5초 후 메시지 제거
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+
+        // Initialize Alpine.js for modal
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('addressModal', () => ({
+                open: false
+            }));
+        });
+    </script>
+</body>
+</html>

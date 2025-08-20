@@ -45,4 +45,14 @@ class MemberDao(
 
         return findById(id!!) ?: throw BaseException(BaseExceptionType.INTERNAL_SERVER_ERROR)
     }
+
+    fun updateProfileImage(id: Long, imageUrl: String): Member {
+        dsl.update(MEMBER)
+            .set(MEMBER.PROFILE_URL, imageUrl)
+            .where(MEMBER.MEMBER_ID.eq(id))
+            .returning(MEMBER.MEMBER_ID)
+            .execute()
+
+        return findById(id) ?: throw BaseException(BaseExceptionType.INTERNAL_SERVER_ERROR)
+    }
 }

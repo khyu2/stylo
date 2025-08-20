@@ -109,7 +109,7 @@ jooq {
                     }
                     generate.apply {
                         isDaos = false
-                        isRecords = true
+                        isRecords = false
                         isFluentSetters = true
                         isJavaTimeTypes = true
                         isDeprecated = false

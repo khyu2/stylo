@@ -11,6 +11,7 @@ data class Member(
     val role: MemberRole,
     val isTerm: Boolean = true,
     val isMarketing: Boolean = false,
+    val profileUrl: String? = null,
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,
     val deletedAt: LocalDateTime? = null

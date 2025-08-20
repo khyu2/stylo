@@ -30,7 +30,12 @@ data class BaseResponse<T>(
         }
 
         @JvmStatic
-        fun <T> success(message: String, data: T): BaseResponse<T> {
+        fun <T> success(message: String): BaseResponse<T> {
+            return BaseResponse(true, message)
+        }
+
+        @JvmStatic
+        fun <T> success(data: T, message: String): BaseResponse<T> {
             return BaseResponse(true, message, data)
         }
 
@@ -40,7 +45,7 @@ data class BaseResponse<T>(
         }
 
         @JvmStatic
-        fun <T> success(message: String, data: T, pagination: PaginationInfo): BaseResponse<T> {
+        fun <T> success(data: T, message: String, pagination: PaginationInfo): BaseResponse<T> {
             return BaseResponse(true, message, data, pagination)
         }
 
@@ -55,7 +60,7 @@ data class BaseResponse<T>(
         }
 
         @JvmStatic
-        fun <T> error(message: String, data: T): BaseResponse<T> {
+        fun <T> error(data: T, message: String): BaseResponse<T> {
             return BaseResponse(false, message, data)
         }
     }

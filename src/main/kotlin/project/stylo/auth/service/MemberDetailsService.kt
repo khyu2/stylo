@@ -6,16 +6,23 @@ import org.springframework.stereotype.Service
 import project.stylo.auth.service.dto.MemberDetails
 import project.stylo.common.exception.BaseException
 import project.stylo.common.exception.BaseExceptionType
+import project.stylo.common.s3.FileStorageService
 import project.stylo.web.dao.MemberDao
 
 @Service
 class MemberDetailsService(
-    private val memberDao: MemberDao
+    private val memberDao: MemberDao,
+    private val fileStorageService: FileStorageService
 ) : UserDetailsService {
-
     override fun loadUserByUsername(username: String): UserDetails {
         val member = memberDao.findByEmail(username)
             ?: throw BaseException(BaseExceptionType.BAD_CREDENTIALS)
+
+        member.profileUrl?.let { fileUrl ->
+            fileStorageService.getPresignedUrl(fileUrl)
+                .let { return MemberDetails(member, it) }
+        }
+
         return MemberDetails(member)
     }
 }
