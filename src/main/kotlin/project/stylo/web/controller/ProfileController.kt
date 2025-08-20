@@ -2,10 +2,13 @@ package project.stylo.web.controller
 
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import project.stylo.auth.resolver.Auth
-import project.stylo.common.response.BaseResponse
 import project.stylo.web.domain.Member
 import project.stylo.web.service.MemberService
 
@@ -23,22 +26,12 @@ class ProfileController(
 
 //    @PostMapping("/update")
 //    fun updateProfile(
-//        @AuthenticationPrincipal memberDetails: MemberDetails,
-//        @RequestParam name: String,
-//        @RequestParam email: String,
-
-//        @RequestParam phone: String?,
-//        @RequestParam birthDate: String?,
+//        @Auth member: Member,
+//        @ModelAttribute request: MemberUpdateRequest,
+//        bindingResult: BindingResult,
 //        redirectAttributes: RedirectAttributes
 //    ): String {
 //        try {
-//            memberService.updateProfile(
-//                memberId = memberDetails.member.id,
-//                name = name,
-//                email = email,
-//                phone = phone,
-//                birthDate = birthDate
-//            )
 //            redirectAttributes.addFlashAttribute("success", "프로필이 성공적으로 수정되었습니다.")
 //        } catch (e: Exception) {
 //            redirectAttributes.addFlashAttribute("error", "프로필 수정에 실패했습니다: ${e.message}")
@@ -73,14 +66,46 @@ class ProfileController(
 //    }
 
     @PostMapping("/upload-profile-image")
-    @ResponseBody
     fun uploadProfileImage(
         @Auth member: Member,
-        @RequestParam("image") image: MultipartFile
-    ): BaseResponse<String> =
-        BaseResponse.success(
-            memberService.uploadProfileImage(member, image),
-            "프로필 이미지가 성공적으로 업로드되었습니다."
-        )
+        @RequestParam("image") image: MultipartFile,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        memberService.uploadProfileImage(member, image)
+        redirectAttributes.addFlashAttribute("success", "프로필 이미지가 성공적으로 업로드되었습니다.")
+        return "redirect:/profile"
+    }
+
+    @PostMapping("/delete-profile-image")
+    fun deleteProfileImage(
+        @Auth member: Member,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        memberService.deleteProfileImage(member)
+        redirectAttributes.addFlashAttribute("success", "프로필 이미지가 성공적으로 삭제되었습니다.")
+        return "redirect:/profile"
+    }
+
+    @PostMapping("/add-address")
+    fun addAddress(
+        @Auth member: Member,
+        @RequestParam name: String,
+        @RequestParam recipientName: String,
+        @RequestParam phone: String,
+        @RequestParam postalCode: String,
+        @RequestParam address1: String,
+        @RequestParam address2: String,
+        @RequestParam(defaultValue = "false") isDefault: Boolean,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        return try {
+            // TODO: 배송지 저장 로직 구현
+            redirectAttributes.addFlashAttribute("success", "배송지가 성공적으로 저장되었습니다.")
+            "redirect:/profile"
+        } catch (e: Exception) {
+            redirectAttributes.addFlashAttribute("error", "배송지 저장에 실패했습니다: ${e.message}")
+            "redirect:/profile"
+        }
+    }
 
 }

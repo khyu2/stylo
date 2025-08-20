@@ -53,7 +53,7 @@ dependencies {
     jooqGenerator("org.jooq:jooq-meta:${jooqVersion}")
     jooqGenerator("org.postgresql:postgresql:42.7.3")
 
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    implementation("org.springframework.boot:spring-boot-devtools")
 
     // kotest
     testImplementation("io.kotest:kotest-runner-junit5:5.9.1")

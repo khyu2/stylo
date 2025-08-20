@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import project.stylo.common.exception.BaseException
 import project.stylo.common.s3.FileStorageService
+import project.stylo.common.utils.SecurityUtils
 import project.stylo.web.dao.MemberDao
 import project.stylo.web.domain.Member
 import project.stylo.web.domain.enums.ImageOwnerType
@@ -50,7 +51,25 @@ class MemberService(
         memberDao.updateProfileImage(member.memberId, fileUrl)
 
         // S3에서 파일의 presigned URL 생성
-        return fileStorageService.getPresignedUrl(fileUrl)
+        val profileUrl = fileStorageService.getPresignedUrl(fileUrl)
+
+        // SecurityContextHolder에 저장된 Member 객체의 프로필 URL 업데이트
+        SecurityUtils.updateProfileUrl(profileUrl)
+
+        return profileUrl
+    }
+
+    fun deleteProfileImage(member: Member) {
+        // 현재 프로필 이미지 URL 가져오기
+        val currentImageUrl = member.profileUrl ?: throw BaseException(MemberExceptionType.PROFILE_NOT_FOUND)
+
+        // 프로필 이미지 URL 업데이트
+        memberDao.updateProfileImage(member.memberId!!, null).also {
+            fileStorageService.delete(currentImageUrl)
+        }
+
+        // SecurityContextHolder에 저장된 Member 객체의 프로필 URL 업데이트
+        SecurityUtils.updateProfileUrl(null)
     }
 
 //    fun updateProfile(
