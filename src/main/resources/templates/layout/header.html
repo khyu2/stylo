@@ -8,28 +8,26 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
             <!-- Logo -->
-            <div class="flex items-center">
+            <div class="flex-1 flex items-center">
                 <a href="/" class="text-2xl font-bold text-primary-600 hover:text-primary-700 transition-colors">
                     Stylo
                 </a>
             </div>
 
             <!-- Navigation Menu -->
-            <div class="hidden md:block">
-                <div class="ml-10 flex items-baseline space-x-4">
-                    <a href="/"
-                       class="text-gray-900 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">홈</a>
-                    <a href="/products"
-                       class="text-gray-500 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">상품</a>
-                    <a href="/categories"
-                       class="text-gray-500 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">카테고리</a>
-                    <a href="/inquiry"
-                       class="text-gray-500 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">고객센터</a>
+            <div class="hidden md:flex flex-1 justify-center">
+                <div class="w-80 relative">
+                    <input type="text"
+                           placeholder="상품을 검색해보세요."
+                           class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm bg-gray-50 hover:bg-white transition-colors">
+                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                        <i data-lucide="search" class="h-4 w-4"></i>
+                    </span>
                 </div>
             </div>
 
             <!-- User Menu -->
-            <div class="flex items-center space-x-4">
+            <div class="flex-1 flex justify-end items-center space-x-4">
                 <!-- Cart -->
                 <a href="/cart" sec:authorize="isAuthenticated()"
                    class="text-gray-500 hover:text-primary-600 transition-colors relative">
@@ -45,7 +43,7 @@
                 </div>
 
                 <div sec:authorize="isAuthenticated()"
-                        class="w-8 h-8 lg:w-8 lg:h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                     class="w-8 h-8 lg:w-8 lg:h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                     <img th:id="profileImage"
                          th:src="${#authentication.principal.profileUrl != null ? #authentication.principal.profileUrl : '/default_profile.jpeg'}"
                          alt="프로필 사진" class="w-full h-full object-cover">
