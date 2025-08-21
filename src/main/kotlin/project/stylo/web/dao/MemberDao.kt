@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository
 import project.stylo.common.exception.BaseException
 import project.stylo.common.exception.BaseExceptionType
 import project.stylo.web.domain.Member
-import project.stylo.web.domain.enums.MemberRole
 
 @Repository
 class MemberDao(

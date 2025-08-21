@@ -32,8 +32,6 @@ class MinioFileStorageService(
     override fun upload(file: MultipartFile, ownerId: Long, ownerType: ImageOwnerType): String {
         val extension = file.contentType ?: throw BaseException(FileExceptionType.INVALID_FILE_NAME)
 
-        println("확장자 로그: $extension")
-
         // 확장자 검증
         if (extension.lowercase() !in ALLOWED_EXTENSIONS) {
             throw BaseException(FileExceptionType.INVALID_FILE_EXTENSION)
