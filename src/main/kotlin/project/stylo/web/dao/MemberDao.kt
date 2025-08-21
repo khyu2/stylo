@@ -6,11 +6,10 @@ import org.springframework.stereotype.Repository
 import project.stylo.common.exception.BaseException
 import project.stylo.common.exception.BaseExceptionType
 import project.stylo.web.domain.Member
+import java.time.LocalDateTime
 
 @Repository
-class MemberDao(
-    private val dsl: DSLContext
-) {
+class MemberDao(private val dsl: DSLContext) {
     companion object {
         private val MEMBER = JMember.MEMBER
     }
@@ -49,18 +48,21 @@ class MemberDao(
         dsl.update(MEMBER)
             .set(MEMBER.NAME, member.name)
             .set(MEMBER.IS_MARKETING, member.isMarketing)
+            .set(MEMBER.UPDATED_AT, LocalDateTime.now())
             .where(MEMBER.MEMBER_ID.eq(member.memberId))
             .execute()
 
     fun updatePassword(member: Member) =
         dsl.update(MEMBER)
             .set(MEMBER.PASSWORD, member.password)
+            .set(MEMBER.UPDATED_AT, LocalDateTime.now())
             .where(MEMBER.MEMBER_ID.eq(member.memberId))
             .execute()
 
     fun updateProfileImage(id: Long, imageUrl: String?): Member {
         dsl.update(MEMBER)
             .set(MEMBER.PROFILE_URL, imageUrl)
+            .set(MEMBER.UPDATED_AT, LocalDateTime.now())
             .where(MEMBER.MEMBER_ID.eq(id))
             .returning(MEMBER.MEMBER_ID)
             .execute()

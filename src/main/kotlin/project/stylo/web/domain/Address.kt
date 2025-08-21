@@ -8,5 +8,5 @@ data class Address(
     val address: String,
     val addressDetail: String? = null,
     val postalCode: String,
-    val isDefault: Boolean = false
+    val defaultAddress: Boolean = false
 )

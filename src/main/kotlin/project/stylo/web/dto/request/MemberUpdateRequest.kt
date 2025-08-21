@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size
 data class MemberUpdateRequest(
     val name: String? = null,
 
-    val isMarketing: Boolean? = null,
+    val isMarketing: Boolean? = false,
 
     val currentPassword: String? = null,
 

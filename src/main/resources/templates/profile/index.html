@@ -7,7 +7,7 @@
     <title>프로필 - Stylo</title>
 </head>
 <body>
-<div layout:fragment="content" x-data="profilePage()">
+<div layout:fragment="content">
     <div class="min-h-screen p-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- Flash Messages -->
@@ -28,7 +28,7 @@
                 <!-- Sidebar -->
                 <div class="lg:col-span-1">
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 lg:p-6">
-                        <!-- Profile Photo Section -->
+                        <!-- 프로필 이미지 -->
                         <div class="text-center mb-6">
                             <div class="relative inline-block">
                                 <div class="w-20 h-20 lg:w-24 lg:h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
@@ -37,23 +37,23 @@
                                          alt="프로필 사진" class="w-full h-full object-cover">
                                 </div>
                                 <!-- Camera Button -->
-                                <button type="button" @click="$refs.profileImageInput.click()"
+                                <button type="button" onclick="document.getElementById('profileImageInput').click()"
                                         class="absolute -bottom-1 -right-1 bg-blue-600 text-white rounded-full p-1.5 hover:bg-blue-700 transition-colors">
                                     <i data-lucide="camera" class="w-3 h-3"></i>
                                 </button>
                                 <!-- Delete Button -->
-                                <button type="button" @click="deleteProfileImage()"
+                                <button type="button" onclick="deleteProfileImage()"
                                         class="absolute -bottom-1 -right-6 bg-red-600 text-white rounded-full p-1.5 hover:bg-red-700 transition-colors"
                                         th:if="${#authentication.principal.profileUrl != null}">
                                     <i data-lucide="trash-2" class="w-3 h-3"></i>
                                 </button>
                                 <!-- Hidden forms for file upload and delete -->
-                                <form x-ref="uploadForm" action="/profile/upload-profile-image" method="post"
+                                <form id="uploadForm" action="/profile/upload-profile-image" method="post"
                                       enctype="multipart/form-data" class="hidden">
-                                    <input type="file" x-ref="profileImageInput" name="image" accept="image/*"
-                                           @change="uploadProfileImage($event)">
+                                    <input type="file" id="profileImageInput" name="image" accept="image/*"
+                                           onchange="uploadProfileImage(event)">
                                 </form>
-                                <form x-ref="deleteForm" action="/profile/delete-profile-image" method="post"
+                                <form id="deleteForm" action="/profile/delete-profile-image" method="post"
                                       class="hidden"></form>
                             </div>
                             <h3 class="mt-3 text-base lg:text-lg font-semibold text-gray-900"
@@ -64,21 +64,18 @@
 
                         <!-- Navigation -->
                         <nav class="space-y-1">
-                            <button @click="activeTab = 'profile'"
-                                    :class="activeTab === 'profile' ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'"
-                                    class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors w-full text-left">
+                            <button onclick="switchTab('profile')" data-tab-button="profile"
+                                    class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors w-full text-left text-blue-600 bg-blue-50">
                                 <i data-lucide="user" class="w-4 h-4 mr-2"></i>
                                 개인정보
                             </button>
-                            <button @click="activeTab = 'address'"
-                                    :class="activeTab === 'address' ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'"
-                                    class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors w-full text-left">
+                            <button onclick="switchTab('address')" data-tab-button="address"
+                                    class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors w-full text-left text-gray-600 hover:text-blue-600 hover:bg-gray-50">
                                 <i data-lucide="map-pin" class="w-4 h-4 mr-2"></i>
                                 배송지 관리
                             </button>
-                            <button @click="activeTab = 'security'"
-                                    :class="activeTab === 'security' ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'"
-                                    class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors w-full text-left">
+                            <button onclick="switchTab('security')" data-tab-button="security"
+                                    class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors w-full text-left text-gray-600 hover:text-blue-600 hover:bg-gray-50">
                                 <i data-lucide="shield" class="w-4 h-4 mr-2"></i>
                                 보안 설정
                             </button>
@@ -88,15 +85,8 @@
 
                 <!-- Main Content -->
                 <div class="lg:col-span-3">
-                    <!-- Profile Information -->
-                    <div x-show="activeTab === 'profile'"
-                         x-transition:enter="transition ease-out duration-300"
-                         x-transition:enter-start="opacity-0 transform translate-y-4"
-                         x-transition:enter-end="opacity-100 transform translate-y-0"
-                         x-transition:leave="transition ease-in duration-200"
-                         x-transition:leave-start="opacity-100 transform translate-y-0"
-                         x-transition:leave-end="opacity-0 transform translate-y-4"
-                         class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <!-- 개인정보 -->
+                    <div data-tab="profile" class="bg-white rounded-lg shadow-sm border border-gray-200">
                         <div class="px-4 lg:px-6 py-4 border-b border-gray-200">
                             <h2 class="text-lg font-semibold text-gray-900">개인정보</h2>
                             <p class="text-sm text-gray-600">기본적인 개인정보를 수정할 수 있습니다</p>
@@ -119,25 +109,26 @@
                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     </div>
                                 </div>
-                                
+
                                 <!-- 마케팅 수신 동의 -->
                                 <div class="border-t border-gray-200 pt-6">
                                     <h3 class="text-lg font-medium text-gray-900 mb-4">마케팅 정보 수신</h3>
                                     <div class="space-y-4">
                                         <div class="flex items-start">
                                             <div class="flex items-center h-5">
-                                                <input type="checkbox" id="isMarketing" name="isMarketing" 
+                                                <input type="checkbox" id="isMarketing" name="isMarketing"
                                                        th:checked="${member.isMarketing}"
                                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                                             </div>
                                             <div class="ml-3 text-sm">
-                                                <label for="isMarketing" class="font-medium text-gray-700">마케팅 정보 수신 동의</label>
+                                                <label for="isMarketing" class="font-medium text-gray-700">마케팅 정보 수신
+                                                    동의</label>
                                                 <p class="text-gray-500">새로운 상품, 할인 정보, 이벤트 소식을 이메일과 SMS로 받아보세요.</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="flex justify-end">
                                     <button type="submit"
                                             class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
@@ -148,76 +139,76 @@
                         </div>
                     </div>
 
-                    <!-- Address Management -->
-                    <div x-show="activeTab === 'address'"
-                         x-transition:enter="transition ease-out duration-300"
-                         x-transition:enter-start="opacity-0 transform translate-y-4"
-                         x-transition:enter-end="opacity-100 transform translate-y-0"
-                         x-transition:leave="transition ease-in duration-200"
-                         x-transition:leave-start="opacity-100 transform translate-y-0"
-                         x-transition:leave-end="opacity-0 transform translate-y-4"
-                         class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <!-- 배송지 관리 -->
+                    <div data-tab="address" class="bg-white rounded-lg shadow-sm border border-gray-200"
+                         style="display: none;">
                         <div class="px-4 lg:px-6 py-4 border-b border-gray-200">
                             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                                 <div>
                                     <h2 class="text-lg font-semibold text-gray-900">배송지 관리</h2>
                                     <p class="text-sm text-gray-600">배송지를 추가하고 관리할 수 있습니다</p>
                                 </div>
-                                <button class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm w-full sm:w-auto"
-                                        @click="openAddressModal()">
+                                <a href="#" onclick="openAddressModal()"
+                                   class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700
+                                   transition-colors text-sm w-full sm:w-auto inline-flex items-center justify-center">
                                     <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
                                     배송지 추가
-                                </button>
+                                </a>
                             </div>
                         </div>
                         <div class="p-4 lg:p-6">
-                            <!-- Default Address -->
-                            <div class="mb-6">
-                                <h3 class="text-md font-medium text-gray-900 mb-4">기본 배송지</h3>
-                                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <!-- 배송지가 없는 경우 -->
+                            <div th:if="${#lists.isEmpty(addresses)}" class="text-center py-8">
+                                <i data-lucide="map-pin" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
+                                <p class="text-gray-500 mb-4">등록된 배송지가 없습니다.</p>
+                                <a href="#" onclick="openAddressModal()"
+                                   class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors inline-flex items-center">
+                                    <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                                    첫 번째 배송지 추가
+                                </a>
+                            </div>
+
+                            <!-- 배송지 목록 -->
+                            <div th:if="${!#lists.isEmpty(addresses)}" class="space-y-4">
+                                <div th:each="address : ${addresses}"
+                                     th:classappend="${address.defaultAddress} ? 'bg-gray-50' : ''"
+                                     class="border border-gray-200 rounded-lg p-4">
                                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
                                         <div class="flex-1">
                                             <div class="flex items-center mb-2">
-                                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full mr-2">기본</span>
-                                                <span class="font-medium text-gray-900">홍길동</span>
+                                                <span th:if="${address.defaultAddress}"
+                                                    class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full mr-2">기본</span>
+                                                <span class="font-medium text-gray-900" th:text="${address.recipient}">수령인</span>
                                             </div>
-                                            <p class="text-gray-600 text-sm mb-1">010-1234-5678</p>
-                                            <p class="text-gray-600 text-sm">서울특별시 강남구 테헤란로 123, 456호 (우편번호: 06123)</p>
+                                            <p class="text-gray-600 text-sm mb-1" th:text="${address.phone}">연락처</p>
+                                            <p class="text-gray-600 text-sm">
+                                                <span th:text="${address.address}">주소</span>
+                                                <span th:if="${address.addressDetail != null}"
+                                                      th:text="', ' + ${address.addressDetail}">상세주소</span>
+                                                <span th:text="' (우편번호: ' + ${address.postalCode} + ')'">우편번호</span>
+                                            </p>
                                         </div>
                                         <div class="flex space-x-2">
-                                            <button class="text-gray-400 hover:text-blue-600 transition-colors">
+                                            <!-- 기본 배송지인 경우 별표 아이콘 표시 -->
+                                            <span th:if="${address.defaultAddress}" class="text-yellow-400"
+                                                  title="기본 배송지로 설정">
+                                                <i data-lucide="star" class="w-4 h-4 fill-yellow-400"></i>
+                                            </span>
+                                            <!-- 기본 배송지가 아닌 경우 기본 배송지 설정 버튼 표시 -->
+                                            <a th:unless="${address.defaultAddress}" href="#"
+                                               th:onclick="'setDefaultAddress(' + ${address.addressId} + ')'"
+                                               class="text-gray-400 hover:text-green-600 transition-colors"
+                                               title="기본 배송지로 설정">
+                                                <i data-lucide="star" class="w-4 h-4"></i>
+                                            </a>
+                                            <a href="#" th:onclick="'editAddress(' + ${address.addressId} + ')'"
+                                               class="text-gray-400 hover:text-blue-600 transition-colors">
                                                 <i data-lucide="edit" class="w-4 h-4"></i>
-                                            </button>
-                                            <button class="text-gray-400 hover:text-red-600 transition-colors">
+                                            </a>
+                                            <a href="#" th:onclick="'deleteAddress(' + ${address.addressId} + ')'"
+                                               class="text-gray-400 hover:text-red-600 transition-colors">
                                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Other Addresses -->
-                            <div>
-                                <h3 class="text-md font-medium text-gray-900 mb-4">추가 배송지</h3>
-                                <div class="space-y-4">
-                                    <div class="border border-gray-200 rounded-lg p-4">
-                                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-                                            <div class="flex-1">
-                                                <div class="flex items-center mb-2">
-                                                    <span class="font-medium text-gray-900">김철수</span>
-                                                </div>
-                                                <p class="text-gray-600 text-sm mb-1">010-9876-5432</p>
-                                                <p class="text-gray-600 text-sm">부산광역시 해운대구 해운대로 456, 789호 (우편번호:
-                                                    48000)</p>
-                                            </div>
-                                            <div class="flex space-x-2">
-                                                <button class="text-gray-400 hover:text-blue-600 transition-colors">
-                                                    <i data-lucide="edit" class="w-4 h-4"></i>
-                                                </button>
-                                                <button class="text-gray-400 hover:text-red-600 transition-colors">
-                                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                                </button>
-                                            </div>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -225,21 +216,16 @@
                         </div>
                     </div>
 
-                    <!-- Security Settings -->
-                    <div x-show="activeTab === 'security'"
-                         x-transition:enter="transition ease-out duration-300"
-                         x-transition:enter-start="opacity-0 transform translate-y-4"
-                         x-transition:enter-end="opacity-100 transform translate-y-0"
-                         x-transition:leave="transition ease-in duration-200"
-                         x-transition:leave-start="opacity-100 transform translate-y-0"
-                         x-transition:leave-end="opacity-0 transform translate-y-4"
-                         class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <!-- 보안 설정 -->
+                    <div data-tab="security" class="bg-white rounded-lg shadow-sm border border-gray-200"
+                         style="display: none;">
                         <div class="px-4 lg:px-6 py-4 border-b border-gray-200">
                             <h2 class="text-lg font-semibold text-gray-900">보안 설정</h2>
                             <p class="text-sm text-gray-600">비밀번호 변경 및 보안 설정을 관리합니다</p>
                         </div>
                         <div class="p-4 lg:p-6">
-                            <form th:action="@{/profile/change-password}" method="post" class="space-y-6" x-ref="passwordForm" @submit="validatePasswordForm($event)">
+                            <form th:action="@{/profile/change-password}" method="post" class="space-y-6"
+                                  id="passwordForm" onsubmit="validatePasswordForm(event)">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
                                     <div>
                                         <label for="currentPassword"
@@ -251,8 +237,9 @@
                                     <div>
                                         <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-2">새
                                             비밀번호</label>
-                                        <input type="password" id="newPassword" name="newPassword" required minlength="8" maxlength="20"
-                                               @input="checkPasswordMatch()"
+                                        <input type="password" id="newPassword" name="newPassword" required
+                                               minlength="8" maxlength="20"
+                                               oninput="checkPasswordMatch()"
                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                         <p class="text-xs text-gray-500 mt-1">8자 이상 20자 이하로 입력해주세요.</p>
                                     </div>
@@ -260,9 +247,11 @@
                                         <label for="confirmPassword"
                                                class="block text-sm font-medium text-gray-700 mb-2">새 비밀번호 확인</label>
                                         <input type="password" id="confirmPassword" name="confirmPassword" required
-                                               @input="checkPasswordMatch()"
+                                               oninput="checkPasswordMatch()"
                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                        <p x-show="passwordMismatch" class="text-xs text-red-500 mt-1">비밀번호가 일치하지 않습니다.</p>
+                                        <p id="passwordMismatch" class="text-xs text-red-500 mt-1"
+                                           style="display: none;">비밀번호가 일치하지
+                                            않습니다.</p>
                                     </div>
                                 </div>
                                 <div class="flex justify-end">
@@ -280,40 +269,28 @@
     </div>
 
     <!-- Address Modal -->
-    <div x-show="addressModalOpen"
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         class="fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex items-center justify-center p-4"
-         @click.away="closeAddressModal()"
-         @keydown.escape.window="closeAddressModal()">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full" @click.stop>
+    <div id="addressModal"
+         class="fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">배송지 추가</h3>
+                <h3 class="text-lg font-semibold text-gray-900" id="modalTitle">배송지 추가</h3>
             </div>
-            <form x-ref="addressForm" action="/profile/add-address" method="post" class="p-6 space-y-4">
+            <form id="addressForm" action="/profile/address" method="post" class="p-6 space-y-4"
+                  th:object="${addressRequest}">
                 <div>
-                    <label for="addressName" class="block text-sm font-medium text-gray-700 mb-2">배송지명</label>
-                    <input type="text" id="addressName" name="name" x-model="addressForm.name"
+                    <label for="recipient" class="block text-sm font-medium text-gray-700 mb-2">수령인</label>
+                    <input type="text" id="recipient" th:field="*{recipient}" required
                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div>
-                    <label for="recipientName" class="block text-sm font-medium text-gray-700 mb-2">수령인</label>
-                    <input type="text" id="recipientName" name="recipientName" x-model="addressForm.recipientName"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label for="recipientPhone" class="block text-sm font-medium text-gray-700 mb-2">연락처</label>
-                    <input type="tel" id="recipientPhone" name="phone" x-model="addressForm.phone"
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">연락처</label>
+                    <input type="tel" id="phone" th:field="*{phone}" required
                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div>
                     <label for="postalCode" class="block text-sm font-medium text-gray-700 mb-2">우편번호</label>
                     <div class="flex space-x-2">
-                        <input type="text" id="postalCode" name="postalCode" x-model="addressForm.postalCode"
+                        <input type="text" id="postalCode" th:field="*{postalCode}" required
                                class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <button type="button"
                                 class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
@@ -322,27 +299,28 @@
                     </div>
                 </div>
                 <div>
-                    <label for="address1" class="block text-sm font-medium text-gray-700 mb-2">기본주소</label>
-                    <input type="text" id="address1" name="address1" x-model="addressForm.address1"
+                    <label for="address" class="block text-sm font-medium text-gray-700 mb-2">기본주소</label>
+                    <input type="text" id="address" th:field="*{address}" required
                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div>
-                    <label for="address1" class="block text-sm font-medium text-gray-700 mb-2">상세주소</label>
-                    <input type="text" id="address2" name="address2" x-model="addressForm.address2"
+                    <label for="addressDetail" class="block text-sm font-medium text-gray-700 mb-2">상세주소</label>
+                    <input type="text" id="addressDetail" th:field="*{addressDetail}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div class="flex items-center">
-                    <input type="checkbox" id="isDefault" name="isDefault" x-model="addressForm.isDefault"
+                    <input type="checkbox" id="defaultAddress" th:field="*{defaultAddress}"
                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                    <label for="isDefault" class="ml-2 block text-sm text-gray-700">기본 배송지로 설정</label>
+                    <label for="defaultAddress" class="ml-2 block text-sm text-gray-700">기본 배송지로 설정</label>
                 </div>
                 <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" @click="closeAddressModal()"
+                    <button type="button" onclick="closeAddressModal()"
                             class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors">
                         취소
                     </button>
                     <button type="submit"
-                            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">저장
+                            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                        저장
                     </button>
                 </div>
             </form>
@@ -350,92 +328,154 @@
     </div>
 </div>
 
-<script layout:fragment="scripts">
-    function profilePage() {
-        return {
-            activeTab: 'profile', // 기본 탭
-            addressModalOpen: false,
-            passwordMismatch: false,
-            notification: {
-                show: false,
-                message: '',
-                type: 'success'
-            },
-            addressForm: {
-                name: '',
-                recipientName: '',
-                phone: '',
-                postalCode: '',
-                address1: '',
-                address2: '',
-                isDefault: false
-            },
+<script layout:fragment="scripts" th:inline="javascript">
+    const addresses = /*[[${addresses}]]*/ [];
 
-            openAddressModal() {
-                this.addressModalOpen = true;
-            },
+    // 탭 전환 함수
+    function switchTab(tabName) {
+        // 모든 탭 내용 숨기기
+        document.querySelectorAll('[data-tab]').forEach(tab => {
+            tab.style.display = 'none';
+        });
 
-            closeAddressModal() {
-                this.addressModalOpen = false;
-                this.resetAddressForm();
-            },
+        // 선택된 탭 내용 보이기
+        const selectedTab = document.querySelector(`[data-tab="${tabName}"]`);
+        if (selectedTab) {
+            selectedTab.style.display = 'block';
+        }
 
-            resetAddressForm() {
-                this.addressForm = {
-                    name: '',
-                    recipientName: '',
-                    phone: '',
-                    postalCode: '',
-                    address1: '',
-                    address2: '',
-                    isDefault: false
-                };
-            },
+        // 탭 버튼 스타일 업데이트
+        document.querySelectorAll('[data-tab-button]').forEach(button => {
+            button.classList.remove('text-blue-600', 'bg-blue-50');
+            button.classList.add('text-gray-600', 'hover:text-blue-600', 'hover:bg-gray-50');
+        });
 
-            submitAddress() {
-                // 배송지 저장 로직
-                console.log('배송지 저장:', this.addressForm);
-                // Form을 사용하여 서버로 직접 요청
-                this.$refs.addressForm.submit();
-                this.closeAddressModal();
-            },
-
-            uploadProfileImage(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-
-                // Form을 사용하여 서버로 직접 요청
-                this.$refs.uploadForm.submit();
-            },
-
-            deleteProfileImage() {
-                if (confirm('프로필 사진을 삭제하시겠습니까?')) {
-                    this.$refs.deleteForm.submit();
-                }
-            },
-
-            validatePasswordForm(event) {
-                const newPassword = document.getElementById('newPassword').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
-                
-                if (newPassword !== confirmPassword) {
-                    this.passwordMismatch = true;
-                    event.preventDefault();
-                    return false;
-                }
-                
-                this.passwordMismatch = false;
-                return true;
-            },
-
-            checkPasswordMatch() {
-                const newPassword = document.getElementById('newPassword').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
-                
-                this.passwordMismatch = !!(confirmPassword && newPassword !== confirmPassword);
-            }
+        const selectedButton = document.querySelector(`[data-tab-button="${tabName}"]`);
+        if (selectedButton) {
+            selectedButton.classList.remove('text-gray-600', 'hover:text-blue-600', 'hover:bg-gray-50');
+            selectedButton.classList.add('text-blue-600', 'bg-blue-50');
         }
     }
+
+    // 배송지 모달 관련 함수들
+    function openAddressModal() {
+        document.getElementById('addressModal').classList.remove('hidden');
+        resetAddressForm();
+    }
+
+    function closeAddressModal() {
+        document.getElementById('addressModal').classList.add('hidden');
+        resetAddressForm();
+    }
+
+    function resetAddressForm() {
+        document.getElementById('addressForm').reset();
+        document.getElementById('modalTitle').textContent = '배송지 추가';
+        document.getElementById('addressForm').action = '/profile/address';
+        document.querySelector('#addressForm button[type="submit"]').textContent = '저장';
+    }
+
+    function editAddress(addressId) {
+        const address = addresses.find(addr => addr.addressId === addressId);
+
+        if (address) {
+            // 폼 필드에 값 설정
+            document.getElementById('recipient').value = address.recipient;
+            document.getElementById('phone').value = address.phone;
+            document.getElementById('postalCode').value = address.postalCode;
+            document.getElementById('address').value = address.address;
+            document.getElementById('addressDetail').value = address.addressDetail || '';
+            document.getElementById('defaultAddress').checked = address.defaultAddress;
+
+            // 모달 제목과 액션 변경
+            document.getElementById('modalTitle').textContent = '배송지 수정';
+            document.getElementById('addressForm').action = `/profile/address/update/${addressId}`;
+            document.querySelector('#addressForm button[type="submit"]').textContent = '수정';
+
+            // 모달 열기
+            document.getElementById('addressModal').classList.remove('hidden');
+        }
+    }
+
+    function setDefaultAddress(addressId) {
+        if (confirm('이 배송지를 기본 배송지로 설정하시겠습니까?')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/profile/address/default/${addressId}`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    function deleteAddress(addressId) {
+        if (confirm('이 배송지를 삭제하시겠습니까?')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/profile/address/delete/${addressId}`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    // 비밀번호 확인 함수
+    function checkPasswordMatch() {
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const mismatchElement = document.getElementById('passwordMismatch');
+
+        if (confirmPassword && newPassword !== confirmPassword) {
+            mismatchElement.style.display = 'block';
+        } else {
+            mismatchElement.style.display = 'none';
+        }
+    }
+
+    function validatePasswordForm(event) {
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (newPassword !== confirmPassword) {
+            event.preventDefault();
+            alert('비밀번호가 일치하지 않습니다.');
+            return false;
+        }
+
+        return true;
+    }
+
+    // 프로필 이미지 관련 함수들
+    function uploadProfileImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        document.getElementById('uploadForm').submit();
+    }
+
+    function deleteProfileImage() {
+        if (confirm('프로필 사진을 삭제하시겠습니까?')) {
+            document.getElementById('deleteForm').submit();
+        }
+    }
+
+    // 페이지 로드 시 초기화
+    document.addEventListener('DOMContentLoaded', function () {
+        // 기본 탭 설정
+        switchTab('profile');
+
+        // 모달 외부 클릭 시 닫기
+        // document.getElementById('addressModal').addEventListener('click', function (e) {
+        //     if (e.target === this) {
+        //         closeAddressModal();
+        //     }
+        // });
+
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeAddressModal();
+            }
+        });
+    });
 </script>
 </body>
 </html>
