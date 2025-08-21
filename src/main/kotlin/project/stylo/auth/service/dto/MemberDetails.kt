@@ -5,7 +5,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import project.stylo.web.domain.Member
 
-data class MemberDetails(val member: Member, var profileUrl: String?) : UserDetails {
+data class MemberDetails(var member: Member, var profileUrl: String?) : UserDetails {
     constructor(member: Member) : this(member, null)
 
     override fun getAuthorities(): Collection<GrantedAuthority> =

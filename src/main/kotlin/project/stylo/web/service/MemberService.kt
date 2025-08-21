@@ -1,5 +1,6 @@
 package project.stylo.web.service
 
+import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -12,6 +13,7 @@ import project.stylo.web.domain.Member
 import project.stylo.web.domain.enums.ImageOwnerType
 import project.stylo.web.domain.enums.MemberRole
 import project.stylo.web.dto.request.MemberCreateRequest
+import project.stylo.web.dto.request.MemberUpdateRequest
 import project.stylo.web.dto.response.MemberResponse
 import project.stylo.web.exception.MemberExceptionType
 
@@ -37,6 +39,31 @@ class MemberService(
                 isMarketing = request.isMarketing ?: false
             )
         ).let(MemberResponse::from)
+    }
+
+    fun updateProfile(member: Member, request: MemberUpdateRequest) {
+        member.apply {
+            name = request.name ?: name
+            isMarketing = request.isMarketing ?: isMarketing
+        }
+
+        memberDao.update(member).also {
+            SecurityUtils.updateProfile(member)
+        }
+    }
+
+    fun updatePassword(member: Member, request: MemberUpdateRequest) {
+        if (!passwordEncoder.matches(request.currentPassword, member.password)) {
+            throw BaseException(MemberExceptionType.PASSWORD_MISMATCH)
+        }
+
+        member.apply {
+            password = passwordEncoder.encode(request.newPassword)
+        }
+
+        memberDao.updatePassword(member).also {
+            SecurityUtils.updateProfile(member)
+        }
     }
 
     // TODO: Fallback 처리 필요
@@ -71,48 +98,4 @@ class MemberService(
         // SecurityContextHolder에 저장된 Member 객체의 프로필 URL 업데이트
         SecurityUtils.updateProfileUrl(null)
     }
-
-//    fun updateProfile(
-//        memberId: Long,
-//        name: String,
-//        email: String,
-//        phone: String?,
-//        birthDate: String?
-//    ): MemberResponse {
-//        val member = getMemberById(memberId)
-//
-//        // 이메일 중복 체크 (자신의 이메일 제외)
-//        if (email != member.email && memberDao.existsByEmail(email)) {
-//            throw BaseException(MemberExceptionType.MEMBER_ALREADY_EXISTS)
-//        }
-//
-//        val updatedMember = member.copy(
-//            name = name,
-//            email = email,
-////            phone = phone,
-////            birthDate = birthDate?.let { LocalDate.parse(it) }
-//        )
-//
-//        return memberDao.save(updatedMember).let(MemberResponse::from)
-//    }
-
-//    fun changePassword(
-//        memberId: Long,
-//        currentPassword: String,
-//        newPassword: String
-//    ): MemberResponse {
-//        val member = getMemberById(memberId)
-//
-//        // 현재 비밀번호 확인
-//        if (!passwordEncoder.matches(currentPassword, member.password)) {
-//            throw BaseException(MemberExceptionType.INVALID_PASSWORD)
-//        }
-//
-//        val updatedMember = member.copy(
-//            password = passwordEncoder.encode(newPassword)
-//        )
-//
-//        return memberDao.save(updatedMember).let(MemberResponse::from)
-//    }
-
 }
