@@ -37,7 +37,7 @@ class SqlExecutor() : ExecuteListener {
 
     override fun executeEnd(ctx: ExecuteContext) {
         val elapsedTime = watch.split()
-        val elapsedTimeS = String.format("%.2f", elapsedTime / 1_000_000_000.0) // ns -> seconds
+        val elapsedTimeS = String.format("%.3f", elapsedTime / 1_000_000_000.0) // ns -> seconds
 
         if (elapsedTime > SLOW_QUERY_THRESHOLD_MS.toNanos()) {
             logger.warn("실행된 쿼리 중 ${SLOW_QUERY_THRESHOLD_MS.seconds}초가 지난 쿼리가 있습니다." +

@@ -2,6 +2,7 @@ package project.stylo.common.handler
 
 import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
@@ -34,6 +35,20 @@ class GlobalExceptionHandler {
     ): String {
         logger.error("페이지를 찾을 수 없습니다: ${e.message}")
         return "not-found"
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleValidationException(
+        e: MethodArgumentNotValidException,
+        request: HttpServletRequest,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        val errorMessage = e.bindingResult.fieldErrors.joinToString(", ") { "${it.defaultMessage}" }
+        logger.warn("유효성 검사 오류: $errorMessage")
+
+        redirectAttributes.addFlashAttribute("error", errorMessage)
+        val referer = request.getHeader("referer") ?: request.requestURI
+        return "redirect:$referer"
     }
 
     @ExceptionHandler(Exception::class)
