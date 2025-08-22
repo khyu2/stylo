@@ -39,9 +39,9 @@ class MemberDao(private val dsl: DSLContext) {
             .set(MEMBER.IS_TERM, member.isTerm)
             .set(MEMBER.IS_MARKETING, member.isMarketing)
             .returning(MEMBER.MEMBER_ID)
-            .fetchOneInto(Long::class.java)
+            .fetchOne(MEMBER.MEMBER_ID)!!
 
-        return findById(id!!) ?: throw BaseException(BaseExceptionType.INTERNAL_SERVER_ERROR)
+        return findById(id) ?: throw BaseException(BaseExceptionType.INTERNAL_SERVER_ERROR)
     }
 
     fun update(member: Member) =

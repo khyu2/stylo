@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import project.stylo.web.dto.request.MemberCreateRequest
 import project.stylo.web.service.MemberService
-import kotlin.math.log
 
 @Controller
 class AuthController(
