@@ -15,6 +15,7 @@ import project.stylo.web.domain.Member
 import project.stylo.web.domain.Product
 import project.stylo.web.domain.enums.ImageOwnerType
 import project.stylo.web.dto.request.ProductRequest
+import project.stylo.web.dto.response.PresignedUrlResponse
 import project.stylo.web.dto.response.ProductResponse
 import project.stylo.web.exception.ProductExceptionType
 import java.math.BigDecimal
@@ -64,7 +65,13 @@ class ProductService(
 
     @Cacheable(PRODUCT_CACHE, key = "#productId")
     @Transactional(readOnly = true)
-    fun getProductImages(productId: Long): List<String> = imageDao.findByProductId(productId)
+    fun getProductImages(productId: Long): List<PresignedUrlResponse> {
+        val imageUrls = imageDao.findAllByProductId(productId)
+        return imageUrls.map { imageUrl ->
+            val presignedUrl = fileStorageService.getPresignedUrl(imageUrl)
+            PresignedUrlResponse.from(presignedUrl)
+        }
+    }
 
     fun updateProduct(productId: Long, request: ProductRequest) {
         val product = productDao.findById(productId)

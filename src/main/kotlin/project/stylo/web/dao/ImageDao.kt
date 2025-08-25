@@ -19,10 +19,10 @@ class ImageDao(private val dsl: DSLContext) {
             .execute()
     }
 
-    fun findByProductId(productId: Long): List<String> =
+    fun findAllByProductId(productId: Long): List<String> =
         dsl.select(IMAGE.IMAGE_URL)
             .from(IMAGE)
-            .where(IMAGE.OWNER_TYPE.eq("PRODUCT"))
+            .where(IMAGE.OWNER_TYPE.eq(ImageOwnerType.PRODUCT.name))
             .and(IMAGE.OWNER_ID.eq(productId))
             .fetchInto(String::class.java)
 }

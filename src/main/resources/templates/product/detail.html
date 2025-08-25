@@ -39,12 +39,41 @@
             <!-- Product Details -->
             <div class="p-6">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Product Image Placeholder -->
-                    <div class="bg-gray-100 rounded-lg h-96 flex items-center justify-center overflow-hidden">
-                        <img th:id="thumbnailImage"
-                             th:src="${product.productUrl != null ? product.productUrl : '/default_product.jpeg'}"
-                             alt="상품 이미지"
-                             class="w-full h-full object-cover rounded-lg">
+                    <!-- Product Image Gallery -->
+                    <div class="space-y-4">
+                        <!-- Main Image -->
+                        <div class="bg-gray-100 rounded-lg h-96 flex items-center justify-center overflow-hidden">
+                            <img id="mainImage"
+                                 th:src="${product.productUrl != null ? product.productUrl : '/default_product.jpeg'}"
+                                 alt="상품 이미지"
+                                 class="w-full h-full object-cover rounded-lg transition-all duration-300">
+                        </div>
+
+                        <!-- Thumbnail Images -->
+                        <div th:if="${productImages != null and !productImages.isEmpty()}" class="space-y-3">
+                            <h3 class="text-sm font-medium text-gray-700">상품 이미지</h3>
+                            <div class="flex space-x-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                                <!-- Main product image thumbnail -->
+                                <div class="flex-shrink-0">
+                                    <img th:src="${product.productUrl != null ? product.productUrl : '/default_product.jpeg'}"
+                                         alt="메인 이미지"
+                                         onclick="changeMainImage(this.src)"
+                                         class="w-20 h-20 object-cover rounded-lg border-2 border-blue-500 cursor-pointer transition-all duration-200 hover:scale-105 active">
+                                </div>
+                                
+                                <!-- Additional product images -->
+                                <div th:each="image : ${productImages}" class="flex-shrink-0">
+                                    <img th:src="${image.url}" th:alt="'상품 이미지'"
+                                         onclick="changeMainImage(this.src, this)"
+                                         class="w-20 h-20 object-cover rounded-lg border-2 border-gray-200 cursor-pointer transition-all duration-200 hover:scale-105 hover:border-gray-300">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- No additional images message -->
+                        <div th:if="${productImages == null or productImages.isEmpty()}" class="text-center py-4">
+                            <p class="text-sm text-gray-500">추가 이미지가 없습니다.</p>
+                        </div>
                     </div>
 
                     <!-- Product Info -->
@@ -116,5 +145,32 @@
             </a>
         </div>
     </div>
+
+    <script>
+        function changeMainImage(src, clickedElement = null) {
+            // 메인 이미지 변경
+            const mainImage = document.getElementById('mainImage');
+            mainImage.src = src;
+            
+            // 모든 썸네일에서 active 클래스 제거
+            const thumbnails = document.querySelectorAll('img[onclick*="changeMainImage"]');
+            thumbnails.forEach(thumb => {
+                thumb.classList.remove('border-blue-500');
+                thumb.classList.add('border-gray-200');
+            });
+            
+            // 클릭된 썸네일에 active 클래스 추가
+            if (clickedElement) {
+                clickedElement.classList.remove('border-gray-200');
+                clickedElement.classList.add('border-blue-500');
+            } else {
+                // 메인 이미지 썸네일이 클릭된 경우
+                const mainThumbnail = document.querySelector('img[onclick*="changeMainImage"].border-blue-500');
+                if (mainThumbnail) {
+                    mainThumbnail.classList.add('border-blue-500');
+                }
+            }
+        }
+    </script>
 </body>
 </html>
