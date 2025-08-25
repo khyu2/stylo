@@ -42,8 +42,8 @@ class ProductService(
 
         productDao.updateThumbnail(product.productId, thumbnailUrl)
 
-        // 이미지 업로드 처리
-        uploadImages(product, request.images)
+        // 이미지 업로드 처리 (첫 번째 이미지는 썸네일로 사용했으므로 제외)
+        uploadImages(product, request.images.drop(1))
 
         val productUrl = fileStorageService.getPresignedUrl(thumbnailUrl!!)
 
