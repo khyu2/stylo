@@ -2,6 +2,7 @@ package project.stylo.common.handler
 
 import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
+import org.springframework.security.authorization.AuthorizationDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -49,6 +50,18 @@ class GlobalExceptionHandler {
         redirectAttributes.addFlashAttribute("error", errorMessage)
         val referer = request.getHeader("referer") ?: request.requestURI
         return "redirect:$referer"
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException::class)
+    fun handleAuthorizationDeniedException(
+        e: AuthorizationDeniedException,
+        request: HttpServletRequest,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        logger.warn("권한이 거부되었습니다: ${e.message}")
+
+        redirectAttributes.addFlashAttribute("error", "권한이 없습니다.")
+        return "redirect:/error"
     }
 
     @ExceptionHandler(Exception::class)
