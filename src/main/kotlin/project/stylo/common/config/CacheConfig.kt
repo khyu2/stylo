@@ -12,7 +12,8 @@ import java.time.Duration
 @EnableCaching
 class CacheConfig {
     companion object {
-        private const val CATEGORY_CACHE = "categoryCache"
+        const val CATEGORY_CACHE = "categoryCache"
+        const val PRODUCT_CACHE = "productCache"
     }
 
     @Bean
@@ -22,7 +23,7 @@ class CacheConfig {
             .maximumSize(1000)
             .recordStats()
 
-        val cacheManager = CaffeineCacheManager(CATEGORY_CACHE)
+        val cacheManager = CaffeineCacheManager(CATEGORY_CACHE, PRODUCT_CACHE)
         cacheManager.setCaffeine(caffeine)
         return cacheManager
     }

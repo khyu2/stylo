@@ -29,7 +29,7 @@ class MinioFileStorageService(
         )
     }
 
-    override fun upload(file: MultipartFile, ownerId: Long, ownerType: ImageOwnerType): String {
+    override fun upload(file: MultipartFile, ownerType: ImageOwnerType, ownerId: Long?): String {
         val extension = file.contentType ?: throw BaseException(FileExceptionType.INVALID_FILE_NAME)
 
         // 확장자 검증
@@ -39,7 +39,7 @@ class MinioFileStorageService(
 
         // 파일 이름 생성
         val uuid = UUID.randomUUID().toString().substring(0, 8)
-        val fileName = "${ownerType.name.lowercase()}/$ownerId/${uuid}.$extension"
+        val fileName = "${ownerType.name.lowercase()}/${ownerId?:"SYSTEM"}/${uuid}.$extension"
 
         try {
             minioClient.putObject(
@@ -110,8 +110,8 @@ class MinioFileStorageService(
         }
     }
 
-    override fun deleteAllByOwner(ownerId: Long, ownerType: ImageOwnerType) {
-        val prefix = "${ownerType.name.lowercase()}/$ownerId/"
+    override fun deleteAllByOwner(ownerType: ImageOwnerType, ownerId: Long?) {
+        val prefix = "${ownerType.name.lowercase()}/${ownerId?:"SYSTEM"}/"
 
         try {
             minioClient.listObjects(

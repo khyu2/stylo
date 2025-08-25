@@ -11,7 +11,7 @@ interface FileStorageService {
      * @param ownerType 파일 소유자의 타입 (예: MEMBER, PRODUCT 등)
      * @return 업로드된 파일의 URL
      */
-    fun upload(file: MultipartFile, ownerId: Long, ownerType: ImageOwnerType): String
+    fun upload(file: MultipartFile, ownerType: ImageOwnerType, ownerId: Long? = null): String
 
     /**
      * 파일 다운로드 메서드
@@ -39,5 +39,5 @@ interface FileStorageService {
      * @param ownerId 파일 소유자의 ID
      * @param ownerType 파일 소유자의 타입 (예: MEMBER, PRODUCT 등)
      */
-    fun deleteAllByOwner(ownerId: Long, ownerType: ImageOwnerType)
+    fun deleteAllByOwner(ownerType: ImageOwnerType, ownerId: Long?)
 }

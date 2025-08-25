@@ -26,11 +26,12 @@ class AddressDao(private val dsl: DSLContext) {
             .fetchInto(Address::class.java)
 
     fun existsDefaultAddress(memberId: Long): Boolean =
-        (dsl.selectCount()
-            .from(ADDRESS)
-            .where(ADDRESS.MEMBER_ID.eq(memberId))
-            .and(ADDRESS.DEFAULT_ADDRESS.eq(true))
-            .fetchOne(0, Long::class.java) ?: 0) > 0
+        dsl.fetchExists(
+            dsl.selectOne()
+                .from(ADDRESS)
+                .where(ADDRESS.MEMBER_ID.eq(memberId))
+                .and(ADDRESS.DEFAULT_ADDRESS.eq(true))
+        )
 
     fun resetDefaultAddress(memberId: Long) {
         dsl.update(ADDRESS)
@@ -75,7 +76,7 @@ class AddressDao(private val dsl: DSLContext) {
         return findById(address.addressId) ?: throw BaseException(BaseExceptionType.INTERNAL_SERVER_ERROR)
     }
 
-    fun deleteById(id: Long) =
+    fun delete(id: Long) =
         dsl.deleteFrom(ADDRESS)
             .where(ADDRESS.ADDRESS_ID.eq(id))
             .execute()
