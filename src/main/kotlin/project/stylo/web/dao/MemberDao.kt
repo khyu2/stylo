@@ -15,10 +15,11 @@ class MemberDao(private val dsl: DSLContext) {
     }
 
     fun existsByEmail(email: String): Boolean =
-        dsl.selectCount()
-            .from(MEMBER)
-            .where(MEMBER.EMAIL.eq(email))
-            .fetchOne(0, Int::class.java)!! > 0
+        dsl.fetchExists(
+            dsl.selectOne()
+                .from(MEMBER)
+                .where(MEMBER.EMAIL.eq(email))
+        )
 
     fun findById(id: Long) =
         dsl.selectFrom(MEMBER)

@@ -32,6 +32,7 @@ class MemberService(
             throw BaseException(MemberExceptionType.MEMBER_ALREADY_EXISTS)
         }
 
+        // 비밀번호 암호화
         return memberDao.save(
             Member(
                 email = request.email,
@@ -133,7 +134,7 @@ class MemberService(
         val address = addresses.find { it.addressId == addressId }
             ?: throw BaseException(MemberExceptionType.ADDRESS_NOT_FOUND)
 
-        addressDao.deleteById(addressId)
+        addressDao.delete(addressId)
 
         // 삭제한 주소가 기본 주소였다면, 남은 주소 중 첫 번째를 기본 주소로 설정
         if (address.defaultAddress) {
@@ -150,10 +151,10 @@ class MemberService(
         file: MultipartFile
     ): String {
         // S3 파일 업로드
-        val fileUrl = fileStorageService.upload(file, member.memberId!!, ImageOwnerType.MEMBER)
+        val fileUrl = fileStorageService.upload(file, ImageOwnerType.MEMBER, member.memberId)
 
         // 프로필 이미지 URL 업데이트
-        memberDao.updateProfileImage(member.memberId, fileUrl)
+        memberDao.updateProfileImage(member.memberId!!, fileUrl)
 
         // S3에서 파일의 presigned URL 생성
         val profileUrl = fileStorageService.getPresignedUrl(fileUrl)

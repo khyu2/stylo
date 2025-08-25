@@ -9,18 +9,16 @@ import project.stylo.web.service.CategoryService
 class HomeController(
     private val categoryService: CategoryService
 ) {
-
     @GetMapping
     fun home(model: Model): String {
-        val categories = categoryService.getAllCategories()
-        val genderOptions = categoryService.getAllGenderOptions()
-        val sizeOptions = categoryService.getAllSizeOptions()
-        val colorOptions = categoryService.getAllColorOptions()
-
-        model.addAttribute("categories", categories)
-        model.addAttribute("genderOptions", genderOptions)
-        model.addAttribute("sizeOptions", sizeOptions)
-        model.addAttribute("colorOptions", colorOptions)
+        mapOf(
+            "categories" to categoryService.getAllCategories(),
+            "genderOptions" to categoryService.getAllGenderOptions(),
+            "sizeOptions" to categoryService.getAllSizeOptions(),
+            "colorOptions" to categoryService.getAllColorOptions()
+        ).forEach { (key, value) ->
+            model.addAttribute(key, value)
+        }
 
         return "index"
     }

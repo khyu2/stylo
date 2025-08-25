@@ -9,7 +9,7 @@ data class MemberDetails(var member: Member, var profileUrl: String?) : UserDeta
     constructor(member: Member) : this(member, null)
 
     override fun getAuthorities(): Collection<GrantedAuthority> =
-        listOf(SimpleGrantedAuthority(member.role.name))
+        listOf(SimpleGrantedAuthority("ROLE_${member.role.name}"))
 
     override fun getUsername(): String = member.email
 

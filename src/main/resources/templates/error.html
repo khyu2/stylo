@@ -1,41 +1,41 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" 
+<html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/base}">
 <head>
     <title>서버 오류</title>
 </head>
 <body>
-    <div layout:fragment="content">
-        <div class="min-h-screen flex items-center justify-center">
-            <div class="max-w-md mx-auto text-center">
-                <div class="mb-8">
-                    <div class="text-9xl font-bold text-red-600 mb-4">500</div>
-                    <h1 class="text-3xl font-bold text-gray-900 mb-4">서버 오류가 발생했습니다</h1>
+<div layout:fragment="content">
+    <div class="min-h-screen flex items-center justify-center">
+        <div class="max-w-md mx-auto text-center">
+            <div class="mb-8">
+                <div class="text-9xl font-bold text-red-600 mb-4">500</div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">서버 오류가 발생했습니다</h1>
                     <p class="text-gray-600 mb-8">
-                        일시적인 서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.
-                    </p>
-                </div>
-                
-                <div class="space-y-4">
-                    <a href="/" class="btn btn-primary block w-full">
-                        홈으로 돌아가기
+                    일시적인 서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.
+                </p>
+            </div>
+
+            <div class="space-y-4">
+                <a href="/" class="btn btn-primary block w-full">
+                    홈으로 돌아가기
+                </a>
+                <button onclick="location.reload()" class="btn btn-secondary block w-full">
+                    페이지 새로고침
+                </button>
+            </div>
+
+            <div class="mt-12 text-sm text-gray-500">
+                <p>문제가 지속되면 고객센터에 문의해주세요.</p>
+                <p class="mt-2">
+                    <a href="/inquiry" class="text-primary-600 hover:text-primary-500 transition-colors">
+                        고객센터 문의하기
                     </a>
-                    <button onclick="location.reload()" class="btn btn-secondary block w-full">
-                        페이지 새로고침
-                    </button>
-                </div>
-                
-                <div class="mt-12 text-sm text-gray-500">
-                    <p>문제가 지속되면 고객센터에 문의해주세요.</p>
-                    <p class="mt-2">
-                        <a href="/inquiry" class="text-primary-600 hover:text-primary-500 transition-colors">
-                            고객센터 문의하기
-                        </a>
-                    </p>
-                </div>
+                </p>
             </div>
         </div>
     </div>
+</div>
 </body>
 </html>

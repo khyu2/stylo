@@ -94,9 +94,9 @@
                                     <label class="flex items-center cursor-pointer">
                                         <input type="checkbox"
                                                x-model="genderFilters"
-                                               th:value="${genderOption.genderId}"
+                                               th:value="${genderOption.optionId}"
                                                class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
-                                        <span class="ml-2 text-sm text-gray-600 select-none" th:text="${genderOption.name}"></span>
+                                        <span class="ml-2 text-sm text-gray-600 select-none" th:text="${genderOption.value}"></span>
                                     </label>
                                 </th:block>
                             </div>
@@ -110,9 +110,9 @@
                                     <label class="flex items-center cursor-pointer">
                                         <input type="checkbox"
                                                x-model="sizeFilters"
-                                               th:value="${sizeOption.sizeId}"
+                                               th:value="${sizeOption.optionId}"
                                                class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
-                                        <span class="ml-2 text-sm text-gray-600 select-none" th:text="${sizeOption.name}"></span>
+                                        <span class="ml-2 text-sm text-gray-600 select-none" th:text="${sizeOption.value}"></span>
                                     </label>
                                 </th:block>
                             </div>
@@ -126,11 +126,11 @@
                                     <label class="relative cursor-pointer">
                                         <input type="checkbox"
                                                x-model="colorFilters"
-                                               th:value="${colorOption.colorId}"
+                                               th:value="${colorOption.optionId}"
                                                class="sr-only peer">
                                         <div class="w-6 h-6 rounded-full border-2 border-gray-300 transition-all duration-200 peer-checked:border-primary-600 peer-checked:ring-2 peer-checked:ring-primary-200"
-                                             th:style="'background-color: ' + ${colorOption.hexCode}"
-                                             th:title="${colorOption.name}"></div>
+                                             th:style="'background-color: ' + ${colorOption.value}"
+                                             th:title="${colorOption.value}"></div>
                                         <div class="absolute inset-0 flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity duration-200">
                                             <i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>
                                         </div>

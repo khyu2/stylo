@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" 
+      lang="ko"
+      layout:decorate="~{layout/base}">
+<head>
+    <title th:text="${product.name}">상품 상세</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="max-w-6xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <!-- Product Header -->
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900" th:text="${product.name}">상품명</h1>
+                        <p class="text-gray-600 mt-2" th:text="${product.description ?: '상품 설명이 없습니다.'}">상품 설명</p>
+                    </div>
+                    
+                    <!-- Admin Actions -->
+                    <div sec:authorize="hasRole('ADMIN')" class="flex space-x-2">
+                        <a th:href="@{'/products/' + ${product.productId} + '/edit'}"
+                           class="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                            <i data-lucide="edit" class="h-4 w-4 inline mr-1"></i>수정
+                        </a>
+                        <form th:action="@{'/products/' + ${product.productId} + '/delete'}" method="post" class="inline">
+                            <button type="submit" 
+                                    onclick="return confirm('정말로 이 상품을 삭제하시겠습니까?')"
+                                    class="px-3 py-1 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
+                                <i data-lucide="trash-2" class="h-4 w-4 inline mr-1"></i>삭제
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Details -->
+            <div class="p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Product Image Placeholder -->
+                    <div class="bg-gray-100 rounded-lg h-96 flex items-center justify-center overflow-hidden">
+                        <img th:id="thumbnailImage"
+                             th:src="${product.productUrl != null ? product.productUrl : '/default_product.jpeg'}"
+                             alt="상품 이미지"
+                             class="w-full h-full object-cover rounded-lg">
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="space-y-6">
+                        <!-- Price -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex items-baseline space-x-2">
+                                <span class="text-3xl font-bold text-gray-900" 
+                                      th:text="${'₩' + #numbers.formatDecimal(product.price, 1, 'COMMA', 0, 'POINT')}">₩0</span>
+                            </div>
+                        </div>
+
+                        <!-- Stock Status -->
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-medium text-gray-700">재고:</span>
+                            <span th:if="${product.stock > 0}" 
+                                  class="text-sm text-green-600 font-medium" 
+                                  th:text="${product.stock + '개'}">재고 있음</span>
+                            <span th:if="${product.stock <= 0}" 
+                                  class="text-sm text-red-600 font-medium">품절</span>
+                        </div>
+
+                        <!-- Product Details -->
+                        <div class="space-y-4">
+                            <div class="border-t border-gray-200 pt-4">
+                                <h3 class="text-lg font-medium text-gray-900 mb-3">상품 정보</h3>
+                                <dl class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <dt class="text-sm text-gray-600">상품 ID</dt>
+                                        <dd class="text-sm font-medium text-gray-900" th:text="${product.productId}">-</dd>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <dt class="text-sm text-gray-600">등록일</dt>
+                                        <dd class="text-sm font-medium text-gray-900" 
+                                            th:text="${#temporals.format(product.createdAt, 'yyyy-MM-dd HH:mm')}">-</dd>
+                                    </div>
+                                    <div th:if="${product.updatedAt != null}" class="flex justify-between">
+                                        <dt class="text-sm text-gray-600">수정일</dt>
+                                        <dd class="text-sm font-medium text-gray-900" 
+                                            th:text="${#temporals.format(product.updatedAt, 'yyyy-MM-dd HH:mm')}">-</dd>
+                                    </div>
+                                </dl>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="space-y-3 pt-4">
+                            <button th:if="${product.stock > 0}"
+                                    class="w-full bg-primary-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
+                                <i data-lucide="shopping-cart" class="h-5 w-5 inline mr-2"></i>장바구니에 추가
+                            </button>
+                            <button th:if="${product.stock <= 0}"
+                                    disabled
+                                    class="w-full bg-gray-300 text-gray-500 py-3 px-4 rounded-lg font-medium cursor-not-allowed">
+                                품절
+                            </button>
+                            
+                            <button class="w-full bg-white text-primary-600 border border-primary-600 py-3 px-4 rounded-lg font-medium hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
+                                <i data-lucide="heart" class="h-5 w-5 inline mr-2"></i>위시리스트에 추가
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Home -->
+        <div class="mt-6">
+            <a href="/" 
+               class="inline-flex items-center text-sm text-gray-600 hover:text-primary-600 transition-colors">
+                <i data-lucide="arrow-left" class="h-4 w-4 mr-1"></i>
+                홈으로 돌아가기
+            </a>
+        </div>
+    </div>
+</body>
+</html>
