@@ -1,10 +1,12 @@
 package project.stylo.web.service
 
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
-import project.stylo.common.config.CacheConfig
 import project.stylo.common.config.CacheConfig.Companion.PRODUCT_CACHE
 import project.stylo.common.exception.BaseException
 import project.stylo.common.s3.FileStorageService
@@ -15,6 +17,7 @@ import project.stylo.web.domain.Member
 import project.stylo.web.domain.Product
 import project.stylo.web.domain.enums.ImageOwnerType
 import project.stylo.web.dto.request.ProductRequest
+import project.stylo.web.dto.request.ProductSearchRequest
 import project.stylo.web.dto.response.PresignedUrlResponse
 import project.stylo.web.dto.response.ProductResponse
 import project.stylo.web.exception.ProductExceptionType
@@ -71,6 +74,18 @@ class ProductService(
             val presignedUrl = fileStorageService.getPresignedUrl(imageUrl)
             PresignedUrlResponse.from(presignedUrl)
         }
+    }
+
+    @Transactional(readOnly = true)
+    fun getProducts(request: ProductSearchRequest, pageable: Pageable): Page<ProductResponse> {
+        val productPage = productDao.searchProducts(request, pageable)
+
+        val productResponses = productPage.content.map { product ->
+            val productUrl = product.thumbnailUrl?.let { fileStorageService.getPresignedUrl(it) }
+            ProductResponse.from(product, productUrl ?: "")
+        }
+
+        return PageImpl(productResponses, pageable, productPage.totalElements)
     }
 
     fun updateProduct(productId: Long, request: ProductRequest) {

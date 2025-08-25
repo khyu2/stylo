@@ -30,7 +30,7 @@ server:
 logging:
   level:
     project.stylo: DEBUG
-    org.springframework.security: INFO
+    org.springframework.security: DEBUG
     org.jooq.tools.LoggerListener: DEBUG
 
 # MinIO 설정

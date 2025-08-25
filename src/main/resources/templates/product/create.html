@@ -706,33 +706,33 @@
     }
 
     // 폼 제출 전 유효성 검사
-    document.querySelector('form').addEventListener('submit', function (e) {
-        const checkedOptions = document.querySelectorAll('input[type="checkbox"]:checked');
-        let hasError = false;
-
-        checkedOptions.forEach(option => {
-            const optionId = option.value;
-            const optionType = option.name.replace('s', ''); // genders -> gender
-            const stockInput = document.getElementById(`${optionType}-stock-${optionId}`);
-            const priceInput = document.getElementById(`${optionType}-price-${optionId}`);
-
-            if (stockInput && (!stockInput.value || stockInput.value < 0)) {
-                alert('선택된 옵션의 재고를 입력해주세요.');
-                hasError = true;
-                return;
-            }
-
-            if (priceInput && (!priceInput.value || priceInput.value < 0)) {
-                alert('선택된 옵션의 추가 가격을 입력해주세요.');
-                hasError = true;
-                return;
-            }
-        });
-
-        if (hasError) {
-            e.preventDefault();
-        }
-    });
+    // document.querySelector('form').addEventListener('submit', function (e) {
+    //     const checkedOptions = document.querySelectorAll('input[type="checkbox"]:checked');
+    //     let hasError = false;
+    //
+    //     checkedOptions.forEach(option => {
+    //         const optionId = option.value;
+    //         const optionType = option.name.replace('s', ''); // genders -> gender
+    //         const stockInput = document.getElementById(`${optionType}-stock-${optionId}`);
+    //         const priceInput = document.getElementById(`${optionType}-price-${optionId}`);
+    //
+    //         if (stockInput && (!stockInput.value || stockInput.value < 0)) {
+    //             alert('선택된 옵션의 재고를 입력해주세요.');
+    //             hasError = true;
+    //             return;
+    //         }
+    //
+    //         if (priceInput && (!priceInput.value || priceInput.value < 0)) {
+    //             alert('선택된 옵션의 추가 가격을 입력해주세요.');
+    //             hasError = true;
+    //             return;
+    //         }
+    //     });
+    //
+    //     if (hasError) {
+    //         e.preventDefault();
+    //     }
+    // });
 </script>
 </body>
 </html>

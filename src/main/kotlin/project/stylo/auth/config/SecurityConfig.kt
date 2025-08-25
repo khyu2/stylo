@@ -38,6 +38,7 @@ class SecurityConfig(
                     "/",
                     "/login",
                     "/register",
+                    "/products/*",
                     "/css/**",
                     "/js/**",
                     "/images/**",

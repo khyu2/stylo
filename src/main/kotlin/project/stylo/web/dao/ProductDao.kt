@@ -2,11 +2,19 @@ package project.stylo.web.dao
 
 import org.jooq.DSLContext
 import org.jooq.generated.tables.JProduct
+import org.jooq.generated.tables.JProductOption
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 import project.stylo.common.exception.BaseException
 import project.stylo.common.exception.BaseExceptionType
+import project.stylo.common.utils.JooqUtils.Companion.andIfNotNull
+import project.stylo.common.utils.JooqUtils.Companion.applySorting
+import project.stylo.common.utils.JooqUtils.Companion.likeIgnoreCaseIfNotBlank
 import project.stylo.web.domain.Product
 import project.stylo.web.dto.request.ProductRequest
+import project.stylo.web.dto.request.ProductSearchRequest
 import java.time.LocalDateTime
 
 @Repository
@@ -15,6 +23,7 @@ class ProductDao(
 ) {
     companion object {
         private val PRODUCT = JProduct.PRODUCT
+        private val PRODUCT_OPTION = JProductOption.PRODUCT_OPTION
     }
 
     fun save(memberId: Long, request: ProductRequest): Product {
@@ -78,4 +87,45 @@ class ProductDao(
             .and(PRODUCT.DELETED_AT.isNull)
             .execute()
 
+    fun searchProducts(request: ProductSearchRequest, pageable: Pageable): Page<Product> {
+        val baseQuery = dsl.select(PRODUCT.asterisk())
+            .from(PRODUCT)
+//            .join(PRODUCT_OPTION)
+//            .on(
+//                PRODUCT.PRODUCT_ID.eq(PRODUCT_OPTION.PRODUCT_ID)
+//                    .and(
+//                        request.genderIds.inIfNotEmpty(PRODUCT_OPTION.OPTION_ID)
+//                            .or(request.sizeIds.inIfNotEmpty(PRODUCT_OPTION.OPTION_ID))
+//                            .or(request.colorIds.inIfNotEmpty(PRODUCT_OPTION.OPTION_ID))
+//                    )
+//            )
+            .where(PRODUCT.DELETED_AT.isNull)
+            .and(request.categoryId.andIfNotNull { PRODUCT.CATEGORY_ID.eq(it) })
+            .and(
+                request.keyword.likeIgnoreCaseIfNotBlank(PRODUCT.NAME)
+                    .or(request.keyword.likeIgnoreCaseIfNotBlank(PRODUCT.DESCRIPTION))
+            )
+            .and(request.minPrice.andIfNotNull { PRODUCT.PRICE.greaterOrEqual(it) })
+            .and(request.maxPrice.andIfNotNull { PRODUCT.PRICE.lessOrEqual(it) })
+
+        // 전체 개수 조회
+        val totalCount = dsl.fetchCount(baseQuery)
+
+        // 정렬 적용
+        val sortedQuery = baseQuery.applySorting(pageable.sort) { property, isAscending ->
+            when (property) {
+                "name" -> if (isAscending) PRODUCT.NAME.asc() else PRODUCT.NAME.desc()
+                "price" -> if (isAscending) PRODUCT.PRICE.asc() else PRODUCT.PRICE.desc()
+                else -> if (isAscending) PRODUCT.CREATED_AT.asc() else PRODUCT.CREATED_AT.desc()
+            }
+        }
+
+        // 페이징 적용
+        val products = sortedQuery
+            .limit(pageable.pageSize)
+            .offset(pageable.offset)
+            .fetchInto(Product::class.java)
+
+        return PageImpl(products, pageable, totalCount.toLong())
+    }
 }
