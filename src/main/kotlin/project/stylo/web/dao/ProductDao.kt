@@ -90,15 +90,6 @@ class ProductDao(
     fun searchProducts(request: ProductSearchRequest, pageable: Pageable): Page<Product> {
         val baseQuery = dsl.select(PRODUCT.asterisk())
             .from(PRODUCT)
-//            .join(PRODUCT_OPTION)
-//            .on(
-//                PRODUCT.PRODUCT_ID.eq(PRODUCT_OPTION.PRODUCT_ID)
-//                    .and(
-//                        request.genderIds.inIfNotEmpty(PRODUCT_OPTION.OPTION_ID)
-//                            .or(request.sizeIds.inIfNotEmpty(PRODUCT_OPTION.OPTION_ID))
-//                            .or(request.colorIds.inIfNotEmpty(PRODUCT_OPTION.OPTION_ID))
-//                    )
-//            )
             .where(PRODUCT.DELETED_AT.isNull)
             .and(request.categoryId.andIfNotNull { PRODUCT.CATEGORY_ID.eq(it) })
             .and(
@@ -112,12 +103,16 @@ class ProductDao(
         val totalCount = dsl.fetchCount(baseQuery)
 
         // 정렬 적용
-        val sortedQuery = baseQuery.applySorting(pageable.sort) { property, isAscending ->
-            when (property) {
-                "name" -> if (isAscending) PRODUCT.NAME.asc() else PRODUCT.NAME.desc()
-                "price" -> if (isAscending) PRODUCT.PRICE.asc() else PRODUCT.PRICE.desc()
-                else -> if (isAscending) PRODUCT.CREATED_AT.asc() else PRODUCT.CREATED_AT.desc()
+        val sortedQuery = if (pageable.sort.isSorted) {
+            baseQuery.applySorting(pageable.sort) { property, isAscending ->
+                when (property) {
+                    "name" -> if (isAscending) PRODUCT.NAME.asc() else PRODUCT.NAME.desc()
+                    "price" -> if (isAscending) PRODUCT.PRICE.asc() else PRODUCT.PRICE.desc()
+                    else -> if (isAscending) PRODUCT.PRODUCT_ID.asc() else PRODUCT.PRODUCT_ID.desc()
+                }
             }
+        } else {
+            baseQuery.orderBy(PRODUCT.CREATED_AT.desc())
         }
 
         // 페이징 적용
