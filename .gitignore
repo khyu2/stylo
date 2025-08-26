@@ -6,6 +6,7 @@ build/
 !**/src/test/**/build/
 /src/generated/**
 caches/**
+output.css
 
 ### STS ###
 .apt_generated
