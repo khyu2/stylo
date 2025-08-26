@@ -7,97 +7,82 @@
 </head>
 <body>
 <div layout:fragment="content">
-    <div class="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-md w-full space-y-8">
-            <!-- Header -->
-            <div class="text-center">
-                <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
-                    로그인
-                </h2>
-                <p class="mt-2 text-sm text-gray-600">
-                    또는
-                    <a href="/register" class="font-medium text-primary-600 hover:text-primary-500 transition-colors">
-                        회원가입
-                    </a>
-                </p>
+    <div class="hero min-h-screen bg-base-200">
+        <div class="hero-content flex-col lg:flex-row-reverse">
+            <div class="text-center lg:text-left">
+                <h1 class="text-5xl font-bold">Stylo</h1>
+                <p class="py-6">최고의 패션 쇼핑 경험을 제공하는 Stylo에 오신 것을 환영합니다.</p>
             </div>
+            <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+                <div class="card-body">
+                    <h2 class="card-title text-2xl font-bold text-center w-full">로그인</h2>
+                    <p class="text-center text-sm opacity-70">
+                        또는
+                        <a href="/register" class="link link-primary">
+                            회원가입
+                        </a>
+                    </p>
 
-            <!-- Login Form -->
-            <div class="card">
-                <form th:action="@{/login}" method="post" class="space-y-6">
-                    <!-- Error Message -->
-                    <div th:if="${param.error}"
-                         class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-                        <div class="flex">
-                            <i data-lucide="alert-circle" class="h-5 w-5 text-red-400 mr-2"></i>
+                    <form th:action="@{/login}" method="post" class="space-y-4">
+                        <!-- Error Message -->
+                        <div th:if="${param.error}"
+                             class="alert alert-error">
+                            <i data-lucide="alert-circle" class="h-5 w-5"></i>
                             <span>이메일 또는 비밀번호가 올바르지 않습니다.</span>
                         </div>
-                    </div>
 
-                    <!-- Logout Message -->
-                    <div th:if="${param.logout}"
-                         class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
-                        <div class="flex">
-                            <i data-lucide="check-circle" class="h-5 w-5 text-green-400 mr-2"></i>
+                        <!-- Logout Message -->
+                        <div th:if="${param.logout}"
+                             class="alert alert-success">
+                            <i data-lucide="check-circle" class="h-5 w-5"></i>
                             <span>성공적으로 로그아웃되었습니다.</span>
                         </div>
-                    </div>
 
-                    <!-- Email Field -->
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700">
-                            이메일
-                        </label>
-                        <div class="mt-1">
+                        <!-- Email Field -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">이메일</span>
+                            </label>
                             <input id="email" name="email" type="email" required
-                                   class="input-field"
+                                   class="input input-bordered"
                                    placeholder="example@email.com"
                                    th:value="${email}">
                         </div>
-                    </div>
 
-                    <!-- Password Field -->
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700">
-                            비밀번호
-                        </label>
-                        <div class="mt-1">
+                        <!-- Password Field -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text">비밀번호</span>
+                            </label>
                             <input id="password" name="password" type="password" required
-                                   class="input-field"
+                                   class="input input-bordered"
                                    placeholder="비밀번호를 입력하세요">
                         </div>
-                    </div>
 
-                    <!-- Remember Me & Forgot Password -->
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <input id="remember-me" name="remember-me" type="checkbox"
-                                   class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
-                            <label for="remember-me" class="ml-2 block text-sm text-gray-900">
-                                로그인 상태 유지
+                        <!-- Remember Me & Forgot Password -->
+                        <div class="flex items-center justify-between">
+                            <label class="label cursor-pointer">
+                                <input id="remember-me" name="remember-me" type="checkbox"
+                                       class="checkbox checkbox-primary checkbox-sm">
+                                <span class="label-text ml-2">로그인 상태 유지</span>
                             </label>
-                        </div>
 
-                        <div class="text-sm">
                             <a href="/forgot-password"
-                               class="font-medium text-primary-600 hover:text-primary-500 transition-colors">
+                               class="label-text-alt link link-primary">
                                 비밀번호 찾기
                             </a>
                         </div>
-                    </div>
 
-                    <!-- Submit Button -->
-                    <div>
-                        <button type="submit"
-                                class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
-                                <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                                    <i data-lucide="log-in"
-                                       class="h-5 w-5 text-primary-500 group-hover:text-primary-400"></i>
-                                </span>
-                            로그인
-                        </button>
-                    </div>
-                </form>
+                        <!-- Submit Button -->
+                        <div class="form-control mt-6">
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                <i data-lucide="log-in" class="h-5 w-5"></i>
+                                로그인
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

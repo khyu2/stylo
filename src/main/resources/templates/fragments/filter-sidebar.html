@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="filter-sidebar" class="w-64 flex-shrink-0">
+    <form th:action="@{/}" method="get" id="filterForm">
+        <!-- Hidden inputs for current search params -->
+        <input type="hidden" name="page" value="0">
+        <input type="hidden" name="size" th:value="${size}">
+        <input type="hidden" name="keyword" th:value="${searchRequest?.keyword}">
+        <input type="hidden" name="categoryId" th:value="${currentCategoryId}">
+
+        <div class="card bg-base-200 p-6">
+            <h3 class="card-title text-lg mb-4">필터</h3>
+
+            <!-- Sort Options -->
+            <div class="mb-6">
+                <h4 class="text-sm font-medium mb-3">정렬</h4>
+                <div class="space-y-2 select-none">
+                    <select name="sort"
+                            class="select select-bordered select-sm w-full">
+                        <option value="createdAt,desc"
+                                th:selected="${pageable.sort.toString().contains('createdAt: DESC')}">
+                            최신순
+                        </option>
+                        <option value="name,asc"
+                                th:selected="${pageable.sort.toString().contains('name: ASC')}">
+                            이름순 (오름차순)
+                        </option>
+                        <option value="name,desc"
+                                th:selected="${pageable.sort.toString().contains('name: DESC')}">
+                            이름순 (내림차순)
+                        </option>
+                        <option value="price,asc"
+                                th:selected="${pageable.sort.toString().contains('price: ASC')}">
+                            가격순 (오름차순)
+                        </option>
+                        <option value="price,desc"
+                                th:selected="${pageable.sort.toString().contains('price: DESC')}">
+                            가격순 (내림차순)
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Price Range -->
+            <div class="mb-6">
+                <h4 class="text-sm font-medium mb-3">가격대</h4>
+                <div class="space-y-3 select-none">
+                    <div class="flex space-x-2">
+                        <input type="number"
+                               id="minPrice"
+                               name="minPrice"
+                               placeholder="최소가격"
+                               class="input input-bordered input-sm w-full">
+                        <span class="opacity-70 self-center">~</span>
+                        <input type="number"
+                               id="maxPrice"
+                               name="maxPrice"
+                               placeholder="최대가격"
+                               class="input input-bordered input-sm w-full">
+                    </div>
+                    <button type="button"
+                            id="priceFilterBtn"
+                            class="btn btn-primary btn-sm w-full">
+                        가격 필터 적용
+                    </button>
+                </div>
+            </div>
+
+            <!-- Gender -->
+            <div class="mb-6">
+                <h4 class="text-sm font-medium mb-3">성별</h4>
+                <div class="space-y-2 select-none">
+                    <th:block th:each="genderOption : ${genderOptions}">
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="checkbox"
+                                   name="genderIds"
+                                   th:value="${genderOption.optionId}"
+                                   class="checkbox checkbox-primary checkbox-sm">
+                            <span class="label-text" th:text="${genderOption.value}"></span>
+                        </label>
+                    </th:block>
+                </div>
+            </div>
+
+            <!-- Size -->
+            <div class="mb-6">
+                <h4 class="text-sm font-medium mb-3">사이즈</h4>
+                <div class="grid grid-cols-3 gap-2 select-none">
+                    <th:block th:each="sizeOption : ${sizeOptions}">
+                        <label class="label cursor-pointer justify-start gap-2">
+                            <input type="checkbox"
+                                   name="sizeIds"
+                                   th:value="${sizeOption.optionId}"
+                                   class="checkbox checkbox-primary checkbox-sm">
+                            <span class="label-text text-xs" th:text="${sizeOption.value}"></span>
+                        </label>
+                    </th:block>
+                </div>
+            </div>
+
+            <!-- Color -->
+            <div class="mb-6">
+                <h4 class="text-sm font-medium mb-3">색상</h4>
+                <div class="grid grid-cols-4 gap-2 select-none">
+                    <th:block th:each="colorOption : ${colorOptions}">
+                        <label class="relative cursor-pointer">
+                            <input type="checkbox"
+                                   name="colorIds"
+                                   th:value="${colorOption.optionId}"
+                                   class="sr-only peer">
+                            <div class="w-6 h-6 rounded-full border-2 border-base-300 transition-all duration-200 peer-checked:border-primary peer-checked:ring-2 peer-checked:ring-primary/20"
+                                 th:style="'background-color: ' + ${colorOption.value}"
+                                 th:title="${colorOption.value}"></div>
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity duration-200">
+                                <i data-lucide="check" class="w-4 h-4 stroke-[3] text-primary"></i>
+                            </div>
+                        </label>
+                    </th:block>
+                </div>
+            </div>
+
+            <!-- Apply All Filters Button -->
+            <button type="button"
+                    id="applyFiltersBtn"
+                    class="btn btn-primary w-full mb-3 select-none">
+                필터 적용
+            </button>
+
+            <!-- Clear Filters Button -->
+            <button type="button"
+                    id="clearFiltersBtn"
+                    class="btn btn-outline w-full select-none">
+                필터 초기화
+            </button>
+        </div>
+    </form>
+</div>
+</html>

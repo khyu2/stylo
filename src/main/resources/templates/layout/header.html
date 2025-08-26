@@ -4,94 +4,82 @@
     <meta charset="UTF-8">
 </head>
 <body>
-<nav th:fragment="header" class="bg-white shadow-sm border-b border-gray-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-            <!-- Logo -->
-            <div class="flex-1 flex items-center">
-                <a href="/" class="text-2xl font-bold text-primary-600 hover:text-primary-700 transition-colors">
-                    Stylo
-                </a>
-            </div>
+<nav th:fragment="header" class="navbar bg-base-100 shadow-sm border-b border-base-300">
+    <div class="navbar-start">
+        <!-- Logo -->
+        <a href="/" class="btn btn-ghost text-xl font-bold text-primary">
+            Stylo
+        </a>
+    </div>
 
-            <!-- User Menu -->
-            <div class="flex-1 flex justify-end items-center space-x-4">
-                <!-- Cart -->
-                <a href="/cart" sec:authorize="isAuthenticated()"
-                   class="relative flex items-center justify-center h-10 w-10 rounded-full hover:bg-gray-100">
-                    <!-- Cart Icon -->
-                    <i data-lucide="shopping-cart"
-                       class="h-5 w-5 text-gray-600 group-hover:text-primary-600"></i>
-
-                    <!-- Cart Badge -->
+    <div class="navbar-end">
+        <!-- Cart -->
+        <div class="dropdown dropdown-end" sec:authorize="isAuthenticated()">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+                <div class="indicator">
+                    <i data-lucide="shopping-cart" class="h-5 w-5"></i>
                     <span th:if="${cartItemCount > 0}"
                           th:text="${cartItemCount}"
-                          class="absolute -top-1.5 -right-1.5 text-[11px] font-semibold
-                     h-5 min-w-[20px] px-1 flex items-center justify-center
-                     rounded-full shadow-md bg-red-500 text-white">
+                          class="badge badge-sm indicator-item badge-primary">
                     </span>
-                </a>
-
-                <!-- User Menu (Guest) -->
-                <div sec:authorize="isAnonymous()" class="flex items-center space-x-2">
-                    <a href="/login" class="btn btn-secondary text-sm">로그인</a>
-                    <a href="/register" class="btn btn-primary text-sm">회원가입</a>
                 </div>
-
-                <div sec:authorize="isAuthenticated()"
-                     class="w-8 h-8 lg:w-8 lg:h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                    <img th:id="profileImage"
-                         th:src="${#authentication.principal.profileUrl != null ? #authentication.principal.profileUrl : '/default_profile.jpeg'}"
-                         alt="프로필 사진" class="w-full h-full object-cover">
-                </div>
-
-                <!-- User Menu (Logged in) -->
-                <div sec:authorize="isAuthenticated()" class="relative" x-data="{ open: false }">
-                    <button @click="open = !open"
-                            class="flex items-center space-x-2 text-gray-700 hover:text-primary-600 transition-colors">
-                        <span sec:authentication="principal.member.name">사용자</span>&nbsp;님
-                        <i data-lucide="chevron-down" class="h-4 w-4 transition-transform"
-                           :class="{ 'rotate-180': open }"></i>
-                    </button>
-                    <!-- Dropdown menu -->
-                    <div x-show="open"
-                         x-transition:enter="transition ease-out duration-100"
-                         x-transition:enter-start="transform opacity-0 scale-95"
-                         x-transition:enter-end="transform opacity-100 scale-100"
-                         x-transition:leave="transition ease-in duration-75"
-                         x-transition:leave-start="transform opacity-100 scale-100"
-                         x-transition:leave-end="transform opacity-0 scale-95"
-                         @click.away="open = false"
-                         class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
-                        <div class="py-1">
-                            <a href="/profile"
-                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">프로필</a>
-                            <a href="/orders"
-                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">주문
-                                내역</a>
-                            <a href="/wishlist"
-                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">위시리스트</a>
-
-                            <!-- Admin Menu -->
-                            <div sec:authorize="hasRole('ADMIN')">
-                                <hr class="my-1 border-gray-200">
-                                <a href="/products/create"
-                                   class="block px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 transition-colors">
-                                    <i data-lucide="plus" class="h-4 w-4 inline mr-2"></i>상품 등록
-                                </a>
-                                <a href="/admin/products"
-                                   class="block px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 transition-colors">
-                                    <i data-lucide="package" class="h-4 w-4 inline mr-2"></i>상품 관리
-                                </a>
-                            </div>
-
-                            <hr class="my-1 border-gray-200">
-                            <a href="/logout"
-                               class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">로그아웃</a>
-                        </div>
+            </div>
+            <div tabindex="0" class="mt-3 z-[1] card card-compact dropdown-content w-52 bg-base-100 shadow">
+                <div class="card-body">
+                    <span class="font-bold text-lg">장바구니</span>
+                    <span class="text-info">상품이 담겨있습니다</span>
+                    <div class="card-actions">
+                        <a href="/cart" class="btn btn-primary btn-block">장바구니 보기</a>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- User Menu (Guest) -->
+        <div sec:authorize="isAnonymous()" class="flex items-center gap-2 ml-4">
+            <a href="/login" class="btn btn-outline btn-sm">로그인</a>
+            <a href="/register" class="btn btn-primary btn-sm">회원가입</a>
+        </div>
+
+        <!-- User Menu (Logged in) -->
+        <div sec:authorize="isAuthenticated()" class="dropdown dropdown-end ml-4">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                <div class="w-10 rounded-full">
+                    <img th:id="profileImage"
+                         th:src="${#authentication.principal.profileUrl != null ? #authentication.principal.profileUrl : '/default_profile.jpeg'}"
+                         alt="프로필 사진" />
+                </div>
+            </div>
+            <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                <li>
+                    <a class="justify-between">
+                        <span sec:authentication="principal.member.name">사용자</span>님
+                    </a>
+                </li>
+                <li><a href="/profile">프로필</a></li>
+                <li><a href="/orders">주문 내역</a></li>
+                <li><a href="/wishlist">위시리스트</a></li>
+                
+                <!-- Admin Menu -->
+                <div sec:authorize="hasRole('ADMIN')">
+                    <li><div class="divider"></div></li>
+                    <li>
+                        <a href="/products/create" class="text-info">
+                            <i data-lucide="plus" class="h-4 w-4"></i>
+                            상품 등록
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/products" class="text-info">
+                            <i data-lucide="package" class="h-4 w-4"></i>
+                            상품 관리
+                        </a>
+                    </li>
+                </div>
+                
+                <li><div class="divider"></div></li>
+                <li><a href="/logout" class="text-error">로그아웃</a></li>
+            </ul>
         </div>
     </div>
 </nav>

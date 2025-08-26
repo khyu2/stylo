@@ -3,28 +3,29 @@
       layout:decorate="~{layout/base}">
 <head>
     <title>Stylo - 패션 커머스</title>
+    <script th:src="@{/js/filter-config.js}"></script>
+    <script th:src="@{/js/product-filter.js}" defer></script>
 </head>
 <body>
 <div layout:fragment="content">
     <!-- Main Category Section -->
-    <div class="bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-base-100">
+        <div class="container mx-auto px-4">
             <!-- Category Title -->
             <div class="text-center py-8">
-                <h1 class="text-4xl font-bold text-gray-900">신상 베스트</h1>
+                <h1 class="text-4xl font-bold">신상 베스트</h1>
             </div>
 
             <!-- Search Bar -->
             <div class="mb-6">
                 <form th:action="@{/}" method="get" class="max-w-md mx-auto">
-                    <div class="relative">
+                    <div class="join w-full">
                         <input type="text"
                                name="keyword"
                                th:value="${searchRequest?.keyword}"
                                placeholder="상품명을 검색하세요."
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-center">
-                        <button type="submit"
-                                class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                               class="input input-bordered join-item w-full text-center" />
+                        <button type="submit" class="btn btn-primary join-item">
                             <i data-lucide="search" class="w-5 h-5"></i>
                         </button>
                     </div>
@@ -32,327 +33,105 @@
             </div>
 
             <!-- Sub Category Navigation -->
-            <div class="flex justify-center space-x-8 border-b border-gray-200 pb-4">
+            <div class="tabs tabs-boxed justify-center mb-4">
                 <a href="?page=0&size=12"
-                   th:class="${currentCategoryId == null} 
-                             ? 'text-primary-600 font-medium border-b-2 border-primary-600 pb-2' 
-                             : 'text-gray-600 hover:text-primary-600 font-medium'"
+                   th:class="${currentCategoryId == null} ? 'tab tab-active' : 'tab'"
                    class="transition-all duration-200">전체</a>
                 <th:block th:each="category : ${categories}">
                     <a th:href="@{/(page=0,size=12,categoryId=${category.categoryId})}"
-                       th:class="${currentCategoryId != null and currentCategoryId == category.categoryId} 
-                                 ? 'text-primary-600 font-medium border-b-2 border-primary-600 pb-2' 
-                                 : 'text-gray-600 hover:text-primary-600 font-medium'"
+                       th:class="${currentCategoryId != null and currentCategoryId == category.categoryId} ? 'tab tab-active' : 'tab'"
                        class="transition-all duration-200"
                        th:text="${category.name}"></a>
                 </th:block>
             </div>
 
-            <!-- Main Content with Filter and Products -->
+            <!-- Left Sidebar Filter -->
             <div class="flex gap-8 py-8">
-                <!-- Left Sidebar Filter -->
-                <div class="w-64 flex-shrink-0">
-                    <form th:action="@{/}" method="get" id="filterForm">
-                        <!-- Hidden inputs for current search params -->
-                        <input type="hidden" name="page" value="0">
-                        <input type="hidden" name="size" th:value="${size}">
-                        <input type="hidden" name="keyword" th:value="${searchRequest?.keyword}">
-                        <input type="hidden" name="categoryId" th:value="${currentCategoryId}">
+                <div th:replace="~{fragments/filter-sidebar :: filter-sidebar}"></div>
 
-                        <div class="bg-gray-50 p-6 rounded-lg"
-                             x-data="{
-                                 priceFilters: [],
-                                 genderFilters: [],
-                                 sizeFilters: [],
-                                 colorFilters: [],
-                                 minPrice: '',
-                                 maxPrice: '',
-                                 clearAllFilters() {
-                                     this.priceFilters = [];
-                                     this.genderFilters = [];
-                                     this.sizeFilters = [];
-                                     this.colorFilters = [];
-                                     this.minPrice = '';
-                                     this.maxPrice = '';
-                                     // 모든 체크박스 해제
-                                     this.$el.querySelectorAll('input[type=checkbox]').forEach(checkbox => {
-                                         checkbox.checked = false;
-                                     });
-                                     // 폼 제출
-                                     document.getElementById('filterForm').submit();
-                                 },
-                                 applyFilters() {
-                                     // 필터 값들을 hidden input에 설정
-                                     const form = document.getElementById('filterForm');
-                                     
-                                     // 성별 필터
-                                     const genderInput = form.querySelector('input[name=genderIds]');
-                                     if (genderInput) genderInput.remove();
-                                     if (this.genderFilters.length > 0) {
-                                         const input = document.createElement('input');
-                                         input.type = 'hidden';
-                                         input.name = 'genderIds';
-                                         input.value = this.genderFilters.join(',');
-                                         form.appendChild(input);
-                                     }
-                                     
-                                     // 사이즈 필터
-                                     const sizeInput = form.querySelector('input[name=sizeIds]');
-                                     if (sizeInput) sizeInput.remove();
-                                     if (this.sizeFilters.length > 0) {
-                                         const input = document.createElement('input');
-                                         input.type = 'hidden';
-                                         input.name = 'sizeIds';
-                                         input.value = this.sizeFilters.join(',');
-                                         form.appendChild(input);
-                                     }
-                                     
-                                     // 색상 필터
-                                     const colorInput = form.querySelector('input[name=colorIds]');
-                                     if (colorInput) colorInput.remove();
-                                     if (this.colorFilters.length > 0) {
-                                         const input = document.createElement('input');
-                                         input.type = 'hidden';
-                                         input.name = 'colorIds';
-                                         input.value = this.colorFilters.join(',');
-                                         form.appendChild(input);
-                                     }
-                                     
-                                     // 가격 필터
-                                     const minPriceInput = form.querySelector('input[name=minPrice]');
-                                     if (minPriceInput) minPriceInput.remove();
-                                     if (this.minPrice) {
-                                         const input = document.createElement('input');
-                                         input.type = 'hidden';
-                                         input.name = 'minPrice';
-                                         input.value = this.minPrice;
-                                         form.appendChild(input);
-                                     }
-                                     
-                                     const maxPriceInput = form.querySelector('input[name=maxPrice]');
-                                     if (maxPriceInput) maxPriceInput.remove();
-                                     if (this.maxPrice) {
-                                         const input = document.createElement('input');
-                                         input.type = 'hidden';
-                                         input.name = 'maxPrice';
-                                         input.value = this.maxPrice;
-                                         form.appendChild(input);
-                                     }
-                                     
-                                     form.submit();
-                                 }
-                             }">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">필터</h3>
+                <!-- Right Side Products Grid -->
+                <div class="flex-1">
+                    <!-- Products Count -->
+                    <div class="mb-4 text-sm opacity-70">
+                        총 <span th:text="${products.totalElements}">0</span>개의 상품
+                    </div>
 
-                            <!-- Sort Options -->
-                            <div class="mb-6">
-                                <h4 class="text-sm font-medium text-gray-700 mb-3">정렬</h4>
-                                <div class="space-y-2 select-none">
-                                    <select name="sort"
-                                            class="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:ring-1 focus:ring-primary-500">
-                                        <option value="createdAt,desc"
-                                                th:selected="${pageable.sort.toString().contains('createdAt: DESC')}">
-                                            최신순
-                                        </option>
-                                        <option value="name,asc"
-                                                th:selected="${pageable.sort.toString().contains('name: ASC')}">
-                                            이름순 (오름차순)
-                                        </option>
-                                        <option value="name,desc"
-                                                th:selected="${pageable.sort.toString().contains('name: DESC')}">
-                                            이름순 (내림차순)
-                                        </option>
-                                        <option value="price,asc"
-                                                th:selected="${pageable.sort.toString().contains('price: ASC')}">
-                                            가격순 (오름차순)
-                                        </option>
-                                        <option value="price,desc"
-                                                th:selected="${pageable.sort.toString().contains('price: DESC')}">
-                                            가격순 (내림차순)
-                                        </option>
-                                    </select>
+                    <!-- Products Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <th:block th:if="${#lists.isEmpty(products.content)}">
+                            <div class="col-span-full text-center py-12">
+                                <div class="opacity-50">
+                                    <i data-lucide="package" class="w-16 h-16 mx-auto mb-4"></i>
+                                    <p class="text-lg">상품이 없습니다.</p>
                                 </div>
                             </div>
-
-                            <!-- Price Range -->
-                            <div class="mb-6">
-                                <h4 class="text-sm font-medium text-gray-700 mb-3">가격대</h4>
-                                <div class="space-y-3 select-none">
-                                    <div class="flex space-x-2">
-                                        <input type="number"
-                                               x-model="minPrice"
-                                               placeholder="최소가격"
-                                               class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-primary-500">
-                                        <span class="text-gray-500 self-center">~</span>
-                                        <input type="number"
-                                               x-model="maxPrice"
-                                               placeholder="최대가격"
-                                               class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-primary-500">
-                                    </div>
-                                    <button type="button"
-                                            @click="applyFilters()"
-                                            class="w-full bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 transition-colors text-sm">
-                                        가격 필터 적용
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Gender -->
-                            <div class="mb-6">
-                                <h4 class="text-sm font-medium text-gray-700 mb-3">성별</h4>
-                                <div class="space-y-2 select-none">
-                                    <th:block th:each="genderOption : ${genderOptions}">
-                                        <label class="flex items-center cursor-pointer">
-                                            <input type="checkbox"
-                                                   x-model="genderFilters"
-                                                   th:value="${genderOption.optionId}"
-                                                   class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
-                                            <span class="ml-2 text-sm text-gray-600 select-none"
-                                                  th:text="${genderOption.value}"></span>
-                                        </label>
-                                    </th:block>
-                                </div>
-                            </div>
-
-                            <!-- Size -->
-                            <div class="mb-6">
-                                <h4 class="text-sm font-medium text-gray-700 mb-3">사이즈</h4>
-                                <div class="grid grid-cols-3 gap-2 select-none">
-                                    <th:block th:each="sizeOption : ${sizeOptions}">
-                                        <label class="flex items-center cursor-pointer">
-                                            <input type="checkbox"
-                                                   x-model="sizeFilters"
-                                                   th:value="${sizeOption.optionId}"
-                                                   class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
-                                            <span class="ml-2 text-sm text-gray-600 select-none"
-                                                  th:text="${sizeOption.value}"></span>
-                                        </label>
-                                    </th:block>
-                                </div>
-                            </div>
-
-                            <!-- Color -->
-                            <div class="mb-6">
-                                <h4 class="text-sm font-medium text-gray-700 mb-3">색상</h4>
-                                <div class="grid grid-cols-4 gap-2 select-none">
-                                    <th:block th:each="colorOption : ${colorOptions}">
-                                        <label class="relative cursor-pointer">
-                                            <input type="checkbox"
-                                                   x-model="colorFilters"
-                                                   th:value="${colorOption.optionId}"
-                                                   class="sr-only peer">
-                                            <div class="w-6 h-6 rounded-full border-2 border-gray-300 transition-all duration-200 peer-checked:border-primary-600 peer-checked:ring-2 peer-checked:ring-primary-200"
-                                                 th:style="'background-color: ' + ${colorOption.value}"
-                                                 th:title="${colorOption.value}"></div>
-                                            <div class="absolute inset-0 flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity duration-200">
-                                                <i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>
-                                            </div>
-                                        </label>
-                                    </th:block>
-                                </div>
-                            </div>
-
-                            <!-- Apply All Filters Button -->
-                            <button type="button"
-                                    @click="applyFilters()"
-                                    class="w-full select-none bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 transition-colors mb-3">
-                                필터 적용
-                            </button>
-
-                            <!-- Clear Filters Button -->
-                            <button type="button"
-                                    @click="clearAllFilters()"
-                                    class="w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors select-none">
-                                필터 초기화
-                            </button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Right Side Products Grid -->
-            <div class="flex-1">
-                <!-- Products Count -->
-                <div class="mb-4 text-sm text-gray-600">
-                    총 <span th:text="${products.totalElements}">0</span>개의 상품
-                </div>
-
-                <!-- Products Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    <th:block th:if="${#lists.isEmpty(products.content)}">
-                        <div class="col-span-full text-center py-12">
-                            <div class="text-gray-500">
-                                <i data-lucide="package" class="w-16 h-16 mx-auto mb-4"></i>
-                                <p class="text-lg">상품이 없습니다.</p>
-                            </div>
-                        </div>
-                    </th:block>
-
-                    <th:block th:each="product : ${products.content}">
-                        <div class="group relative">
-                            <a th:href="@{/products/{productId}(productId=${product.productId})}">
-                                <div class="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-200">
-                                    <img th:if="${product.productUrl != null and product.productUrl != ''}"
-                                         th:src="${product.productUrl}"
-                                         th:alt="${product.name}"
-                                         class="h-full w-full object-cover object-center group-hover:opacity-75">
-                                    <img th:unless="${product.productUrl != null and product.productUrl != ''}"
-                                         src="/static/default_product.jpeg"
-                                         th:alt="${product.name}"
-                                         class="h-full w-full object-cover object-center group-hover:opacity-75">
-                                </div>
-                                <div class="mt-4">
-                                    <h3 class="text-sm text-gray-700" th:text="${product.name}">상품명</h3>
-                                    <p class="mt-1 text-lg font-medium text-gray-900"
-                                       th:text="'₩' + ${#numbers.formatDecimal(product.price, 1, 'COMMA', 0, 'POINT')}">
-                                        ₩0</p>
-                                </div>
-                            </a>
-                        </div>
-                    </th:block>
-                </div>
-
-                <!-- Pagination -->
-                <div th:if="${products.totalPages > 1}" class="mt-12 flex justify-center">
-                    <nav class="flex items-center space-x-2">
-                        <!-- Previous Page -->
-                        <a th:if="${products.hasPrevious}"
-                           th:href="@{/(page=${currentPage - 1}, size=${size}, categoryId=${currentCategoryId}, keyword=${searchRequest?.keyword}, sort=${pageable.sort})}"
-                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">이전</a>
-                        <span th:unless="${products.hasPrevious}"
-                              class="px-3 py-2 text-sm font-medium text-gray-300 bg-gray-100 border border-gray-200 rounded-md cursor-not-allowed">이전</span>
-
-                        <!-- Page Numbers -->
-                        <th:block
-                                th:with="start=${currentPage - 2 < 0 ? 0 : currentPage - 2}, end=${currentPage + 2 > products.totalPages - 1 ? products.totalPages - 1 : currentPage + 2}">
-                            <th:block th:if="${start > 0}">
-                                <a th:href="@{/(page=0, size=${size}, categoryId=${currentCategoryId}, keyword=${searchRequest?.keyword}, sort=${pageable.sort})}"
-                                   class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">1</a>
-                                <span th:if="${start > 1}" class="px-2 text-gray-500">...</span>
-                            </th:block>
-
-                            <th:block th:each="pageNum : ${#numbers.sequence(start, end)}">
-                                <a th:href="@{/(page=${pageNum}, size=${size}, categoryId=${currentCategoryId}, keyword=${searchRequest?.keyword}, sort=${pageable.sort})}"
-                                   th:class="${pageNum == currentPage}
-                                                  ? 'px-3 py-2 text-sm font-medium text-white bg-primary-600 border border-primary-600 rounded-md' 
-                                                  : 'px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50'"
-                                   th:text="${pageNum + 1}"></a>
-                            </th:block>
-
-                            <th:block th:if="${end < products.totalPages - 1}">
-                                <span th:if="${end < products.totalPages - 2}" class="px-2 text-gray-500">...</span>
-                                <a th:href="@{/(page=${products.totalPages - 1}, size=${size}, categoryId=${currentCategoryId}, keyword=${searchRequest?.keyword}, sort=${pageable.sort})}"
-                                   class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-                                   th:text="${products.totalPages}"></a>
-                            </th:block>
                         </th:block>
 
-                        <!-- Next Page -->
-                        <a th:if="${products.hasNext}"
-                           th:href="@{/(page=${currentPage + 1}, size=${size}, categoryId=${currentCategoryId}, keyword=${searchRequest?.keyword}, sort=${pageable.sort})}"
-                           class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">다음</a>
-                        <span th:unless="${products.hasNext}"
-                              class="px-3 py-2 text-sm font-medium text-gray-300 bg-gray-100 border border-gray-200 rounded-md cursor-not-allowed">다음</span>
-                    </nav>
+                        <th:block th:each="product : ${products.content}">
+                            <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+                                <a th:href="@{/products/{productId}(productId=${product.productId})}">
+                                    <figure class="px-4 pt-4">
+                                        <img th:if="${product.productUrl != null and product.productUrl != ''}"
+                                             th:src="${product.productUrl}"
+                                             th:alt="${product.name}"
+                                             class="rounded-xl h-48 w-full object-cover" />
+                                        <img th:unless="${product.productUrl != null and product.productUrl != ''}"
+                                             src="/static/default_product.jpeg"
+                                             th:alt="${product.name}"
+                                             class="rounded-xl h-48 w-full object-cover" />
+                                    </figure>
+                                    <div class="card-body">
+                                        <h3 class="card-title text-sm" th:text="${product.name}">상품명</h3>
+                                        <p class="text-lg font-bold text-primary"
+                                           th:text="'₩' + ${#numbers.formatDecimal(product.price, 1, 'COMMA', 0, 'POINT')}">
+                                            ₩0</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </th:block>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div th:if="${products.totalPages > 1}" class="mt-12 flex justify-center">
+                        <div class="join">
+                            <!-- Previous Page -->
+                            <a th:if="${products.hasPrevious}"
+                               th:href="@{/(page=${currentPage - 1}, size=${size}, categoryId=${currentCategoryId}, keyword=${searchRequest?.keyword}, sort=${pageable.sort})}"
+                               class="join-item btn">이전</a>
+                            <button th:unless="${products.hasPrevious}"
+                                    class="join-item btn btn-disabled">이전</button>
+
+                            <!-- Page Numbers -->
+                            <th:block
+                                    th:with="start=${currentPage - 2 < 0 ? 0 : currentPage - 2}, end=${currentPage + 2 > products.totalPages - 1 ? products.totalPages - 1 : currentPage + 2}">
+                                <th:block th:if="${start > 0}">
+                                    <a th:href="@{/(page=0, size=${size}, categoryId=${currentCategoryId}, keyword=${searchRequest?.keyword}, sort=${pageable.sort})}"
+                                       class="join-item btn">1</a>
+                                    <button th:if="${start > 1}" class="join-item btn btn-disabled">...</button>
+                                </th:block>
+
+                                <th:block th:each="pageNum : ${#numbers.sequence(start, end)}">
+                                    <a th:href="@{/(page=${pageNum}, size=${size}, categoryId=${currentCategoryId}, keyword=${searchRequest?.keyword}, sort=${pageable.sort})}"
+                                       th:class="${pageNum == currentPage} ? 'join-item btn btn-active' : 'join-item btn'"
+                                       th:text="${pageNum + 1}"></a>
+                                </th:block>
+
+                                <th:block th:if="${end < products.totalPages - 1}">
+                                    <button th:if="${end < products.totalPages - 2}" class="join-item btn btn-disabled">...</button>
+                                    <a th:href="@{/(page=${products.totalPages - 1}, size=${size}, categoryId=${currentCategoryId}, keyword=${searchRequest?.keyword}, sort=${pageable.sort})}"
+                                       class="join-item btn"
+                                       th:text="${products.totalPages}"></a>
+                                </th:block>
+                            </th:block>
+
+                            <!-- Next Page -->
+                            <a th:if="${products.hasNext}"
+                               th:href="@{/(page=${currentPage + 1}, size=${size}, categoryId=${currentCategoryId}, keyword=${searchRequest?.keyword}, sort=${pageable.sort})}"
+                               class="join-item btn">다음</a>
+                            <button th:unless="${products.hasNext}"
+                                    class="join-item btn btn-disabled">다음</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
