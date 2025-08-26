@@ -7,7 +7,7 @@
 <nav th:fragment="header" class="navbar bg-base-100 shadow-sm border-b border-base-300">
     <div class="navbar-start">
         <!-- Logo -->
-        <a href="/" class="btn btn-ghost text-xl font-bold text-primary">
+        <a href="/" class="p-4 text-xl font-bold text-primary">
             Stylo
         </a>
     </div>
@@ -42,42 +42,38 @@
         </div>
 
         <!-- User Menu (Logged in) -->
-        <div sec:authorize="isAuthenticated()" class="dropdown dropdown-end ml-4">
-            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
-                <div class="w-10 rounded-full">
-                    <img th:id="profileImage"
-                         th:src="${#authentication.principal.profileUrl != null ? #authentication.principal.profileUrl : '/default_profile.jpeg'}"
-                         alt="프로필 사진" />
+        <div sec:authorize="isAuthenticated()" class="dropdown dropdown-end select-none">
+            <div tabindex="0" class="flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer">
+                <div class="avatar">
+                    <div class="w-10 rounded-full">
+                        <img th:id="profileImage"
+                             th:src="${#authentication.principal.profileUrl != null ? #authentication.principal.profileUrl : '/default_profile.jpeg'}"
+                             alt="프로필 사진" />
+                    </div>
                 </div>
+                <span sec:authentication="principal.member.name">사용자</span>님
+                <i data-lucide="chevron-down" class="h-4 w-4"></i>
             </div>
-            <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-                <li>
-                    <a class="justify-between">
-                        <span sec:authentication="principal.member.name">사용자</span>님
-                    </a>
-                </li>
-                <li><a href="/profile">프로필</a></li>
-                <li><a href="/orders">주문 내역</a></li>
-                <li><a href="/wishlist">위시리스트</a></li>
-                
+            <ul tabindex="0" class="menu dropdown-content mt-3 z-[1] p-2 shadow bg-white rounded-box w-52">
+                <li><a href="/profile"><i data-lucide="user" class="h-4 w-4"></i>프로필</a></li>
+                <li><a href="/orders"><i data-lucide="shopping-bag" class="h-4 w-4"></i>주문 내역</a></li>
+                <li><a href="/wishlist"><i data-lucide="heart" class="h-4 w-4"></i>위시리스트</a></li>
                 <!-- Admin Menu -->
                 <div sec:authorize="hasRole('ADMIN')">
-                    <li><div class="divider"></div></li>
                     <li>
-                        <a href="/products/create" class="text-info">
+                        <a href="/products/create" class="text-primary">
                             <i data-lucide="plus" class="h-4 w-4"></i>
                             상품 등록
                         </a>
                     </li>
                     <li>
-                        <a href="/admin/products" class="text-info">
+                        <a href="/admin/products" class="text-primary">
                             <i data-lucide="package" class="h-4 w-4"></i>
                             상품 관리
                         </a>
                     </li>
                 </div>
                 
-                <li><div class="divider"></div></li>
                 <li><a href="/logout" class="text-error">로그아웃</a></li>
             </ul>
         </div>
