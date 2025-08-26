@@ -68,8 +68,10 @@ class ProductController(
     fun showProduct(@PathVariable productId: Long, model: Model): String {
         val product = productService.getProduct(productId)
         val productImages = productService.getProductImages(productId)
+        val productOptions = productService.getProductOptions(productId)
         model.addAttribute("product", product)
         model.addAttribute("productImages", productImages)
+        model.addAttribute("productOptions", productOptions)
         return "product/detail"
     }
 

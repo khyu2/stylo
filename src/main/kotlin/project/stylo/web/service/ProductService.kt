@@ -77,6 +77,11 @@ class ProductService(
     }
 
     @Transactional(readOnly = true)
+    fun getProductOptions(productId: Long): List<Map<String, Any>> {
+        return productOptionDao.findProductOptionsWithDetails(productId)
+    }
+
+    @Transactional(readOnly = true)
     fun getProducts(request: ProductSearchRequest, pageable: Pageable): Page<ProductResponse> {
         val productPage = productDao.searchProducts(request, pageable)
 

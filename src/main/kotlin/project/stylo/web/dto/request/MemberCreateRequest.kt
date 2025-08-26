@@ -23,6 +23,6 @@ data class MemberCreateRequest(
 
     val isMarketing: Boolean? = false
 ) {
-    @AssertTrue(message = "비밀번호가 일치하지 않습니다.")
-    fun isPasswordMatching(): Boolean = password == confirmPassword
+    @get:AssertTrue(message = "비밀번호가 일치하지 않습니다.")
+    val passwordMatching: Boolean get() = password == confirmPassword
 }
