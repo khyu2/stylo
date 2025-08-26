@@ -27,7 +27,7 @@
                                     <div class="avatar">
                                         <div class="w-20 h-20 lg:w-24 lg:h-24 rounded-full">
                                             <img th:id="profileImage"
-                                                 th:src="${#authentication.principal.profileUrl != null ? #authentication.principal.profileUrl : '/default_profile.jpeg'}"
+                                                 th:src="${#authentication.principal.profileUrl != null ? #authentication.principal.profileUrl : '/images/default_profile.jpeg'}"
                                                  alt="프로필 사진">
                                         </div>
                                     </div>
@@ -353,6 +353,21 @@
             </div>
         </div>
     </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-box">
+            <div class="flex items-center gap-3 mb-4">
+                <i data-lucide="help-circle" class="w-6 h-6 text-warning"></i>
+                <h3 class="font-bold text-lg">확인</h3>
+            </div>
+            <p id="confirmMessage" class="mb-6"></p>
+            <div class="modal-action">
+                <button onclick="closeConfirmModal()" class="btn">취소</button>
+                <button onclick="confirmAction()" class="btn btn-primary">확인</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script layout:fragment="scripts" th:inline="javascript">
@@ -425,23 +440,23 @@
     }
 
     function setDefaultAddress(addressId) {
-        if (confirm('이 배송지를 기본 배송지로 설정하시겠습니까?')) {
+        showConfirmModal('이 배송지를 기본 배송지로 설정하시겠습니까?', function() {
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = `/profile/address/default/${addressId}`;
             document.body.appendChild(form);
             form.submit();
-        }
+        });
     }
 
     function deleteAddress(addressId) {
-        if (confirm('이 배송지를 삭제하시겠습니까?')) {
+        showConfirmModal('이 배송지를 삭제하시겠습니까?', function() {
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = `/profile/address/delete/${addressId}`;
             document.body.appendChild(form);
             form.submit();
-        }
+        });
     }
 
     // 비밀번호 확인 함수
@@ -494,9 +509,9 @@
     }
 
     function deleteProfileImage() {
-        if (confirm('프로필 사진을 삭제하시겠습니까?')) {
+        showConfirmModal('프로필 사진을 삭제하시겠습니까?', function() {
             document.getElementById('deleteForm').submit();
-        }
+        });
     }
 
     // 오류 모달 관련 함수들
@@ -507,6 +522,27 @@
 
     function closeErrorModal() {
         document.getElementById('errorModal').classList.remove('modal-open');
+    }
+
+    // 확인 모달 관련 함수들
+    let confirmCallback = null;
+
+    function showConfirmModal(message, callback) {
+        document.getElementById('confirmMessage').textContent = message;
+        confirmCallback = callback;
+        document.getElementById('confirmModal').classList.add('modal-open');
+    }
+
+    function closeConfirmModal() {
+        document.getElementById('confirmModal').classList.remove('modal-open');
+        confirmCallback = null;
+    }
+
+    function confirmAction() {
+        if (confirmCallback) {
+            confirmCallback();
+        }
+        closeConfirmModal();
     }
 
     // 페이지 로드 시 초기화
@@ -533,11 +569,18 @@
             }
         });
 
+        document.getElementById('confirmModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeConfirmModal();
+            }
+        });
+
         // ESC 키로 모달 닫기
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 closeAddressModal();
                 closeErrorModal();
+                closeConfirmModal();
             }
         });
     });

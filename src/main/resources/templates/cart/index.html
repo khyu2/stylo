@@ -40,7 +40,7 @@
                         <div th:each="item : ${cartItems}" class="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
                             <!-- Product Image -->
                             <div class="flex-shrink-0">
-                                <img th:src="${item.thumbnailUrl != null ? item.thumbnailUrl : '/default_product.jpeg'}"
+                                <img th:src="${item.thumbnailUrl != null ? item.thumbnailUrl : '/images/default_product.jpeg'}"
                                      th:alt="${item.name}"
                                      class="w-20 h-20 object-cover rounded-lg">
                             </div>

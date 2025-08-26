@@ -44,7 +44,7 @@
                         <!-- Main Image -->
                         <div class="bg-gray-100 rounded-lg h-96 flex items-center justify-center overflow-hidden">
                             <img id="mainImage"
-                                 th:src="${product.productUrl != null ? product.productUrl : '/default_product.jpeg'}"
+                                 th:src="${product.productUrl != null ? product.productUrl : '/images/default_product.jpeg'}"
                                  alt="상품 이미지"
                                  class="w-full h-full object-cover rounded-lg transition-all duration-300">
                         </div>
@@ -55,7 +55,7 @@
                             <div class="flex space-x-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                                 <!-- Main product image thumbnail -->
                                 <div class="flex-shrink-0">
-                                    <img th:src="${product.productUrl != null ? product.productUrl : '/default_product.jpeg'}"
+                                    <img th:src="${product.productUrl != null ? product.productUrl : '/images/default_product.jpeg'}"
                                          alt="메인 이미지"
                                          onclick="changeMainImage(this.src)"
                                          class="w-20 h-20 object-cover rounded-lg border-2 border-blue-500 cursor-pointer transition-all duration-200 hover:scale-105 active">
