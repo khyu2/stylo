@@ -58,10 +58,10 @@
                             </div>
 
                             <!-- Navigation -->
-                            <ul class="menu bg-base-100 rounded-box">
+                            <ul class="menu bg-base-100 rounded-box w-full">
                                 <li>
                                     <button onclick="switchTab('profile')" data-tab-button="profile"
-                                            class="menu-active w-full text-left">
+                                            class="w-full text-left">
                                         <i data-lucide="user" class="w-4 h-4 mr-2"></i>
                                         개인정보
                                     </button>
@@ -96,22 +96,22 @@
                         <div class="card-body">
                             <form th:action="@{/profile/update}" method="post" class="space-y-6">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-                                    <div class="form-control">
-                                        <label for="email" class="label">
+                                    <fieldset class="fieldset form-control">
+                                        <label for="email" class="label fieldset-legend">
                                             <span class="label-text">이메일</span>
                                         </label>
                                         <input type="email" id="email" name="email" disabled
                                                th:value="${member.email}"
                                                class="input input-bordered bg-base-200">
-                                    </div>
-                                    <div class="form-control">
-                                        <label for="name" class="label">
+                                    </fieldset>
+                                    <fieldset class="fieldset form-control">
+                                        <label for="name" class="label fieldset-legend">
                                             <span class="label-text">이름</span>
                                         </label>
                                         <input type="text" id="name" name="name"
                                                th:value="${member.name}"
                                                class="input input-bordered">
-                                    </div>
+                                    </fieldset>
                                 </div>
 
                                 <!-- 마케팅 수신 동의 -->
@@ -119,16 +119,14 @@
                                 <div>
                                     <h3 class="text-lg font-medium mb-4">마케팅 정보 수신</h3>
                                     <div class="form-control">
-                                        <label class="label cursor-pointer">
-                                            <span class="label-text">
-                                                <div>
-                                                    <div class="font-medium">마케팅 정보 수신 동의</div>
-                                                    <div class="text-sm opacity-70">새로운 상품, 할인 정보, 이벤트 소식을 이메일과 SMS로 받아보세요.</div>
-                                                </div>
+                                        <label class="cursor-pointer flex items-center">
+                                            <span>
+                                                <div class="font-medium">마케팅 정보 수신 동의</div>
+                                                <div class="text-sm opacity-70">새로운 상품, 할인 정보, 이벤트 소식을 이메일과 SMS로 받아보세요.</div>
                                             </span>
                                             <input type="checkbox" id="isMarketing" name="isMarketing"
                                                    th:checked="${member.isMarketing}"
-                                                   class="checkbox checkbox-primary">
+                                                   class="checkbox checkbox-primary ml-4">
                                         </label>
                                     </div>
                                 </div>
@@ -229,39 +227,38 @@
                         <div class="card-body">
                             <form th:action="@{/profile/change-password}" method="post" class="space-y-6"
                                   id="passwordForm" onsubmit="validatePasswordForm(event)">
+
+                                <!-- 현재 비밀번호 -->
+                                <fieldset class="fieldset form-control">
+                                    <label for="currentPassword" class="label fieldset-legend">
+                                        <span class="label-text">현재 비밀번호</span>
+                                    </label>
+                                    <input type="password" id="currentPassword" name="currentPassword" required
+                                           class="input input-bordered">
+                                </fieldset>
+
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-                                    <div class="form-control">
-                                        <label for="currentPassword" class="label">
-                                            <span class="label-text">현재 비밀번호</span>
-                                        </label>
-                                        <input type="password" id="currentPassword" name="currentPassword" required
-                                               class="input input-bordered">
-                                    </div>
-                                    <div></div>
-                                    <div class="form-control">
-                                        <label for="newPassword" class="label">
+                                    <fieldset class="fieldset form-control">
+                                        <label for="newPassword" class="label fieldset-legend">
                                             <span class="label-text">새 비밀번호</span>
                                         </label>
                                         <input type="password" id="newPassword" name="newPassword" required
-                                               minlength="8" maxlength="20"
-                                               oninput="checkPasswordMatch()"
                                                class="input input-bordered">
-                                        <label class="label">
-                                            <span class="label-text-alt">8자 이상 20자 이하로 입력해주세요.</span>
-                                        </label>
-                                    </div>
-                                    <div class="form-control">
-                                        <label for="confirmPassword" class="label">
-                                            <span class="label-text">새 비밀번호 확인</span>
+                                        <span class="label">8자 이상 20자 이하로 입력해주세요.</span>
+                                    </fieldset>
+
+                                    <fieldset class="fieldset form-control">
+                                        <label for="confirmPassword" class="label fieldset-legend">
+                                            <span class="label-text">비밀번호 확인</span>
                                         </label>
                                         <input type="password" id="confirmPassword" name="confirmPassword" required
-                                               oninput="checkPasswordMatch()"
-                                               class="input input-bordered">
+                                               class="input input-bordered" oninput="checkPasswordMatch()">
                                         <label id="passwordMismatch" class="label" style="display: none;">
                                             <span class="label-text-alt text-error">비밀번호가 일치하지 않습니다.</span>
                                         </label>
-                                    </div>
+                                    </fieldset>
                                 </div>
+
                                 <div class="flex justify-end">
                                     <button type="submit" class="btn btn-primary">
                                         비밀번호 변경
@@ -277,63 +274,142 @@
 
     <!-- Address Modal -->
     <div id="addressModal" class="modal">
-        <div class="modal-box">
-            <h3 class="font-bold text-lg" id="modalTitle">배송지 추가</h3>
-            <form id="addressForm" action="/profile/address" method="post" class="space-y-4"
+        <div class="modal-box max-w-2xl bg-gradient-to-br from-base-100 to-base-200 shadow-2xl">
+            <!-- Modal Header -->
+            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-base-300">
+                <div class="w-10 h-10 bg-primary text-primary-content rounded-full flex items-center justify-center">
+                    <i data-lucide="map-pin" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-xl text-base-content" id="modalTitle">배송지 추가</h3>
+                    <p class="text-sm opacity-70">배송지 정보를 입력해주세요</p>
+                </div>
+            </div>
+
+            <form id="addressForm" action="/profile/address" method="post" class="space-y-6"
                   th:object="${addressRequest}">
-                <div class="form-control">
-                    <label for="recipient" class="label">
-                        <span class="label-text">수령인</span>
-                    </label>
-                    <input type="text" id="recipient" th:field="*{recipient}" required
-                           class="input input-bordered">
-                </div>
-                <div class="form-control">
-                    <label for="phone" class="label">
-                        <span class="label-text">연락처</span>
-                    </label>
-                    <input type="tel" id="phone" th:field="*{phone}" required
-                           class="input input-bordered">
-                </div>
-                <div class="form-control">
-                    <label for="postalCode" class="label">
-                        <span class="label-text">우편번호</span>
-                    </label>
-                    <div class="flex space-x-2">
-                        <input type="text" id="postalCode" th:field="*{postalCode}" required
-                               class="input input-bordered flex-1">
-                        <button type="button" class="btn btn-outline">
-                            검색
-                        </button>
+
+                <!-- 수령인 정보 -->
+                <fieldset class="fieldset bg-base-100 rounded-lg border border-base-300 shadow-sm">
+                    <legend class="fieldset-legend flex items-center gap-2">
+                        <i data-lucide="user" class="w-4 h-4 text-primary"></i>
+                        <span>수령인 정보</span>
+                    </legend>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+                        <div class="form-control">
+                            <label for="recipient" class="label">
+                                <span class="label-text font-medium">수령인</span>
+                            </label>
+                            <div class="relative">
+                                <input type="text" id="recipient" th:field="*{recipient}" required
+                                       class="input input-bordered w-full pl-10 focus:input-primary transition-all duration-200"
+                                       placeholder="수령인 이름을 입력하세요">
+                                <i data-lucide="user"
+                                   class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 opacity-50"></i>
+                            </div>
+                        </div>
+                        <div class="form-control">
+                            <label for="phone" class="label">
+                                <span class="label-text font-medium">연락처</span>
+                            </label>
+                            <div class="relative">
+                                <input type="tel" id="phone" th:field="*{phone}" required
+                                       class="input input-bordered w-full pl-10 focus:input-primary transition-all duration-200"
+                                       placeholder="010-0000-0000">
+                                <i data-lucide="phone"
+                                   class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 opacity-50"></i>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="form-control">
-                    <label for="address" class="label">
-                        <span class="label-text">기본주소</span>
-                    </label>
-                    <input type="text" id="address" th:field="*{address}" required
-                           class="input input-bordered">
-                </div>
-                <div class="form-control">
-                    <label for="addressDetail" class="label">
-                        <span class="label-text">상세주소</span>
-                    </label>
-                    <input type="text" id="addressDetail" th:field="*{addressDetail}"
-                           class="input input-bordered">
-                </div>
-                <div class="form-control">
-                    <label class="label cursor-pointer">
-                        <span class="label-text">기본 배송지로 설정</span>
-                        <input type="checkbox" id="defaultAddress" th:field="*{defaultAddress}"
-                               class="checkbox checkbox-primary">
-                    </label>
-                </div>
-                <div class="modal-action">
-                    <button type="button" onclick="closeAddressModal()" class="btn">
+                </fieldset>
+
+                <!-- 주소 정보 -->
+                <fieldset class="fieldset bg-base-100 rounded-lg border border-base-300 shadow-sm">
+                    <legend class="fieldset-legend flex items-center gap-2">
+                        <i data-lucide="home" class="w-4 h-4 text-primary"></i>
+                        <span>주소 정보</span>
+                    </legend>
+                    <div class="space-y-4 p-4">
+                        <div class="form-control">
+                            <label for="postalCode" class="label">
+                                <span class="label-text font-medium">우편번호</span>
+                            </label>
+                            <div class="flex space-x-2">
+                                <div class="relative flex-1">
+                                    <input type="text" id="postalCode" th:field="*{postalCode}" required
+                                           class="input input-bordered w-full pl-10 focus:input-primary transition-all duration-200"
+                                           placeholder="우편번호를 입력하세요">
+                                    <i data-lucide="hash"
+                                       class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 opacity-50"></i>
+                                </div>
+                                <button type="button"
+                                        class="btn btn-outline btn-primary hover:btn-primary transition-all duration-200">
+                                    <i data-lucide="search" class="w-4 h-4 mr-1"></i>
+                                    검색
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-control">
+                            <label for="address" class="label">
+                                <span class="label-text font-medium">기본주소</span>
+                            </label>
+                            <div class="relative">
+                                <input type="text" id="address" th:field="*{address}" required
+                                       class="input input-bordered w-full pl-10 focus:input-primary transition-all duration-200"
+                                       placeholder="기본주소를 입력하세요">
+                                <i data-lucide="map-pin"
+                                   class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 opacity-50"></i>
+                            </div>
+                        </div>
+                        <div class="form-control">
+                            <label for="addressDetail" class="label">
+                                <span class="label-text font-medium">상세주소</span>
+                                <span class="label-text-alt opacity-60">(선택사항)</span>
+                            </label>
+                            <div class="relative">
+                                <input type="text" id="addressDetail" th:field="*{addressDetail}"
+                                       class="input input-bordered w-full pl-10 focus:input-primary transition-all duration-200"
+                                       placeholder="상세주소를 입력하세요">
+                                <i data-lucide="building"
+                                   class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- 배송지 설정 -->
+                <fieldset class="fieldset bg-base-100 rounded-lg border border-base-300 shadow-sm">
+                    <legend class="fieldset-legend flex items-center gap-2">
+                        <i data-lucide="settings" class="w-4 h-4 text-primary"></i>
+                        <span>배송지 설정</span>
+                    </legend>
+                    <div class="p-4">
+                        <div class="form-control">
+                            <label class="label cursor-pointer hover:bg-base-200 rounded-lg p-3 transition-all duration-200">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="star" class="w-5 h-5 text-warning"></i>
+                                    <div>
+                                        <span class="label-text font-medium">기본 배송지로 설정</span>
+                                        <div class="text-xs opacity-60">이 배송지를 기본 배송지로 사용합니다</div>
+                                    </div>
+                                </div>
+                                <input type="checkbox" id="defaultAddress" th:field="*{defaultAddress}"
+                                       class="checkbox checkbox-primary checkbox-lg">
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Modal Actions -->
+                <div class="modal-action pt-4 border-t border-base-300">
+                    <button type="button" onclick="closeAddressModal()"
+                            class="btn btn-ghost transition-all duration-200">
+                        <i data-lucide="x" class="w-4 h-4 mr-1"></i>
                         취소
                     </button>
-                    <button type="submit" class="btn btn-primary">
-                        저장
+                    <button type="submit" class="btn btn-primary hover:btn-primary-focus transition-all duration-200">
+                        <i data-lucide="save" class="w-4 h-4 mr-1"></i>
+                        <span id="submitButtonText">저장</span>
                     </button>
                 </div>
             </form>
@@ -414,7 +490,7 @@
         document.getElementById('addressForm').reset();
         document.getElementById('modalTitle').textContent = '배송지 추가';
         document.getElementById('addressForm').action = '/profile/address';
-        document.querySelector('#addressForm button[type="submit"]').textContent = '저장';
+        document.getElementById('submitButtonText').textContent = '저장';
     }
 
     function editAddress(addressId) {
@@ -432,7 +508,7 @@
             // 모달 제목과 액션 변경
             document.getElementById('modalTitle').textContent = '배송지 수정';
             document.getElementById('addressForm').action = `/profile/address/update/${addressId}`;
-            document.querySelector('#addressForm button[type="submit"]').textContent = '수정';
+            document.getElementById('submitButtonText').textContent = '수정';
 
             // 모달 열기
             document.getElementById('addressModal').classList.add('modal-open');
@@ -440,7 +516,7 @@
     }
 
     function setDefaultAddress(addressId) {
-        showConfirmModal('이 배송지를 기본 배송지로 설정하시겠습니까?', function() {
+        showConfirmModal('이 배송지를 기본 배송지로 설정하시겠습니까?', function () {
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = `/profile/address/default/${addressId}`;
@@ -450,7 +526,7 @@
     }
 
     function deleteAddress(addressId) {
-        showConfirmModal('이 배송지를 삭제하시겠습니까?', function() {
+        showConfirmModal('이 배송지를 삭제하시겠습니까?', function () {
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = `/profile/address/delete/${addressId}`;
@@ -509,7 +585,7 @@
     }
 
     function deleteProfileImage() {
-        showConfirmModal('프로필 사진을 삭제하시겠습니까?', function() {
+        showConfirmModal('프로필 사진을 삭제하시겠습니까?', function () {
             document.getElementById('deleteForm').submit();
         });
     }
