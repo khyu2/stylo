@@ -81,6 +81,26 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+// npm을 사용하여 Tailwind CSS 빌드
+val npmInstall by tasks.register<Exec>("npmInstall") {
+    workingDir = file("${project.projectDir}")
+    commandLine("npm", "install")
+}
+
+val npmBuildCss by tasks.register<Exec>("npmBuildCss") {
+    workingDir = file("${project.projectDir}")
+    commandLine("npm", "run", "build:css")
+    dependsOn(npmInstall)
+}
+
+tasks.named("processResources") {
+    dependsOn(npmBuildCss)
+}
+
+tasks.named("bootJar") {
+    dependsOn(npmBuildCss)
+}
+
 jooq {
     version.set(jooqVersion)
 

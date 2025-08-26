@@ -33,12 +33,12 @@
             </div>
 
             <!-- Sub Category Navigation -->
-            <div class="tabs tabs-boxed justify-center mb-4">
-                <a href="?page=0&size=12"
+            <div role="tablist" class="tabs tabs-border justify-center mb-4">
+                <a href="?page=0&size=12" role="tab"
                    th:class="${currentCategoryId == null} ? 'tab tab-active' : 'tab'"
                    class="transition-all duration-200">전체</a>
                 <th:block th:each="category : ${categories}">
-                    <a th:href="@{/(page=0,size=12,categoryId=${category.categoryId})}"
+                    <a th:href="@{/(page=0,size=12,categoryId=${category.categoryId})}" role="tab"
                        th:class="${currentCategoryId != null and currentCategoryId == category.categoryId} ? 'tab tab-active' : 'tab'"
                        class="transition-all duration-200"
                        th:text="${category.name}"></a>
