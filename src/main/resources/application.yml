@@ -29,8 +29,8 @@ server:
 # 로깅 설정
 logging:
   level:
-    project.stylo: DEBUG
-    org.springframework.security: DEBUG
+    project.stylo: INFO
+    org.springframework.security: INFO
     org.jooq.tools.LoggerListener: DEBUG
 
 # MinIO 설정

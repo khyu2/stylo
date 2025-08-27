@@ -14,55 +14,34 @@
             <!-- Sort Options -->
             <div class="mb-6">
                 <h4 class="text-sm font-medium mb-3">정렬</h4>
-                <div class="space-y-2 select-none">
-                    <select name="sort"
-                            class="select select-bordered select-sm w-full">
-                        <option value="createdAt,desc"
-                                th:selected="${pageable.sort.toString().contains('createdAt: DESC')}">
-                            최신순
-                        </option>
-                        <option value="name,asc"
-                                th:selected="${pageable.sort.toString().contains('name: ASC')}">
-                            이름순 (오름차순)
-                        </option>
-                        <option value="name,desc"
-                                th:selected="${pageable.sort.toString().contains('name: DESC')}">
-                            이름순 (내림차순)
-                        </option>
-                        <option value="price,asc"
-                                th:selected="${pageable.sort.toString().contains('price: ASC')}">
-                            가격순 (오름차순)
-                        </option>
-                        <option value="price,desc"
-                                th:selected="${pageable.sort.toString().contains('price: DESC')}">
-                            가격순 (내림차순)
-                        </option>
-                    </select>
-                </div>
+                <select name="sort" class="select select-bordered select-sm w-full">
+                    <option value="createdAt,desc"
+                            th:selected="${pageable.sort.toString().contains('createdAt: DESC')}">최신순
+                    </option>
+                    <option value="name,asc" th:selected="${pageable.sort.toString().contains('name: ASC')}">이름순
+                        (오름차순)
+                    </option>
+                    <option value="name,desc" th:selected="${pageable.sort.toString().contains('name: DESC')}">이름순
+                        (내림차순)
+                    </option>
+                    <option value="price,asc" th:selected="${pageable.sort.toString().contains('price: ASC')}">가격순
+                        (오름차순)
+                    </option>
+                    <option value="price,desc" th:selected="${pageable.sort.toString().contains('price: DESC')}">가격순
+                        (내림차순)
+                    </option>
+                </select>
             </div>
 
             <!-- Price Range -->
             <div class="mb-6">
                 <h4 class="text-sm font-medium mb-3">가격대</h4>
-                <div class="space-y-3 select-none">
-                    <div class="flex space-x-2">
-                        <input type="number"
-                               id="minPrice"
-                               name="minPrice"
-                               placeholder="최소가격"
-                               class="input input-bordered input-sm w-full">
-                        <span class="opacity-70 self-center">~</span>
-                        <input type="number"
-                               id="maxPrice"
-                               name="maxPrice"
-                               placeholder="최대가격"
-                               class="input input-bordered input-sm w-full">
-                    </div>
-                    <button type="button"
-                            id="priceFilterBtn"
-                            class="btn btn-primary btn-sm w-full">
-                        가격 필터 적용
-                    </button>
+                <div class="flex gap-2 mb-3">
+                    <input type="number" id="minPrice" name="minPrice" placeholder="최소가격"
+                           class="input input-bordered input-sm flex-1">
+                    <span class="opacity-70 self-center">~</span>
+                    <input type="number" id="maxPrice" name="maxPrice" placeholder="최대가격"
+                           class="input input-bordered input-sm flex-1">
                 </div>
             </div>
 
@@ -72,9 +51,7 @@
                 <div class="space-y-2 select-none">
                     <th:block th:each="genderOption : ${genderOptions}">
                         <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox"
-                                   name="genderIds"
-                                   th:value="${genderOption.optionId}"
+                            <input type="checkbox" name="genderIds" th:value="${genderOption.optionId}"
                                    class="checkbox checkbox-primary checkbox-sm">
                             <span class="label-text" th:text="${genderOption.value}"></span>
                         </label>
@@ -88,9 +65,7 @@
                 <div class="grid grid-cols-3 gap-2 select-none">
                     <th:block th:each="sizeOption : ${sizeOptions}">
                         <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox"
-                                   name="sizeIds"
-                                   th:value="${sizeOption.optionId}"
+                            <input type="checkbox" name="sizeIds" th:value="${sizeOption.optionId}"
                                    class="checkbox checkbox-primary checkbox-sm">
                             <span class="label-text text-xs" th:text="${sizeOption.value}"></span>
                         </label>
@@ -104,9 +79,7 @@
                 <div class="grid grid-cols-4 gap-2 select-none">
                     <th:block th:each="colorOption : ${colorOptions}">
                         <label class="relative cursor-pointer">
-                            <input type="checkbox"
-                                   name="colorIds"
-                                   th:value="${colorOption.optionId}"
+                            <input type="checkbox" name="colorIds" th:value="${colorOption.optionId}"
                                    class="sr-only peer">
                             <div class="w-6 h-6 rounded-full border-2 border-base-300 transition-all duration-200 peer-checked:border-primary peer-checked:ring-2 peer-checked:ring-primary/20"
                                  th:style="'background-color: ' + ${colorOption.value}"
@@ -119,20 +92,84 @@
                 </div>
             </div>
 
-            <!-- Apply All Filters Button -->
-            <button type="button"
-                    id="applyFiltersBtn"
-                    class="btn btn-primary w-full mb-3 select-none">
-                필터 적용
-            </button>
-
-            <!-- Clear Filters Button -->
-            <button type="button"
-                    id="clearFiltersBtn"
-                    class="btn btn-outline w-full select-none">
-                필터 초기화
-            </button>
+            <!-- Buttons -->
+            <div class="space-y-3">
+                <button type="button" id="applyFiltersBtn" class="btn btn-primary w-full">필터 적용</button>
+                <button type="button" id="clearFiltersBtn" class="btn btn-outline w-full">필터 초기화</button>
+            </div>
         </div>
     </form>
+
+    <script>
+        // 필터 관리 클래스
+        class ProductFilter {
+            constructor() {
+                this.form = document.getElementById('filterForm');
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.loadCurrentFilters();
+            }
+
+            bindEvents() {
+                document.getElementById('applyFiltersBtn')?.addEventListener('click', () => this.applyFilters());
+                document.getElementById('clearFiltersBtn')?.addEventListener('click', () => this.clearFilters());
+            }
+
+            // 현재 URL의 쿼리 파라미터를 기반으로 필터 상태 복원
+            loadCurrentFilters() {
+                const params = new URLSearchParams(window.location.search);
+
+                // 체크박스 복원
+                ['genderIds', 'sizeIds', 'colorIds'].forEach(name => {
+                    const values = params.getAll(name);
+                    values.forEach(value => {
+                        const checkbox = this.form.querySelector(`input[name="${name}"][value="${value}"]`);
+                        if (checkbox) checkbox.checked = true;
+                    });
+                });
+
+                // 가격 복원
+                const minPrice = params.get('minPrice');
+                const maxPrice = params.get('maxPrice');
+                if (minPrice) document.getElementById('minPrice').value = minPrice;
+                if (maxPrice) document.getElementById('maxPrice').value = maxPrice;
+            }
+
+            // 필터 적용
+            applyFilters() {
+                this.cleanupForm();
+                this.form.submit();
+            }
+
+            clearFilters() {
+                // 정렬 기본값 설정
+                this.form.querySelector('select[name="sort"]').value = 'createdAt,desc';
+
+                // 모든 체크박스 해제
+                this.form.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+                // 가격 필드 초기화
+                document.getElementById('minPrice').value = '';
+                document.getElementById('maxPrice').value = '';
+
+                this.cleanupForm();
+                this.form.submit();
+            }
+
+            // 기존 필터 hidden input 제거
+            cleanupForm() {
+                ['genderIds', 'sizeIds', 'colorIds', 'minPrice', 'maxPrice'].forEach(name => {
+                    const inputs = this.form.querySelectorAll(`input[name="${name}"][type="hidden"]`);
+                    inputs.forEach(input => input.remove());
+                });
+            }
+        }
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', () => new ProductFilter());
+    </script>
 </div>
 </html>

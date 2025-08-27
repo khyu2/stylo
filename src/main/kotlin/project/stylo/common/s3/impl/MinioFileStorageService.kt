@@ -50,7 +50,7 @@ class MinioFileStorageService(
                     .contentType(file.contentType)
                     .build()
             ).also {
-                logger.info("🚀 파일이 성공적으로 업로드되었습니다: $fileName")
+                logger.debug("🚀 파일이 성공적으로 업로드되었습니다: $fileName")
             }
 
             return fileName
@@ -68,7 +68,7 @@ class MinioFileStorageService(
                     .`object`(fileUrl)
                     .build()
             ).readBytes().also {
-                logger.info("📥 파일이 성공적으로 다운로드되었습니다: $fileUrl")
+                logger.debug("📥 파일이 성공적으로 다운로드되었습니다: $fileUrl")
             }
         } catch (e: Exception) {
             logger.error("❌ 파일 다운로드 중 오류 발생: ${e.message}", e)
@@ -86,7 +86,7 @@ class MinioFileStorageService(
                     .expiry(expireSeconds)
                     .build()
             ).also {
-                logger.info("🔗 Presigned URL이 성공적으로 생성되었습니다: $it")
+                logger.debug("🔗 Presigned URL이 성공적으로 생성되었습니다: $it")
             }
         } catch (e: Exception) {
             logger.error("❌ Presigned URL 생성 중 오류 발생: ${e.message}", e)
@@ -102,7 +102,7 @@ class MinioFileStorageService(
                     .`object`(fileUrl)
                     .build()
             ).also {
-                logger.info("🗑️ 파일이 성공적으로 삭제되었습니다: $fileUrl")
+                logger.debug("🗑️ 파일이 성공적으로 삭제되었습니다: $fileUrl")
             }
         } catch (e: Exception) {
             logger.error("❌ 파일 삭제 중 오류 발생: ${e.message}", e)
@@ -121,7 +121,7 @@ class MinioFileStorageService(
                     .recursive(true)
                     .build()
             ).forEach { delete(it.get().objectName()) }.also {
-                logger.info("🗑️ 모든 파일이 성공적으로 삭제되었습니다: $prefix")
+                logger.debug("🗑️ 모든 파일이 성공적으로 삭제되었습니다: $prefix")
             }
         } catch (e: Exception) {
             logger.error("❌ 모든 파일 삭제 중 오류 발생: ${e.message}", e)

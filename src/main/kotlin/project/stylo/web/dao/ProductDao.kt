@@ -11,6 +11,7 @@ import project.stylo.common.exception.BaseException
 import project.stylo.common.exception.BaseExceptionType
 import project.stylo.common.utils.JooqUtils.Companion.andIfNotNull
 import project.stylo.common.utils.JooqUtils.Companion.applySorting
+import project.stylo.common.utils.JooqUtils.Companion.existsIfNotEmpty
 import project.stylo.common.utils.JooqUtils.Companion.likeIgnoreCaseIfNotBlank
 import project.stylo.web.domain.Product
 import project.stylo.web.dto.request.ProductRequest
@@ -88,8 +89,9 @@ class ProductDao(
             .execute()
 
     fun searchProducts(request: ProductSearchRequest, pageable: Pageable): Page<Product> {
-        val baseQuery = dsl.select(PRODUCT.asterisk())
+        val baseQuery = dsl.selectDistinct(PRODUCT.asterisk())
             .from(PRODUCT)
+            .leftJoin(PRODUCT_OPTION).on(PRODUCT.PRODUCT_ID.eq(PRODUCT_OPTION.PRODUCT_ID))
             .where(PRODUCT.DELETED_AT.isNull)
             .and(request.categoryId.andIfNotNull { PRODUCT.CATEGORY_ID.eq(it) })
             .and(
@@ -98,6 +100,33 @@ class ProductDao(
             )
             .and(request.minPrice.andIfNotNull { PRODUCT.PRICE.greaterOrEqual(it) })
             .and(request.maxPrice.andIfNotNull { PRODUCT.PRICE.lessOrEqual(it) })
+            .and(
+                request.genderIds.existsIfNotEmpty(
+                    dsl,
+                    PRODUCT_OPTION,
+                    PRODUCT_OPTION.PRODUCT_ID,
+                    PRODUCT.PRODUCT_ID,
+                    PRODUCT_OPTION.OPTION_ID
+                )
+            )
+            .and(
+                request.sizeIds.existsIfNotEmpty(
+                    dsl,
+                    PRODUCT_OPTION,
+                    PRODUCT_OPTION.PRODUCT_ID,
+                    PRODUCT.PRODUCT_ID,
+                    PRODUCT_OPTION.OPTION_ID
+                )
+            )
+            .and(
+                request.colorIds.existsIfNotEmpty(
+                    dsl,
+                    PRODUCT_OPTION,
+                    PRODUCT_OPTION.PRODUCT_ID,
+                    PRODUCT.PRODUCT_ID,
+                    PRODUCT_OPTION.OPTION_ID
+                )
+            )
 
         // 전체 개수 조회
         val totalCount = dsl.fetchCount(baseQuery)
