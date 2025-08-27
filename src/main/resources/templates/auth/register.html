@@ -7,107 +7,94 @@
 </head>
 <body>
 <div layout:fragment="content">
-    <div class="hero min-h-screen bg-base-200">
-        <div class="hero-content flex-col lg:flex-row-reverse">
-            <div class="text-center lg:text-left">
-                <h1 class="text-5xl font-bold">Stylo</h1>
-                <p class="py-6">최고의 패션 쇼핑 경험을 제공하는 Stylo에 가입하세요.</p>
-            </div>
-            <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
-                <div class="card-body">
-                    <h2 class="card-title text-2xl font-bold text-center w-full">회원가입</h2>
-                    <p class="text-center text-sm opacity-70">
-                        이미 계정이 있으신가요?
-                        <a href="/login" class="link link-primary">
-                            로그인
-                        </a>
-                    </p>
+    <div class="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-4">
+        <div class="card w-full max-w-md bg-base-100 shadow-xl">
+            <div class="card-body">
+                <!-- Header -->
+                <div class="text-center mb-4">
+                    <h1 class="text-3xl font-bold text-primary">Stylo</h1>
+                    <p class="text-sm opacity-70 mt-2">최고의 패션 쇼핑 경험을 제공하는 Stylo에 가입하세요.</p>
+                </div>
 
-                    <form th:action="@{/register}" th:object="${request}" method="post" class="space-y-4">
-                        <!-- Error Message -->
-                        <div th:if="${error}" class="alert alert-error">
-                            <i data-lucide="alert-circle" class="h-5 w-5"></i>
-                            <span th:text="${error}">오류가 발생했습니다.</span>
-                        </div>
+                <!-- Register Form -->
+                <form th:action="@{/register}" th:object="${request}" method="post" class="space-y-4">
+                    <!-- Error Message -->
+                    <div th:if="${error}" class="alert alert-error shadow-lg">
+                        <i data-lucide="alert-circle" class="h-5 w-5"></i>
+                        <span th:text="${error}">오류가 발생했습니다.</span>
+                    </div>
 
-                        <!-- Success Message -->
-                        <div th:if="${success}" class="alert alert-success">
-                            <i data-lucide="check-circle" class="h-5 w-5"></i>
-                            <span th:text="${success}">회원가입이 완료되었습니다.</span>
-                        </div>
+                    <!-- Success Message -->
+                    <div th:if="${success}" class="alert alert-success shadow-lg">
+                        <i data-lucide="check-circle" class="h-5 w-5"></i>
+                        <span th:text="${success}">회원가입이 완료되었습니다.</span>
+                    </div>
 
+                    <fieldset class="form-control fieldset m-4">
                         <!-- Name Field -->
-                        <div class="form-control">
-                            <label class="label">
-                                <span class="label-text">이름 <span class="text-error">*</span></span>
-                            </label>
-                            <input id="name" name="name" type="text" required
-                                   class="input input-bordered"
-                                   th:classappend="${#fields.hasErrors('name')} ? 'input-error' : ''"
-                                   placeholder="홍길동"
-                                   th:field="*{name}">
-                            <label class="label" th:if="${#fields.hasErrors('name')}">
-                                <span class="label-text-alt text-error" th:errors="*{name}">이름 오류</span>
-                            </label>
-                        </div>
+                        <label for="name" class="label">
+                            <span class="label-text font-medium">이름 <span class="text-error">*</span></span>
+                        </label>
+                        <input id="name" name="name" type="text" required
+                               class="input input-bordered input-primary focus:input-primary w-full"
+                               th:classappend="${#fields.hasErrors('name')} ? 'input-error' : ''"
+                               placeholder="홍길동"
+                               th:field="*{name}">
+                        <label class="label" th:if="${#fields.hasErrors('name')}">
+                            <span class="label-text-alt text-error" th:errors="*{name}">이름 오류</span>
+                        </label>
 
                         <!-- Email Field -->
-                        <div class="form-control">
-                            <label class="label">
-                                <span class="label-text">이메일 <span class="text-error">*</span></span>
-                            </label>
-                            <input id="email" name="email" type="email" required
-                                   class="input input-bordered"
-                                   th:classappend="${#fields.hasErrors('email')} ? 'input-error' : ''"
-                                   placeholder="example@email.com"
-                                   th:field="*{email}">
-                            <label class="label" th:if="${#fields.hasErrors('email')}">
-                                <span class="label-text-alt text-error" th:errors="*{email}">이메일 오류</span>
-                            </label>
-                        </div>
+                        <label for="email" class="label">
+                            <span class="label-text font-medium">이메일 <span class="text-error">*</span></span>
+                        </label>
+                        <input id="email" name="email" type="email" required
+                               class="input input-bordered input-primary focus:input-primary w-full"
+                               th:classappend="${#fields.hasErrors('email')} ? 'input-error' : ''"
+                               placeholder="example@email.com"
+                               th:field="*{email}">
+                        <label class="label" th:if="${#fields.hasErrors('email')}">
+                            <span class="label-text-alt text-error" th:errors="*{email}">이메일 오류</span>
+                        </label>
 
                         <!-- Password Field -->
-                        <div class="form-control">
-                            <label class="label">
-                                <span class="label-text">비밀번호 <span class="text-error">*</span></span>
-                            </label>
-                            <input id="password" name="password" type="password" required
-                                   class="input input-bordered"
-                                   th:classappend="${#fields.hasErrors('password')} ? 'input-error' : ''"
-                                   placeholder="8자 이상 입력하세요"
-                                   th:field="*{password}">
-                            <label class="label" th:if="${#fields.hasErrors('password')}">
-                                <span class="label-text-alt text-error" th:errors="*{password}">비밀번호 오류</span>
-                            </label>
-                            <label class="label">
-                                <span class="label-text-alt opacity-70">영문, 숫자, 특수문자를 포함하여 8자 이상 입력해주세요.</span>
-                            </label>
-                        </div>
+                        <label for="password" class="label">
+                            <span class="label-text font-medium">비밀번호 <span class="text-error">*</span></span>
+                        </label>
+                        <input id="password" name="password" type="password" required
+                               class="input input-bordered input-primary focus:input-primary w-full"
+                               th:classappend="${#fields.hasErrors('password')} ? 'input-error' : ''"
+                               placeholder="8자 이상 입력하세요"
+                               th:field="*{password}">
+                        <label class="label" th:if="${#fields.hasErrors('password')}">
+                            <span class="label-text-alt text-error" th:errors="*{password}">비밀번호 오류</span>
+                        </label>
+                        <label class="label">
+                            <span class="label-text-alt opacity-70">영문, 숫자, 특수문자를 포함하여 8자 이상 입력해주세요.</span>
+                        </label>
 
                         <!-- Password Confirm Field -->
-                        <div class="form-control">
-                            <label class="label">
-                                <span class="label-text">비밀번호 확인 <span class="text-error">*</span></span>
-                            </label>
-                            <input id="confirmPassword" name="confirmPassword" type="password" required
-                                   class="input input-bordered"
-                                   th:classappend="${#fields.hasErrors('confirmPassword')} ? 'input-error' : ''"
-                                   placeholder="비밀번호를 다시 입력하세요"
-                                   th:field="*{confirmPassword}">
-                            <label class="label" th:if="${#fields.hasErrors('confirmPassword')}">
-                                <span class="label-text-alt text-error" th:errors="*{confirmPassword}">비밀번호 확인 오류</span>
-                            </label>
-                            <label class="label" th:if="${#fields.hasErrors('passwordMatching')}">
-                                <span class="label-text-alt text-error" th:errors="*{passwordMatching}">비밀번호가 일치하지 않습니다</span>
-                            </label>
-                        </div>
+                        <label for="confirmPassword" class="label">
+                            <span class="label-text font-medium">비밀번호 확인 <span class="text-error">*</span></span>
+                        </label>
+                        <input id="confirmPassword" name="confirmPassword" type="password" required
+                               class="input input-bordered input-primary focus:input-primary w-full"
+                               th:classappend="${#fields.hasErrors('confirmPassword')} ? 'input-error' : ''"
+                               placeholder="비밀번호를 다시 입력하세요"
+                               th:field="*{confirmPassword}">
+                        <label class="label" th:if="${#fields.hasErrors('confirmPassword')}">
+                            <span class="label-text-alt text-error" th:errors="*{confirmPassword}">비밀번호 확인 오류</span>
+                        </label>
+                        <label class="label" th:if="${#fields.hasErrors('passwordMatching')}">
+                            <span class="label-text-alt text-error" th:errors="*{passwordMatching}">비밀번호가 일치하지 않습니다</span>
+                        </label>
 
                         <!-- Terms and Conditions -->
-                        <div class="space-y-4">
+                        <div class="space-y-4 pt-4">
                             <label class="label cursor-pointer justify-start gap-2">
                                 <input id="terms" name="isTerm" type="checkbox" required
                                        class="checkbox checkbox-primary checkbox-sm">
-                                <span class="label-text">
+                                <span class="label-text text-sm">
                                     <a href="/terms" class="link link-primary">이용약관</a>과
                                     <a href="/privacy" class="link link-primary">개인정보처리방침</a>에 동의합니다.
                                     <span class="text-error">*</span>
@@ -117,19 +104,32 @@
                             <label class="label cursor-pointer justify-start gap-2">
                                 <input id="marketing" name="isMarketing" type="checkbox"
                                        class="checkbox checkbox-primary checkbox-sm">
-                                <span class="label-text">마케팅 정보 수신에 동의합니다. (선택)</span>
+                                <span class="label-text text-sm">마케팅 정보 수신에 동의합니다. (선택)</span>
                             </label>
                         </div>
+                    </fieldset>
 
-                        <!-- Submit Button -->
-                        <div class="form-control mt-6">
-                            <button type="submit"
-                                    class="btn btn-primary">
-                                <i data-lucide="user-plus" class="h-5 w-5"></i>
-                                회원가입
-                            </button>
-                        </div>
-                    </form>
+                    <!-- Submit Button -->
+                    <div class="form-control mt-6">
+                        <button type="submit"
+                                class="btn btn-primary btn-block">
+                            <i data-lucide="user-plus" class="h-5 w-5"></i>
+                            회원가입
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Divider -->
+                <div class="divider">또는</div>
+
+                <!-- Login Link -->
+                <div class="text-center">
+                    <p class="text-sm opacity-70">
+                        이미 계정이 있으신가요?
+                        <a href="/login" class="link link-primary font-medium">
+                            로그인
+                        </a>
+                    </p>
                 </div>
             </div>
         </div>
