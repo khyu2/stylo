@@ -58,18 +58,9 @@ class ProductController(
         @Valid @ModelAttribute request: ProductRequest,
         redirectAttributes: RedirectAttributes
     ): String {
-        logger.info("Creating product with request: {}", request)
-        logger.info("request combination {}", request.combinations)
-        request.combinations.forEach { combination ->
-            combination.options.forEach { option ->
-                logger.info("Combination option: {}", option)
-            }
-        }
-
-//        val productResponse = productService.createProduct(member, request)
-//        redirectAttributes.addFlashAttribute("success", "상품이 성공적으로 등록되었습니다.")
-//        return "redirect:/products/${productResponse.productId}"
-        return "redirect:/"
+        val productResponse = productService.createProduct(member, request)
+        redirectAttributes.addFlashAttribute("success", "상품이 성공적으로 등록되었습니다.")
+        return "redirect:/products/${productResponse.productId}"
     }
 
     @GetMapping("/{productId}")

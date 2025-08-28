@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import org.springframework.web.multipart.MultipartFile
 import project.stylo.common.utils.CommaSeparatedStringDeserializer
+import project.stylo.common.utils.OptionMapListDeserializer
 import java.math.BigDecimal
 
 data class ProductRequest(
@@ -43,5 +44,6 @@ data class OptionCombination(
     val sku: String,
     val additionalPrice: BigDecimal,
     val stock: Long,
-    val options: String // JSON 형태의 옵션 정보
+//    @JsonDeserialize(using = OptionMapListDeserializer::class)
+    val options: List<Map<String, String>>
 )
