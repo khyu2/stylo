@@ -22,6 +22,7 @@ import project.stylo.web.dto.request.ProductRequest
 import project.stylo.web.dto.request.ProductSearchRequest
 import project.stylo.web.dto.response.ProductListResponse
 import project.stylo.web.dto.response.ProductResponse
+import project.stylo.web.dto.response.GroupedProductOptionResponse
 import project.stylo.web.service.CategoryService
 import project.stylo.web.service.ProductService
 
@@ -40,9 +41,9 @@ class ProductController(
     fun showCreateForm(model: Model): String {
         mapOf(
             "categories" to categoryService.getAllCategories(),
-            "genderOptions" to categoryService.getAllGenderOptions(),
-            "sizeOptions" to categoryService.getAllSizeOptions(),
-            "colorOptions" to categoryService.getAllColorOptions()
+//            "genderOptions" to categoryService.getAllGenderOptions(),
+//            "sizeOptions" to categoryService.getAllSizeOptions(),
+//            "colorOptions" to categoryService.getAllColorOptions()
         ).forEach { (key, value) ->
             model.addAttribute(key, value)
         }
@@ -68,10 +69,19 @@ class ProductController(
     fun showProduct(@PathVariable productId: Long, model: Model): String {
         val product = productService.getProduct(productId)
         val productImages = productService.getProductImages(productId)
-        val productOptions = productService.getProductOptions(productId)
+//        val productOptions = productService.getProductOptions(productId)
+
+        // 그룹핑된 옵션 생성
+//        val groupedProductOptions = productOptions
+//            .groupBy { it.optionTypeName }
+//            .map { (optionTypeName, options) ->
+//                GroupedProductOptionResponse(optionTypeName, options)
+//            }
+
         model.addAttribute("product", product)
         model.addAttribute("productImages", productImages)
-        model.addAttribute("productOptions", productOptions)
+//        model.addAttribute("productOptions", productOptions)
+//        model.addAttribute("groupedProductOptions", groupedProductOptions)
         return "product/detail"
     }
 

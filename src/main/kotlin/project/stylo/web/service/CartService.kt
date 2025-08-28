@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import project.stylo.common.s3.FileStorageService
 import project.stylo.web.dao.CartDao
-import project.stylo.web.domain.CartItem
 import project.stylo.web.dto.response.CartItemResponse
 
 @Service

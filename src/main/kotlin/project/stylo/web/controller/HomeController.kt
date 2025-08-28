@@ -25,9 +25,9 @@ class HomeController(
 
         mapOf(
             "categories" to categoryService.getAllCategories(),
-            "genderOptions" to categoryService.getAllGenderOptions(),
-            "sizeOptions" to categoryService.getAllSizeOptions(),
-            "colorOptions" to categoryService.getAllColorOptions(),
+//            "genderOptions" to categoryService.getAllGenderOptions(),
+//            "sizeOptions" to categoryService.getAllSizeOptions(),
+//            "colorOptions" to categoryService.getAllColorOptions(),
             "products" to products,
             "currentPage" to products.number,
             "size" to products.size,

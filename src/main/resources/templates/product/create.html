@@ -8,529 +8,369 @@
 </head>
 <body>
 <div layout:fragment="content">
-    <div class="max-w-6xl mx-auto px-4 py-8">
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div class="bg-base-100">
+        <div class="container mx-auto px-4 py-8">
             <!-- Page Header -->
-            <div class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-900">상품 등록</h1>
-                <p class="text-gray-600 mt-2">새로운 상품을 등록합니다.</p>
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold">상품 등록</h1>
+                <p class="text-lg opacity-70 mt-2">새로운 상품을 등록합니다.</p>
             </div>
 
-            <div th:if="${success}" class="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
-                <div class="flex">
-                    <i data-lucide="check-circle" class="w-5 h-5 text-green-400 mr-3"></i>
-                    <p class="text-sm text-green-800" th:text="${success}"></p>
-                </div>
+            <div th:if="${success}" class="alert alert-success mb-6">
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                <span th:text="${success}"></span>
             </div>
-            <div th:if="${error}" class="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
-                <div class="flex">
-                    <i data-lucide="alert-circle" class="w-5 h-5 text-red-400 mr-3"></i>
-                    <p class="text-sm text-red-800" th:text="${error}"></p>
-                </div>
+            <div th:if="${error}" class="alert alert-error mb-6">
+                <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                <span th:text="${error}"></span>
             </div>
 
             <!-- Product Form -->
-            <form action="/products/create" method="post" enctype="multipart/form-data" class="space-y-6 select-none">
-                <!-- Product Name -->
-                <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-                        상품명 <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text"
-                           id="name"
-                           name="name"
-                           required
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                           placeholder="상품명을 입력하세요">
-                </div>
+            <div class="max-w-4xl mx-auto">
+                <div class="card bg-base-100 shadow-xl">
+                    <div class="card-body p-6">
+                        <form action="/products" method="post" enctype="multipart/form-data" class="space-y-6">
+                            <!-- Product Name -->
+                            <div class="form-control">
+                                <label class="label" for="name">
+                                    <span class="label-text text-base">상품명 <span class="text-error">*</span></span>
+                                </label>
+                                <input type="text"
+                                       id="name"
+                                       name="product[name]"
+                                       required
+                                       class="input input-bordered w-full"
+                                       placeholder="상품명을 입력하세요">
+                            </div>
 
-                <!-- Product Description -->
-                <div>
-                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-                        상품 설명
-                    </label>
-                    <textarea id="description"
-                              name="description"
-                              rows="4"
-                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                              placeholder="상품에 대한 설명을 입력하세요"></textarea>
-                </div>
+                            <!-- Product Description -->
+                            <div class="form-control">
+                                <label class="label" for="description">
+                                    <span class="label-text text-base">상품 설명</span>
+                                </label>
+                                <textarea id="description"
+                                          name="product[description]"
+                                          rows="4"
+                                          class="textarea w-full"
+                                          placeholder="상품 정보를 입력하세요"></textarea>
+                            </div>
 
-                <!-- Category -->
-                <div>
-                    <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
-                        카테고리 <span class="text-red-500">*</span>
-                    </label>
-                    <select id="category"
-                            name="category"
-                            required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
-                        <option value="">카테고리를 선택하세요</option>
-                        <option th:each="category : ${categories}"
-                                th:value="${category.categoryId}"
-                                th:text="${category.name}">카테고리명
-                        </option>
-                    </select>
-                </div>
+                            <!-- Category -->
+                            <div class="form-control">
+                                <label class="label" for="category">
+                                    <span class="label-text text-base">카테고리 <span class="text-error">*</span></span>
+                                </label>
+                                <select id="category"
+                                        name="product[categoryId]"
+                                        required
+                                        class="select select-bordered w-full">
+                                    <option value="">카테고리를 선택하세요</option>
+                                    <option th:each="category : ${categories}"
+                                            th:value="${category.categoryId}"
+                                            th:text="${category.name}">카테고리명
+                                    </option>
+                                </select>
+                            </div>
 
-                <!-- Base Price and Stock -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="price" class="block text-sm font-medium text-gray-700 mb-2">
-                            기본 가격 <span class="text-red-500">*</span>
-                        </label>
-                        <div class="relative">
-                            <input type="number"
-                                   id="price"
-                                   name="price"
-                                   required
-                                   min="0"
-                                   step="0.01"
-                                   class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                   placeholder="0">
-                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₩</span>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label for="stock" class="block text-sm font-medium text-gray-700 mb-2">
-                            기본 재고 <span class="text-red-500">*</span>
-                        </label>
-                        <input type="number"
-                               id="stock"
-                               name="stock"
-                               required
-                               min="0"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                               placeholder="0">
-                    </div>
-                </div>
-
-                <!-- Product Images -->
-                <div x-data="imageUpload()">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        상품 이미지 <span class="text-red-500">*</span>
-                    </label>
-                    <div class="space-y-4">
-                        <!-- Upload Area -->
-                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary-400 transition-colors"
-                             :class="{ 'border-primary-400 bg-primary-50': isDragOver }"
-                             @dragover.prevent="isDragOver = true"
-                             @dragleave.prevent="isDragOver = false"
-                             @drop.prevent="handleDrop($event)">
-                            <div class="space-y-4">
-                                <div class="flex justify-center">
-                                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor"
-                                         viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                                    </svg>
+                            <!-- Base Price -->
+                            <div class="form-control">
+                                <label class="label" for="price">
+                                    <span class="label-text text-base">기본 가격 <span class="text-error">*</span></span>
+                                </label>
+                                <div class="join w-full">
+                                    <span class="join-item bg-base-200 px-4 flex items-center">₩</span>
+                                    <input type="number"
+                                           id="price"
+                                           name="product[price]"
+                                           required
+                                           min="0"
+                                           step="0.01"
+                                           class="input input-bordered join-item w-full"
+                                           placeholder="0">
                                 </div>
+                            </div>
+
+                            <!-- Product Images -->
+                            <div id="imageUpload">
+                                <label class="label">
+                                    <span class="label-text text-base">상품 이미지 <span class="text-error">*</span></span>
+                                </label>
+                                <div class="space-y-4">
+                                    <!-- Upload Area -->
+                                    <div id="uploadArea"
+                                         class="border-2 border-dashed border-base-300 rounded-lg p-8 text-center hover:border-primary transition-colors">
+                                        <div class="space-y-4">
+                                            <div class="flex justify-center">
+                                                <i data-lucide="upload" class="w-12 h-12 opacity-50"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-lg font-medium">이미지를 드래그하거나 클릭하여 업로드</p>
+                                                <p class="text-sm opacity-70 mt-1">PNG, JPG, GIF 최대 10MB</p>
+                                            </div>
+                                            <div class="flex justify-center gap-3">
+                                                <input type="file"
+                                                       id="fileInput"
+                                                       name="images"
+                                                       multiple
+                                                       accept="image/*"
+                                                       required
+                                                       class="hidden">
+                                                <button type="button"
+                                                        id="selectFileBtn"
+                                                        class="btn btn-primary">
+                                                    <i data-lucide="folder-open" class="w-4 h-4"></i>
+                                                    파일 선택
+                                                </button>
+                                                <button type="button"
+                                                        id="clearImagesBtn"
+                                                        class="btn btn-outline btn-error hidden">
+                                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                    전체 삭제
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Image Preview Grid -->
+                                    <div id="imagePreviewContainer" class="space-y-4 hidden">
+                                        <div class="flex items-center justify-between">
+                                            <h3 class="text-lg font-semibold">업로드된 이미지 (<span
+                                                    id="imageCount">0</span>/10)</h3>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-sm opacity-70">첫 번째 이미지가 대표 이미지</span>
+                                                <button type="button"
+                                                        id="reorderImagesBtn"
+                                                        class="btn btn-ghost btn-sm hidden">
+                                                    <i data-lucide="move" class="w-4 h-4"></i>
+                                                    순서 변경
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div id="imageGrid"
+                                             class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                            <!-- Image elements will be added here by JavaScript -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Options Section -->
+                            <div class="divider"></div>
+                            <div class="space-y-6">
                                 <div>
-                                    <p class="text-lg font-medium text-gray-900">이미지를 드래그하거나 클릭하여 업로드</p>
-                                    <p class="text-sm text-gray-500 mt-1">PNG, JPG, GIF 최대 10MB</p>
-                                </div>
-                                <div class="flex justify-center space-x-3">
-                                    <input type="file"
-                                           x-ref="fileInput"
-                                           name="images"
-                                           @change="handleFileSelect($event)"
-                                           multiple
-                                           accept="image/*"
-                                           :required="images.length === 0"
-                                           class="hidden">
-                                    <button type="button"
-                                            @click="$refs.fileInput.click()"
-                                            class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors">
-                                        파일 선택
-                                    </button>
-                                    <button type="button"
-                                            @click="clearImages()"
-                                            x-show="images.length > 0"
-                                            class="px-4 py-2 text-red-600 hover:text-red-700 border border-red-300 rounded-lg hover:bg-red-50 transition-colors">
-                                        전체 삭제
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                                    <h2 class="text-2xl font-bold mb-4">상품 옵션 설정</h2>
+                                    <p class="text-sm opacity-70 mb-6">상품의 옵션을 설정하고 조합을 생성합니다.</p>
 
-                        <!-- Image Preview Grid -->
-                        <div x-show="images.length > 0" class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-sm font-medium text-gray-900">업로드된 이미지 (<span
-                                        x-text="images.length"></span>/10)</h3>
-                                <div class="flex items-center space-x-2">
-                                    <span class="text-xs text-gray-500">첫 번째 이미지가 대표 이미지</span>
-                                    <button type="button"
-                                            @click="reorderImages()"
-                                            x-show="images.length > 1"
-                                            class="text-xs text-primary-600 hover:text-primary-700">
-                                        순서 변경
-                                    </button>
-                                </div>
-                            </div>
+                                    <!-- Option Input Section -->
+                                    <div class="space-y-4">
+                                        <div x-data="optionManager()">
+                                            <!-- Option Inputs -->
+                                            <div class="space-y-4">
+                                                <template x-for="(option, index) in options" :key="index">
+                                                    <div class="flex items-center gap-3 p-3 bg-base-100 rounded-lg">
+                                                        <select :name="`options[${index}][name]`"
+                                                                x-model="option.name"
+                                                                class="select select-bordered select-sm w-32" required>
+                                                            <option value="" disabled>타입</option>
+                                                            <option value="GENDER">성별</option>
+                                                            <option value="SIZE">사이즈</option>
+                                                            <option value="COLOR">색상</option>
+                                                        </select>
+                                                        <input type="text"
+                                                               :name="`options[${index}][values]`"
+                                                               x-model="option.values"
+                                                               placeholder="값을 쉼표로 구분 (예: 남성,여성)"
+                                                               class="input input-bordered input-sm flex-1" required>
+                                                        <button type="button"
+                                                                @click="removeOption(index)"
+                                                                class="btn  btn-error btn-sm">
+                                                            <!-- Trash Icon -->
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                                 stroke="currentColor" stroke-width="2" fill="none"
+                                                                 stroke-linecap="round" stroke-linejoin="round"
+                                                                 class="lucide lucide-trash2-icon lucide-trash-2 w-4 h-4">
+                                                                <path d="M10 11v6"/>
+                                                                <path d="M14 11v6"/>
+                                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+                                                                <path d="M3 6h18"/>
+                                                                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </template>
+                                            </div>
 
-                            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                                <template x-for="(image, index) in images" :key="index">
-                                    <div class="relative group">
-                                        <div class="relative overflow-hidden rounded-lg border-2 border-gray-200 hover:border-primary-400 transition-all duration-200">
-                                            <img :src="image.preview"
-                                                 :alt="`상품 이미지 ${index + 1}`"
-                                                 class="w-full h-32 object-cover">
+                                            <!-- Add Option Button -->
+                                            <div class="flex justify-center mt-4">
+                                                <button type="button"
+                                                        @click="addOption()"
+                                                        class="btn btn-primary">
+                                                    <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                                                    옵션 추가
+                                                </button>
+                                            </div>
 
-                                            <!-- Overlay on hover -->
-                                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
-                                                <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 space-y-2">
-                                                    <button type="button"
-                                                            @click="moveImage(index, -1)"
-                                                            x-show="index > 0"
-                                                            class="p-1 bg-white rounded-full shadow-lg hover:bg-gray-100">
-                                                        <svg class="w-4 h-4 text-gray-700" fill="none"
-                                                             stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                  stroke-width="2" d="M5 15l7-7 7 7"></path>
-                                                        </svg>
-                                                    </button>
-                                                    <button type="button"
-                                                            @click="moveImage(index, 1)"
-                                                            x-show="index < images.length - 1"
-                                                            class="p-1 bg-white rounded-full shadow-lg hover:bg-gray-100">
-                                                        <svg class="w-4 h-4 text-gray-700" fill="none"
-                                                             stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                  stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                                        </svg>
-                                                    </button>
+                                            <!-- Generate Combinations Button -->
+                                            <div class="flex justify-center mt-6">
+                                                <button type="button"
+                                                        @click="generateCombinations()"
+                                                        class="btn btn-info btn-lg">
+                                                    <i data-lucide="refresh-cw" class="w-5 h-5 mr-2"></i>
+                                                    조합 생성
+                                                </button>
+                                            </div>
+
+                                            <!-- Combinations Display -->
+                                            <div x-show="combinations.length > 0" class="mt-8">
+                                                <h3 class="text-xl font-bold mb-6 text-center">옵션 조합</h3>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                    <template x-for="(combo, index) in combinations" :key="index">
+                                                        <div class="card bg-base-100 border-2 border-base-300">
+                                                            <div class="card-body p-4">
+                                                                <div class="mb-4">
+                                                                    <h4 class="font-bold text-sm mb-2">
+                                                                        SKU: <span x-text="combo.sku"
+                                                                                   class="font-mono text-primary"></span>
+                                                                    </h4>
+                                                                    <div class="space-y-1">
+                                                                        <template x-for="option in combo.options"
+                                                                                  :key="option.name">
+                                                                            <div class="text-sm opacity-70">
+                                                                                <span class="font-medium"
+                                                                                      x-text="option.name"></span>:
+                                                                                <span x-text="option.value"></span>
+                                                                            </div>
+                                                                        </template>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="grid grid-cols-2 gap-3">
+                                                                    <div class="form-control">
+                                                                        <label class="label">
+                                                                            <span class="label-text text-xs font-medium">추가 가격</span>
+                                                                        </label>
+                                                                        <div class="join w-full">
+                                                                            <label class="label join-item bg-base-300 px-2 text-xs">₩</label>
+                                                                            <input type="number"
+                                                                                   :name="`combinations[${index}][additionalPrice]`"
+                                                                                   x-model="combo.additionalPrice"
+                                                                                   min="0"
+                                                                                   step="0.01"
+                                                                                   class="input input-bordered join-item w-full input-sm"
+                                                                                   placeholder="0">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-control">
+                                                                        <label class="label">
+                                                                            <span class="label-text text-xs font-medium">재고</span>
+                                                                        </label>
+                                                                        <input type="number"
+                                                                               :name="`combinations[${index}][stock]`"
+                                                                               x-model="combo.stock"
+                                                                               min="0"
+                                                                               class="input input-bordered w-full input-sm"
+                                                                               placeholder="0">
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Hidden fields for form submission -->
+                                                                <input type="hidden"
+                                                                       :name="`combinations[${index}][sku]`"
+                                                                       x-model="combo.sku">
+                                                                <input type="hidden"
+                                                                       :name="`combinations[${index}][options]`"
+                                                                       x-model="JSON.stringify(combo.options)">
+                                                            </div>
+                                                        </div>
+                                                    </template>
                                                 </div>
                                             </div>
-
-                                            <!-- Remove button -->
-                                            <button type="button"
-                                                    @click="removeImage(index)"
-                                                    class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs hover:bg-red-600 flex items-center justify-center font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                                ×
-                                            </button>
-
-                                            <!-- Main image indicator -->
-                                            <div x-show="index === 0"
-                                                 class="absolute top-2 left-2 bg-primary-600 text-white text-xs px-2 py-1 rounded-full font-medium">
-                                                대표
-                                            </div>
                                         </div>
-
-                                        <!-- File name -->
-                                        <p class="text-xs text-gray-500 mt-1 truncate" x-text="image.name"></p>
                                     </div>
-                                </template>
+                                </div>
                             </div>
-                        </div>
+
+                            <!-- Form Actions -->
+                            <div class="divider"></div>
+                            <div class="flex justify-end gap-4">
+                                <a href="/"
+                                   class="btn btn-outline">
+                                    <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                                    취소
+                                </a>
+                                <button type="submit"
+                                        class="btn btn-primary">
+                                    <i data-lucide="check" class="w-4 h-4 mr-2"></i>
+                                    상품 등록
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-
-                <!-- Options with Stock and Price -->
-                <div class="space-y-8">
-                    <!-- Gender Options -->
-                    <div x-data="optionGroup()">
-                        <div class="flex items-center justify-between mb-4">
-                            <label class="text-lg font-semibold text-gray-900 flex items-center">
-                                <svg class="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor"
-                                     viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                </svg>
-                                성별 옵션
-                            </label>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div th:each="gender : ${genderOptions}"
-                                 x-data="optionItem()"
-                                 class="relative bg-white border-2 border-gray-200 rounded-xl p-4 hover:border-primary-300 transition-all duration-200 cursor-pointer"
-                                 :class="{ 'border-primary-500 bg-primary-50': isSelected }"
-                                 @click="toggleDetails($event)">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center space-x-3">
-                                        <input type="checkbox"
-                                               th:id="'gender-' + ${gender.optionId}"
-                                               name="genders"
-                                               th:value="${gender.optionId}"
-                                               x-model="isSelected"
-                                               @click.stop
-                                               class="h-5 w-5 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
-                                        <label th:for="'gender-' + ${gender.optionId}"
-                                               th:text="${gender.value}"
-                                               class="text-sm font-medium text-gray-900">성별 옵션</label>
-                                    </div>
-                                    <div class="flex items-center space-x-2">
-                                        <span class="text-xs text-gray-500">재고/가격</span>
-                                        <svg class="w-4 h-4 text-gray-400" :class="{ 'rotate-180': showDetails }"
-                                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                  d="M19 9l-7 7-7-7"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-
-                                <!-- Details Panel -->
-                                <div x-show="showDetails"
-                                     x-transition:enter="transition ease-out duration-200"
-                                     x-transition:enter-start="opacity-0 transform -translate-y-2"
-                                     x-transition:enter-end="opacity-100 transform translate-y-0"
-                                     class="mt-4 pt-4 border-t border-gray-100">
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label th:for="'gender-stock-' + ${gender.optionId}"
-                                                   class="block text-xs font-medium text-gray-700 mb-2">
-                                                재고 수량
-                                            </label>
-                                            <div class="relative">
-                                                <input type="number"
-                                                       th:id="'gender-stock-' + ${gender.optionId}"
-                                                       th:name="'gender-stock-' + ${gender.optionId}"
-                                                       min="0"
-                                                       class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                       placeholder="0">
-                                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                    <span class="text-gray-500 text-sm"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label th:for="'gender-price-' + ${gender.optionId}"
-                                                   class="block text-xs font-medium text-gray-700 mb-2">
-                                                추가 가격
-                                            </label>
-                                            <div class="relative">
-                                                <input type="number"
-                                                       th:id="'gender-price-' + ${gender.optionId}"
-                                                       th:name="'gender-price-' + ${gender.optionId}"
-                                                       min="0"
-                                                       step="0.01"
-                                                       class="w-full pl-8 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                       placeholder="0">
-                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <span class="text-gray-500 text-sm">₩</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Size Options -->
-                    <div x-data="optionGroup()">
-                        <div class="flex items-center justify-between mb-4">
-                            <label class="text-lg font-semibold text-gray-900 flex items-center">
-                                <svg class="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor"
-                                     viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path>
-                                </svg>
-                                사이즈 옵션
-                            </label>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div th:each="size : ${sizeOptions}"
-                                 x-data="optionItem()"
-                                 class="relative bg-white border-2 border-gray-200 rounded-xl p-4 hover:border-primary-300 transition-all duration-200 cursor-pointer"
-                                 :class="{ 'border-primary-500 bg-primary-50': isSelected }"
-                                 @click="toggleDetails($event)">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center space-x-3">
-                                        <input type="checkbox"
-                                               th:id="'size-' + ${size.optionId}"
-                                               name="sizes"
-                                               th:value="${size.optionId}"
-                                               x-model="isSelected"
-                                               @click.stop
-                                               class="h-5 w-5 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
-                                        <label th:for="'size-' + ${size.optionId}"
-                                               th:text="${size.value}"
-                                               class="text-sm font-medium text-gray-900">사이즈 옵션</label>
-                                    </div>
-                                    <div class="flex items-center space-x-2">
-                                        <span class="text-xs text-gray-500">재고/가격</span>
-                                        <svg class="w-4 h-4 text-gray-400" :class="{ 'rotate-180': showDetails }"
-                                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                  d="M19 9l-7 7-7-7"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-
-                                <!-- Details Panel -->
-                                <div x-show="showDetails"
-                                     x-transition:enter="transition ease-out duration-200"
-                                     x-transition:enter-start="opacity-0 transform -translate-y-2"
-                                     x-transition:enter-end="opacity-100 transform translate-y-0"
-                                     class="mt-4 pt-4 border-t border-gray-100">
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label th:for="'size-stock-' + ${size.optionId}"
-                                                   class="block text-xs font-medium text-gray-700 mb-2">
-                                                재고 수량
-                                            </label>
-                                            <div class="relative">
-                                                <input type="number"
-                                                       th:id="'size-stock-' + ${size.optionId}"
-                                                       th:name="'size-stock-' + ${size.optionId}"
-                                                       min="0"
-                                                       class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                       placeholder="0">
-                                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                    <span class="text-gray-500 text-sm"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label th:for="'size-price-' + ${size.optionId}"
-                                                   class="block text-xs font-medium text-gray-700 mb-2">
-                                                추가 가격
-                                            </label>
-                                            <div class="relative">
-                                                <input type="number"
-                                                       th:id="'size-price-' + ${size.optionId}"
-                                                       th:name="'size-price-' + ${size.optionId}"
-                                                       min="0"
-                                                       step="0.01"
-                                                       class="w-full pl-8 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                       placeholder="0">
-                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <span class="text-gray-500 text-sm">₩</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Color Options -->
-                    <div x-data="optionGroup()">
-                        <div class="flex items-center justify-between mb-4">
-                            <label class="text-lg font-semibold text-gray-900 flex items-center">
-                                <svg class="w-5 h-5 mr-2 text-primary-600" fill="none" stroke="currentColor"
-                                     viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"></path>
-                                </svg>
-                                색상 옵션
-                            </label>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div th:each="color : ${colorOptions}"
-                                 x-data="optionItem()"
-                                 class="relative bg-white border-2 border-gray-200 rounded-xl p-4 hover:border-primary-300 transition-all duration-200 cursor-pointer"
-                                 :class="{ 'border-primary-500 bg-primary-50': isSelected }"
-                                 @click="toggleDetails($event)">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center space-x-3">
-                                        <input type="checkbox"
-                                               th:id="'color-' + ${color.optionId}"
-                                               name="colors"
-                                               th:value="${color.optionId}"
-                                               x-model="isSelected"
-                                               @click.stop
-                                               class="h-5 w-5 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
-                                        <label th:for="'color-' + ${color.optionId}"
-                                               th:text="${color.value}"
-                                               class="text-sm font-medium text-gray-900">색상 옵션</label>
-                                        <div class="w-6 h-6 rounded-full border-2 border-gray-300 shadow-sm"
-                                             th:style="'background-color: ' + ${color.value}"
-                                             th:title="${color.value}"></div>
-                                    </div>
-                                    <div class="flex items-center space-x-2">
-                                        <!-- <span class="text-xs text-gray-500">재고/가격</span> -->
-                                        <svg class="w-4 h-4 text-gray-400" :class="{ 'rotate-180': showDetails }"
-                                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                  d="M19 9l-7 7-7-7"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-
-                                <!-- Details Panel -->
-                                <div x-show="showDetails"
-                                     x-transition:enter="transition ease-out duration-200"
-                                     x-transition:enter-start="opacity-0 transform -translate-y-2"
-                                     x-transition:enter-end="opacity-100 transform translate-y-0"
-                                     class="mt-4 pt-4 border-t border-gray-100">
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label th:for="'color-stock-' + ${color.optionId}"
-                                                   class="block text-xs font-medium text-gray-700 mb-2">
-                                                재고 수량
-                                            </label>
-                                            <div class="relative">
-                                                <input type="number"
-                                                       th:id="'color-stock-' + ${color.optionId}"
-                                                       th:name="'color-stock-' + ${color.optionId}"
-                                                       min="0"
-                                                       class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                       placeholder="0">
-                                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                    <span class="text-gray-500 text-sm"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label th:for="'color-price-' + ${color.optionId}"
-                                                   class="block text-xs font-medium text-gray-700 mb-2">
-                                                추가 가격
-                                            </label>
-                                            <div class="relative">
-                                                <input type="number"
-                                                       th:id="'color-price-' + ${color.optionId}"
-                                                       th:name="'color-price-' + ${color.optionId}"
-                                                       min="0"
-                                                       step="0.01"
-                                                       class="w-full pl-8 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                                       placeholder="0">
-                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <span class="text-gray-500 text-sm">₩</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Form Actions -->
-                <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-                    <a href="/"
-                       class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
-                        취소
-                    </a>
-                    <button type="submit"
-                            class="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
-                        상품 등록
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
 
 <script layout:fragment="scripts" th:inline="javascript">
-    function imageUpload() {
-        return {
+    // Image Upload functionality
+    document.addEventListener('DOMContentLoaded', function () {
+        const imageUpload = {
             images: [],
             maxFiles: 10,
             isDragOver: false,
 
-            handleFileSelect(event) {
-                const files = Array.from(event.target.files);
-                this.processFiles(files);
+            init() {
+                this.bindEvents();
             },
 
-            handleDrop(event) {
-                this.isDragOver = false;
-                const files = Array.from(event.dataTransfer.files);
+            bindEvents() {
+                // File input change
+                document.getElementById('fileInput').addEventListener('change', (e) => {
+                    this.handleFileSelect(e);
+                });
+
+                // Select file button
+                document.getElementById('selectFileBtn').addEventListener('click', () => {
+                    document.getElementById('fileInput').click();
+                });
+
+                // Clear images button
+                document.getElementById('clearImagesBtn').addEventListener('click', () => {
+                    this.clearImages();
+                });
+
+                // Reorder images button
+                document.getElementById('reorderImagesBtn').addEventListener('click', () => {
+                    this.reorderImages();
+                });
+
+                // Drag and drop events
+                const uploadArea = document.getElementById('uploadArea');
+                uploadArea.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    this.isDragOver = true;
+                    uploadArea.classList.add('border-primary', 'bg-primary/10');
+                });
+
+                uploadArea.addEventListener('dragleave', (e) => {
+                    e.preventDefault();
+                    this.isDragOver = false;
+                    uploadArea.classList.remove('border-primary', 'bg-primary/10');
+                });
+
+                uploadArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    this.isDragOver = false;
+                    uploadArea.classList.remove('border-primary', 'bg-primary/10');
+                    const files = Array.from(e.dataTransfer.files);
+                    this.processFiles(files);
+                });
+            },
+
+            handleFileSelect(event) {
+                const files = Array.from(event.target.files);
                 this.processFiles(files);
             },
 
@@ -542,50 +382,180 @@
 
                 files.forEach(file => {
                     if (file.type.startsWith('image/')) {
-                        // 파일 크기 체크 (10MB)
                         if (file.size > 10 * 1024 * 1024) {
                             alert(`${file.name} 파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다.`);
                             return;
                         }
 
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
+                        const previewUrl = URL.createObjectURL(file);
+                        const img = new Image();
+                        img.onload = () => {
                             this.images.push({
                                 file: file,
-                                preview: e.target.result,
+                                preview: previewUrl,
                                 name: file.name,
                                 size: this.formatFileSize(file.size)
                             });
+                            this.updateUI();
                         };
-                        reader.readAsDataURL(file);
-
-                        // 파일 입력 필드에 파일 추가
-                        this.updateFileInput(files);
+                        img.onerror = () => {
+                            // Revoke on error and notify
+                            URL.revokeObjectURL(previewUrl);
+                            alert(`${file.name} 이미지 파일이 손상되었습니다.`);
+                        };
+                        img.src = previewUrl;
                     } else {
                         alert(`${file.name}은(는) 이미지 파일이 아닙니다.`);
                     }
                 });
             },
 
-            updateFileInput(newFiles) {
-                // 기존 파일과 새 파일을 합쳐서 FileList 생성
-                const allFiles = [...this.images.map(img => img.file), ...newFiles];
+            updateUI() {
+                this.updateImageGrid();
+                this.updateButtons();
+                this.updateFileInput();
+            },
+
+            updateImageGrid() {
+                const imageGrid = document.getElementById('imageGrid');
+                const imageCount = document.getElementById('imageCount');
+                const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+
+                imageCount.textContent = this.images.length;
+
+                if (this.images.length > 0) {
+                    imagePreviewContainer.classList.remove('hidden');
+                    imageGrid.innerHTML = '';
+
+                    this.images.forEach((image, index) => {
+                        const imageElement = this.createImageElement(image, index);
+                        imageGrid.appendChild(imageElement);
+                    });
+                } else {
+                    imagePreviewContainer.classList.add('hidden');
+                }
+            },
+
+            createImageElement(image, index) {
+                const div = document.createElement('div');
+                div.className = 'relative group';
+                div.innerHTML = `
+                    <div class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow">
+                        <figure class="relative">
+                            <img src="${image.preview}"
+                                 alt="상품 이미지 ${index + 1}" 
+                                 class="block w-full h-32 object-cover rounded-t-lg bg-white">
+                            
+                            <!-- Overlay on hover -->
+                            <div class="absolute inset-0 bg-transparent group-hover:bg-black/30 transition-all duration-200 flex items-center justify-center pointer-events-none">
+                                <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 space-y-2 pointer-events-auto">
+                                                                         ${index > 0 ? `
+                                         <button type="button" class="move-up-btn btn btn-circle btn-sm bg-white hover:bg-gray-100" data-index="${index}">
+                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                             </svg>
+                                         </button>
+                                     ` : ''}
+                                     ${index < this.images.length - 1 ? `
+                                         <button type="button" class="move-down-btn btn btn-circle btn-sm bg-white hover:bg-gray-100" data-index="${index}">
+                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                             </svg>
+                                         </button>
+                                     ` : ''}
+                                </div>
+                            </div>
+
+                             <!-- Remove button -->
+                             <button type="button" class="remove-image-btn absolute top-2 right-2 btn btn-circle btn-sm btn-error opacity-0 group-hover:opacity-100 transition-opacity duration-200" data-index="${index}">
+                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                 </svg>
+                             </button>
+
+                            <!-- Main image indicator -->
+                            ${index === 0 ? `
+                                <div class="absolute top-2 left-2 badge badge-primary">
+                                    대표
+                                </div>
+                            ` : ''}
+                        </figure>
+                        <div class="card-body p-2">
+                            <p class="text-xs opacity-70 truncate">${image.name}</p>
+                        </div>
+                    </div>
+                `;
+
+                // Add event listeners
+                const removeBtn = div.querySelector('.remove-image-btn');
+                if (removeBtn) {
+                    removeBtn.addEventListener('click', () => this.removeImage(index));
+                }
+
+                const moveUpBtn = div.querySelector('.move-up-btn');
+                if (moveUpBtn) {
+                    moveUpBtn.addEventListener('click', () => this.moveImage(index, -1));
+                }
+
+                const moveDownBtn = div.querySelector('.move-down-btn');
+                if (moveDownBtn) {
+                    moveDownBtn.addEventListener('click', () => this.moveImage(index, 1));
+                }
+
+                return div;
+            },
+
+            updateButtons() {
+                const clearBtn = document.getElementById('clearImagesBtn');
+                const reorderBtn = document.getElementById('reorderImagesBtn');
+
+                if (this.images.length > 0) {
+                    clearBtn.classList.remove('hidden');
+                } else {
+                    clearBtn.classList.add('hidden');
+                }
+
+                if (this.images.length > 1) {
+                    reorderBtn.classList.remove('hidden');
+                } else {
+                    reorderBtn.classList.add('hidden');
+                }
+            },
+
+            updateFileInput() {
+                const fileInput = document.getElementById('fileInput');
+                fileInput.required = this.images.length === 0;
+
+                // Update the actual file input
                 const dataTransfer = new DataTransfer();
-                allFiles.forEach(file => dataTransfer.items.add(file));
-                this.$refs.fileInput.files = dataTransfer.files;
+                this.images.forEach(img => dataTransfer.items.add(img.file));
+                fileInput.files = dataTransfer.files;
             },
 
             removeImage(index) {
+                const image = this.images[index];
+                if (image && image.preview && typeof image.preview === 'string' && image.preview.startsWith('blob:')) {
+                    try {
+                        URL.revokeObjectURL(image.preview);
+                    } catch (e) { /* ignore */
+                    }
+                }
                 this.images.splice(index, 1);
-                this.$refs.fileInput.required = this.images.length === 0;
-                this.updateFileInput([]);
+                this.updateUI();
             },
 
             clearImages() {
+                // Revoke object URLs to prevent memory leaks
+                this.images.forEach(img => {
+                    if (img && img.preview && typeof img.preview === 'string' && img.preview.startsWith('blob:')) {
+                        try {
+                            URL.revokeObjectURL(img.preview);
+                        } catch (e) { /* ignore */
+                        }
+                    }
+                });
                 this.images = [];
-                this.$refs.fileInput.value = '';
-                this.$refs.fileInput.required = true;
-                this.updateFileInput([]);
+                this.updateUI();
             },
 
             moveImage(index, direction) {
@@ -594,13 +564,11 @@
                     const temp = this.images[index];
                     this.images[index] = this.images[newIndex];
                     this.images[newIndex] = temp;
-                    this.updateFileInput([]);
+                    this.updateUI();
                 }
             },
 
             reorderImages() {
-                // 드래그 앤 드롭으로 순서 변경 기능을 위한 모드 토글
-                // 향후 구현 가능
                 alert('순서 변경 기능은 드래그 앤 드롭으로 구현 예정입니다.');
             },
 
@@ -611,91 +579,66 @@
                 const i = Math.floor(Math.log(bytes) / Math.log(k));
                 return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
             }
-        }
-    }
+        };
 
-    // 옵션 그룹 관리
-    function optionGroup() {
+        // Initialize image upload
+        imageUpload.init();
+    });
+
+    // Option Manager functionality (keeping Alpine.js for now)
+    function optionManager() {
         return {
-            selectedCount: 0,
-            totalCount: 0,
+            options: [
+                {name: '', values: ''}
+            ],
+            combinations: [],
 
-            init() {
-                this.totalCount = this.$el.querySelectorAll('input[type="checkbox"]').length;
-                this.updateSelectedCount();
+            addOption() {
+                this.options.push({name: '', values: ''});
             },
 
-            updateSelectedCount() {
-                this.selectedCount = this.$el.querySelectorAll('input[type="checkbox"]:checked').length;
-            },
-
-            selectAll() {
-                this.$el.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                    checkbox.checked = true;
-                });
-                this.updateSelectedCount();
-            },
-
-            deselectAll() {
-                this.$el.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                    checkbox.checked = false;
-                });
-                this.updateSelectedCount();
-            }
-        }
-    }
-
-    // 개별 옵션 아이템 관리
-    function optionItem() {
-        return {
-            isSelected: false,
-            showDetails: false,
-
-            init() {
-                this.$watch('isSelected', (value) => {
-                    if (value) {
-                        this.showDetails = true;
-                    } else {
-                        this.showDetails = false;
-                        // 체크 해제 시 입력값 초기화
-                        const stockInput = this.$el.querySelector('input[type="number"]:first-of-type');
-                        const priceInput = this.$el.querySelector('input[type="number"]:last-of-type');
-                        if (stockInput) stockInput.value = '';
-                        if (priceInput) priceInput.value = '';
-                    }
-
-                    // 부모 컴포넌트의 선택 개수 업데이트
-                    const parentGroup = this.$el.closest('[x-data*="optionGroup"]');
-                    if (parentGroup && parentGroup._x_dataStack) {
-                        const groupData = parentGroup._x_dataStack[0];
-                        if (groupData && groupData.updateSelectedCount) {
-                            groupData.updateSelectedCount();
-                        }
-                    }
-                });
-            },
-
-            toggleDetails(event) {
-                // 체크박스나 입력 필드 클릭이 아닌 경우에만 상세 패널 토글
-                if (!event.target.closest('input[type="checkbox"]') &&
-                    !event.target.closest('input[type="number"]') &&
-                    !event.target.closest('label')) {
-                    this.showDetails = !this.showDetails;
-
-                    // 상세 패널이 열릴 때 체크박스도 자동으로 체크
-                    if (this.showDetails && !this.isSelected) {
-                        this.isSelected = true;
-                        // 추가 가격 필드를 기본값 0으로 설정
-                        const priceInput = this.$el.querySelector('input[type="number"][step="0.01"]');
-                        if (priceInput && !priceInput.value) {
-                            priceInput.value = '0';
-                        }
-                    }
-                    // 상세 패널이 닫힐 때 체크박스도 자동으로 해제
-                    else if (!this.showDetails && this.isSelected) {
-                        this.isSelected = false;
-                    }
+            removeOption(index) {
+                if (this.options.length > 1) {
+                    this.options.splice(index, 1);
+                    this.generateCombinations();
                 }
+            },
+
+            generateCombinations() {
+                // 유효한 옵션만 필터링
+                const validOptions = this.options.filter(opt => opt.name && opt.values.trim());
+
+                if (validOptions.length === 0) {
+                    this.combinations = [];
+                    return;
+                }
+
+                // 옵션 값들을 파싱
+                const optionMap = {};
+                validOptions.forEach(opt => {
+                    const values = opt.values.split(',').map(v => v.trim()).filter(v => v);
+                    if (values.length > 0) {
+                        optionMap[opt.name] = values;
+                    }
+                });
+
+                const keys = Object.keys(optionMap);
+                if (keys.length === 0) {
+                    this.combinations = [];
+                    return;
+                }
+
+                // 조합 생성
+                const combos = keys.reduce((acc, key) =>
+                    acc.flatMap(c => optionMap[key].map(v => ({...c, [key]: v}))), [{}]
+                ).map(combo => ({
+                    sku: `PROD-${Object.values(combo).join('-')}`,
+                    additionalPrice: 0,
+                    stock: 0,
+                    options: Object.entries(combo).map(([k, v]) => ({name: k, value: v}))
+                }));
+
+                this.combinations = combos;
             }
         }
     }

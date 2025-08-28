@@ -10,4 +10,5 @@ data class Image(
     val imageUrl: String,
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,
+    val deletedAt: LocalDateTime? = null
 )

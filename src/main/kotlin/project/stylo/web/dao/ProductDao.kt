@@ -33,7 +33,6 @@ class ProductDao(
             .set(PRODUCT.NAME, request.name)
             .set(PRODUCT.DESCRIPTION, request.description)
             .set(PRODUCT.PRICE, request.price)
-            .set(PRODUCT.STOCK, request.stock)
             .set(PRODUCT.CREATED_BY, memberId)
             .returning(PRODUCT.PRODUCT_ID)
             .fetchOne(PRODUCT.PRODUCT_ID)!!
@@ -66,7 +65,6 @@ class ProductDao(
             .set(PRODUCT.NAME, product.name)
             .set(PRODUCT.DESCRIPTION, product.description)
             .set(PRODUCT.PRICE, product.price)
-            .set(PRODUCT.STOCK, product.stock)
             .set(PRODUCT.THUMBNAIL_URL, product.thumbnailUrl)
             .set(PRODUCT.UPDATED_AT, LocalDateTime.now())
             .where(PRODUCT.PRODUCT_ID.eq(product.productId))
@@ -100,33 +98,33 @@ class ProductDao(
             )
             .and(request.minPrice.andIfNotNull { PRODUCT.PRICE.greaterOrEqual(it) })
             .and(request.maxPrice.andIfNotNull { PRODUCT.PRICE.lessOrEqual(it) })
-            .and(
-                request.genderIds.existsIfNotEmpty(
-                    dsl,
-                    PRODUCT_OPTION,
-                    PRODUCT_OPTION.PRODUCT_ID,
-                    PRODUCT.PRODUCT_ID,
-                    PRODUCT_OPTION.OPTION_ID
-                )
-            )
-            .and(
-                request.sizeIds.existsIfNotEmpty(
-                    dsl,
-                    PRODUCT_OPTION,
-                    PRODUCT_OPTION.PRODUCT_ID,
-                    PRODUCT.PRODUCT_ID,
-                    PRODUCT_OPTION.OPTION_ID
-                )
-            )
-            .and(
-                request.colorIds.existsIfNotEmpty(
-                    dsl,
-                    PRODUCT_OPTION,
-                    PRODUCT_OPTION.PRODUCT_ID,
-                    PRODUCT.PRODUCT_ID,
-                    PRODUCT_OPTION.OPTION_ID
-                )
-            )
+//            .and(
+//                request.genderIds.existsIfNotEmpty(
+//                    dsl,
+//                    PRODUCT_OPTION,
+//                    PRODUCT_OPTION.PRODUCT_ID,
+//                    PRODUCT.PRODUCT_ID,
+//                    PRODUCT_OPTION.OPTION_ID
+//                )
+//            )
+//            .and(
+//                request.sizeIds.existsIfNotEmpty(
+//                    dsl,
+//                    PRODUCT_OPTION,
+//                    PRODUCT_OPTION.PRODUCT_ID,
+//                    PRODUCT.PRODUCT_ID,
+//                    PRODUCT_OPTION.OPTION_ID
+//                )
+//            )
+//            .and(
+//                request.colorIds.existsIfNotEmpty(
+//                    dsl,
+//                    PRODUCT_OPTION,
+//                    PRODUCT_OPTION.PRODUCT_ID,
+//                    PRODUCT.PRODUCT_ID,
+//                    PRODUCT_OPTION.OPTION_ID
+//                )
+//            )
 
         // 전체 개수 조회
         val totalCount = dsl.fetchCount(baseQuery)

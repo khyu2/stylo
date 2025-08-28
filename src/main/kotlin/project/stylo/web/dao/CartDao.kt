@@ -2,8 +2,6 @@ package project.stylo.web.dao
 
 import org.jooq.DSLContext
 import org.jooq.generated.tables.JCartItem
-import org.jooq.generated.tables.JOption
-import org.jooq.generated.tables.JOptionType
 import org.jooq.generated.tables.JProduct
 import org.springframework.stereotype.Repository
 import project.stylo.web.dto.response.CartItemResponse
@@ -13,29 +11,21 @@ class CartDao(
     private val dsl: DSLContext
 ) {
     companion object {
-        private val CART_ITEM = JCartItem.CART_ITEM
         private val PRODUCT = JProduct.PRODUCT
-        private val OPTION = JOption.OPTION
-        private val OPTION_TYPE = JOptionType.OPTION_TYPE
+        private val CART_ITEM = JCartItem.CART_ITEM
     }
 
     fun findByMemberId(memberId: Long): List<CartItemResponse> {
         return dsl
             .select(
                 CART_ITEM.CART_ITEM_ID,
-                CART_ITEM.PRODUCT_ID,
-                CART_ITEM.OPTION_ID,
+                CART_ITEM.PRODUCT_OPTION_ID,
                 CART_ITEM.QUANTITY,
                 PRODUCT.NAME,
                 PRODUCT.PRICE,
                 PRODUCT.THUMBNAIL_URL,
-                OPTION.VALUE.`as`("optionValue"),
-                OPTION_TYPE.NAME.`as`("optionTypeName")
             )
             .from(CART_ITEM)
-            .leftJoin(PRODUCT).on(CART_ITEM.PRODUCT_ID.eq(PRODUCT.PRODUCT_ID))
-            .leftJoin(OPTION).on(CART_ITEM.OPTION_ID.eq(OPTION.OPTION_ID))
-            .leftJoin(OPTION_TYPE).on(OPTION.OPTION_TYPE_ID.eq(OPTION_TYPE.OPTION_TYPE_ID))
             .where(CART_ITEM.MEMBER_ID.eq(memberId))
             .fetchInto(CartItemResponse::class.java)
     }
@@ -58,8 +48,6 @@ class CartDao(
             .select(CART_ITEM.CART_ITEM_ID, CART_ITEM.QUANTITY)
             .from(CART_ITEM)
             .where(CART_ITEM.MEMBER_ID.eq(memberId))
-            .and(CART_ITEM.PRODUCT_ID.eq(productId))
-            .and(CART_ITEM.OPTION_ID.eq(optionId))
             .fetchOne()
 
         if (existingItem != null) {
@@ -77,8 +65,6 @@ class CartDao(
             dsl
                 .insertInto(CART_ITEM)
                 .set(CART_ITEM.MEMBER_ID, memberId)
-                .set(CART_ITEM.PRODUCT_ID, productId)
-                .set(CART_ITEM.OPTION_ID, optionId)
                 .set(CART_ITEM.QUANTITY, quantity)
                 .execute()
         }

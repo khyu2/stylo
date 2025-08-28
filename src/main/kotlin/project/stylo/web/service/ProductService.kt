@@ -12,13 +12,13 @@ import project.stylo.common.exception.BaseException
 import project.stylo.common.s3.FileStorageService
 import project.stylo.web.dao.ImageDao
 import project.stylo.web.dao.ProductDao
-import project.stylo.web.dao.ProductOptionDao
 import project.stylo.web.domain.Member
 import project.stylo.web.domain.Product
 import project.stylo.web.domain.enums.ImageOwnerType
 import project.stylo.web.dto.request.ProductRequest
 import project.stylo.web.dto.request.ProductSearchRequest
 import project.stylo.web.dto.response.PresignedUrlResponse
+import project.stylo.web.dto.response.ProductOptionResponse
 import project.stylo.web.dto.response.ProductResponse
 import project.stylo.web.exception.ProductExceptionType
 import java.math.BigDecimal
@@ -28,7 +28,6 @@ import java.math.BigDecimal
 class ProductService(
     private val imageDao: ImageDao,
     private val productDao: ProductDao,
-    private val productOptionDao: ProductOptionDao,
     private val fileStorageService: FileStorageService
 ) {
     fun createProduct(member: Member, request: ProductRequest): ProductResponse {
@@ -76,10 +75,9 @@ class ProductService(
         }
     }
 
-    @Transactional(readOnly = true)
-    fun getProductOptions(productId: Long): List<Map<String, Any>> {
-        return productOptionDao.findProductOptionsWithDetails(productId)
-    }
+//    @Transactional(readOnly = true)
+//    fun getProductOptions(productId: Long): List<ProductOptionResponse> =
+//        productOptionDao.findProductOptionsWithDetails(productId)
 
     @Transactional(readOnly = true)
     fun getProducts(request: ProductSearchRequest, pageable: Pageable): Page<ProductResponse> {
@@ -104,7 +102,6 @@ class ProductService(
             name = request.name,
             description = request.description,
             price = request.price,
-            stock = request.stock,
             categoryId = request.category,
         )
 
@@ -139,27 +136,27 @@ class ProductService(
         request.genders.forEach { genderId ->
             val stock = request.genderStocks[genderId] ?: 0L
             val price = request.genderPrices[genderId] ?: BigDecimal.ZERO
-            productOptionDao.save(productId, genderId, price, stock)
+//            productOptionDao.save(productId, genderId, price, stock)
         }
 
         // 사이즈 옵션 처리
         request.sizes.forEach { sizeId ->
             val stock = request.sizeStocks[sizeId] ?: 0L
             val price = request.sizePrices[sizeId] ?: BigDecimal.ZERO
-            productOptionDao.save(productId, sizeId, price, stock)
+//            productOptionDao.save(productId, sizeId, price, stock)
         }
 
         // 색상 옵션 처리
         request.colors.forEach { colorId ->
             val stock = request.colorStocks[colorId] ?: 0L
             val price = request.colorPrices[colorId] ?: BigDecimal.ZERO
-            productOptionDao.save(productId, colorId, price, stock)
+//            productOptionDao.save(productId, colorId, price, stock)
         }
     }
 
     private fun updateProductOptions(productId: Long, request: ProductRequest) {
         // 기존 옵션 삭제
-        productOptionDao.deleteByProductId(productId)
+//        productOptionDao.deleteByProductId(productId)
 
         // 새로운 옵션 정보 저장
         processProductOptions(productId, request)
