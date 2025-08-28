@@ -29,7 +29,7 @@
             <div class="max-w-4xl mx-auto">
                 <div class="card bg-base-100 shadow-xl">
                     <div class="card-body p-6">
-                        <form action="/products" method="post" enctype="multipart/form-data" class="space-y-6">
+                        <form action="/products/create" method="post" enctype="multipart/form-data" class="space-y-6">
                             <!-- Product Name -->
                             <div class="form-control">
                                 <label class="label" for="name">
@@ -37,7 +37,7 @@
                                 </label>
                                 <input type="text"
                                        id="name"
-                                       name="product[name]"
+                                       name="name"
                                        required
                                        class="input input-bordered w-full"
                                        placeholder="상품명을 입력하세요">
@@ -49,7 +49,7 @@
                                     <span class="label-text text-base">상품 설명</span>
                                 </label>
                                 <textarea id="description"
-                                          name="product[description]"
+                                          name="description"
                                           rows="4"
                                           class="textarea w-full"
                                           placeholder="상품 정보를 입력하세요"></textarea>
@@ -61,7 +61,7 @@
                                     <span class="label-text text-base">카테고리 <span class="text-error">*</span></span>
                                 </label>
                                 <select id="category"
-                                        name="product[categoryId]"
+                                        name="categoryId"
                                         required
                                         class="select select-bordered w-full">
                                     <option value="">카테고리를 선택하세요</option>
@@ -81,7 +81,7 @@
                                     <span class="join-item bg-base-200 px-4 flex items-center">₩</span>
                                     <input type="number"
                                            id="price"
-                                           name="product[price]"
+                                           name="price"
                                            required
                                            min="0"
                                            step="0.01"
@@ -97,8 +97,7 @@
                                 </label>
                                 <div class="space-y-4">
                                     <!-- Upload Area -->
-                                    <div id="uploadArea"
-                                         class="border-2 border-dashed border-base-300 rounded-lg p-8 text-center hover:border-primary transition-colors">
+                                    <div id="uploadArea" class="border-2 border-dashed border-base-300 rounded-lg p-8 text-center hover:border-primary transition-colors">
                                         <div class="space-y-4">
                                             <div class="flex justify-center">
                                                 <i data-lucide="upload" class="w-12 h-12 opacity-50"></i>
@@ -147,8 +146,7 @@
                                             </div>
                                         </div>
 
-                                        <div id="imageGrid"
-                                             class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                        <div id="imageGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                                             <!-- Image elements will be added here by JavaScript -->
                                         </div>
                                     </div>
@@ -169,7 +167,7 @@
                                             <div class="space-y-4">
                                                 <template x-for="(option, index) in options" :key="index">
                                                     <div class="flex items-center gap-3 p-3 bg-base-100 rounded-lg">
-                                                        <select :name="`options[${index}][name]`"
+                                                        <select :name="`options[${index}].name`"
                                                                 x-model="option.name"
                                                                 class="select select-bordered select-sm w-32" required>
                                                             <option value="" disabled>타입</option>
@@ -178,7 +176,7 @@
                                                             <option value="COLOR">색상</option>
                                                         </select>
                                                         <input type="text"
-                                                               :name="`options[${index}][values]`"
+                                                               :name="`options[${index}].values`"
                                                                x-model="option.values"
                                                                placeholder="값을 쉼표로 구분 (예: 남성,여성)"
                                                                class="input input-bordered input-sm flex-1" required>
@@ -253,7 +251,7 @@
                                                                         <div class="join w-full">
                                                                             <label class="label join-item bg-base-300 px-2 text-xs">₩</label>
                                                                             <input type="number"
-                                                                                   :name="`combinations[${index}][additionalPrice]`"
+                                                                                   :name="`combinations[${index}].additionalPrice`"
                                                                                    x-model="combo.additionalPrice"
                                                                                    min="0"
                                                                                    step="0.01"
@@ -266,7 +264,7 @@
                                                                             <span class="label-text text-xs font-medium">재고</span>
                                                                         </label>
                                                                         <input type="number"
-                                                                               :name="`combinations[${index}][stock]`"
+                                                                               :name="`combinations[${index}].stock`"
                                                                                x-model="combo.stock"
                                                                                min="0"
                                                                                class="input input-bordered w-full input-sm"
@@ -276,10 +274,10 @@
 
                                                                 <!-- Hidden fields for form submission -->
                                                                 <input type="hidden"
-                                                                       :name="`combinations[${index}][sku]`"
+                                                                       :name="`combinations[${index}].sku`"
                                                                        x-model="combo.sku">
                                                                 <input type="hidden"
-                                                                       :name="`combinations[${index}][options]`"
+                                                                       :name="`combinations[${index}].options`"
                                                                        x-model="JSON.stringify(combo.options)">
                                                             </div>
                                                         </div>
@@ -315,7 +313,7 @@
 
 <script layout:fragment="scripts" th:inline="javascript">
     // Image Upload functionality
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const imageUpload = {
             images: [],
             maxFiles: 10,
@@ -443,9 +441,9 @@
                     <div class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow">
                         <figure class="relative">
                             <img src="${image.preview}"
-                                 alt="상품 이미지 ${index + 1}" 
+                                 alt="상품 이미지 ${index + 1}"
                                  class="block w-full h-32 object-cover rounded-t-lg bg-white">
-                            
+
                             <!-- Overlay on hover -->
                             <div class="absolute inset-0 bg-transparent group-hover:bg-black/30 transition-all duration-200 flex items-center justify-center pointer-events-none">
                                 <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 space-y-2 pointer-events-auto">
@@ -466,7 +464,7 @@
                                 </div>
                             </div>
 
-                             <!-- Remove button -->
+                                                         <!-- Remove button -->
                              <button type="button" class="remove-image-btn absolute top-2 right-2 btn btn-circle btn-sm btn-error opacity-0 group-hover:opacity-100 transition-opacity duration-200" data-index="${index}">
                                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>

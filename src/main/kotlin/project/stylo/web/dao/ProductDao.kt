@@ -29,7 +29,7 @@ class ProductDao(
 
     fun save(memberId: Long, request: ProductRequest): Product {
         val id = dsl.insertInto(PRODUCT)
-            .set(PRODUCT.CATEGORY_ID, request.category)
+            .set(PRODUCT.CATEGORY_ID, request.categoryId)
             .set(PRODUCT.NAME, request.name)
             .set(PRODUCT.DESCRIPTION, request.description)
             .set(PRODUCT.PRICE, request.price)

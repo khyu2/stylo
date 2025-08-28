@@ -11,23 +11,29 @@ import project.stylo.common.config.CacheConfig.Companion.PRODUCT_CACHE
 import project.stylo.common.exception.BaseException
 import project.stylo.common.s3.FileStorageService
 import project.stylo.web.dao.ImageDao
+import project.stylo.web.dao.OptionKeyDao
+import project.stylo.web.dao.OptionValueDao
+import project.stylo.web.dao.OptionVariantDao
 import project.stylo.web.dao.ProductDao
+import project.stylo.web.dao.ProductOptionDao
 import project.stylo.web.domain.Member
 import project.stylo.web.domain.Product
 import project.stylo.web.domain.enums.ImageOwnerType
 import project.stylo.web.dto.request.ProductRequest
 import project.stylo.web.dto.request.ProductSearchRequest
 import project.stylo.web.dto.response.PresignedUrlResponse
-import project.stylo.web.dto.response.ProductOptionResponse
 import project.stylo.web.dto.response.ProductResponse
 import project.stylo.web.exception.ProductExceptionType
-import java.math.BigDecimal
 
 @Service
 @Transactional
 class ProductService(
     private val imageDao: ImageDao,
     private val productDao: ProductDao,
+    private val optionKeyDao: OptionKeyDao,
+    private val optionValueDao: OptionValueDao,
+    private val optionVariantDao: OptionVariantDao,
+    private val productOptionDao: ProductOptionDao,
     private val fileStorageService: FileStorageService
 ) {
     fun createProduct(member: Member, request: ProductRequest): ProductResponse {
@@ -50,8 +56,25 @@ class ProductService(
 
         val productUrl = fileStorageService.getPresignedUrl(thumbnailUrl!!)
 
-        // 옵션별 재고/가격 정보 처리
-        processProductOptions(product.productId, request)
+        request.combinations.forEach { combination ->
+            val productOptionId = productOptionDao.save(combination, product.productId)
+
+            combination
+        }
+
+        // 옵션 키 및 옵션 값 저장
+        request.options.forEach { option ->
+            val optionKeyId = optionKeyDao.save(product.productId, option.name)
+            option.values.forEach { value ->
+                val optionValueId = optionValueDao.save(optionKeyId, value)
+            }
+        }
+
+        // 옵션 조합 저장
+        request.combinations.forEach { combination ->
+            val productOptionId = productOptionDao.save(combination, product.productId)
+//            optionVariantDao.save(productOptionId, optionValueId)
+        }
 
         return ProductResponse.from(product, productUrl)
     }
@@ -102,13 +125,10 @@ class ProductService(
             name = request.name,
             description = request.description,
             price = request.price,
-            categoryId = request.category,
+            categoryId = request.categoryId,
         )
 
         productDao.update(updatedProduct)
-
-        // 옵션 정보 업데이트
-        updateProductOptions(productId, request)
     }
 
     fun deleteProduct(productId: Long) {
@@ -129,36 +149,5 @@ class ProductService(
                 imageDao.save(product.productId, ImageOwnerType.PRODUCT, uploadUrl)
             }
         }
-    }
-
-    private fun processProductOptions(productId: Long, request: ProductRequest) {
-        // 성별 옵션 처리
-        request.genders.forEach { genderId ->
-            val stock = request.genderStocks[genderId] ?: 0L
-            val price = request.genderPrices[genderId] ?: BigDecimal.ZERO
-//            productOptionDao.save(productId, genderId, price, stock)
-        }
-
-        // 사이즈 옵션 처리
-        request.sizes.forEach { sizeId ->
-            val stock = request.sizeStocks[sizeId] ?: 0L
-            val price = request.sizePrices[sizeId] ?: BigDecimal.ZERO
-//            productOptionDao.save(productId, sizeId, price, stock)
-        }
-
-        // 색상 옵션 처리
-        request.colors.forEach { colorId ->
-            val stock = request.colorStocks[colorId] ?: 0L
-            val price = request.colorPrices[colorId] ?: BigDecimal.ZERO
-//            productOptionDao.save(productId, colorId, price, stock)
-        }
-    }
-
-    private fun updateProductOptions(productId: Long, request: ProductRequest) {
-        // 기존 옵션 삭제
-//        productOptionDao.deleteByProductId(productId)
-
-        // 새로운 옵션 정보 저장
-        processProductOptions(productId, request)
     }
 }
