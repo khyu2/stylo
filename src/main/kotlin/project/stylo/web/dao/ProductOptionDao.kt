@@ -4,6 +4,7 @@ import org.jooq.DSLContext
 import org.jooq.generated.tables.JProductOption
 import org.springframework.stereotype.Repository
 import project.stylo.common.exception.BaseException
+import project.stylo.web.domain.ProductOption
 import project.stylo.web.dto.request.OptionCombination
 import project.stylo.web.exception.OptionExceptionType
 
@@ -22,4 +23,9 @@ class ProductOptionDao(private val dsl: DSLContext) {
             .returning(PRODUCT_OPTION.PRODUCT_OPTION_ID)
             .fetchOne(PRODUCT_OPTION.PRODUCT_OPTION_ID)
             ?: throw BaseException(OptionExceptionType.PRODUCT_OPTION_DUPLICATED)
+
+    fun findAllByProductId(productId: Long): List<ProductOption> =
+        dsl.selectFrom(PRODUCT_OPTION)
+            .where(PRODUCT_OPTION.PRODUCT_ID.eq(productId))
+            .fetchInto(ProductOption::class.java)
 }

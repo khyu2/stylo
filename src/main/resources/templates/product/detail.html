@@ -9,316 +9,317 @@
 </head>
 <body>
 <div layout:fragment="content">
-    <div class="container mx-auto px-4 py-8">
-        <div class="card bg-base-100 shadow-xl">
-            <!-- Product Header -->
-            <div class="card-body border-b">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h1 class="card-title text-3xl" th:text="${product.name}">상품명</h1>
-                        <p class="text-base-content/70 mt-2" th:text="${product.description ?: '상품 설명이 없습니다.'}">상품
-                            설명</p>
-                    </div>
+    <div class="bg-base-100">
+        <div class="container mx-auto px-4 py-8">
+            <!-- Page Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold" th:text="${product.name}">상품명</h1>
+                <p class="text-lg opacity-70 mt-2" th:text="${product.description ?: '상품 설명이 없습니다.'}">상품 설명</p>
+            </div>
 
-                    <!-- Admin Actions -->
-                    <div sec:authorize="hasRole('ADMIN')" class="flex gap-2">
-                        <a th:href="@{'/products/' + ${product.productId} + '/edit'}"
-                           class="btn btn-sm btn-outline btn-primary">
-                            <i data-lucide="edit" class="h-4 w-4"></i>수정
-                        </a>
-                        <form th:action="@{'/products/' + ${product.productId} + '/delete'}" method="post"
-                              class="inline">
-                            <button type="submit"
-                                    onclick="return confirm('정말로 이 상품을 삭제하시겠습니까?')"
-                                    class="btn btn-sm btn-outline btn-error">
-                                <i data-lucide="trash-2" class="h-4 w-4"></i>삭제
-                            </button>
-                        </form>
-                    </div>
+            <!-- Admin Actions -->
+            <div sec:authorize="hasRole('ADMIN')" class="flex justify-center mb-6">
+                <div class="flex gap-2">
+                    <a th:href="@{'/products/' + ${product.productId} + '/edit'}"
+                       class="btn btn-outline btn-primary">
+                        <i data-lucide="edit" class="h-4 w-4 mr-2"></i>수정
+                    </a>
+                    <form th:action="@{'/products/' + ${product.productId} + '/delete'}" method="post" class="inline">
+                        <button type="submit"
+                                onclick="return confirm('정말로 이 상품을 삭제하시겠습니까?')"
+                                class="btn btn-outline btn-error">
+                            <i data-lucide="trash-2" class="h-4 w-4 mr-2"></i>삭제
+                        </button>
+                    </form>
                 </div>
             </div>
 
             <!-- Product Content -->
-            <div class="card-body">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Product Image Gallery -->
-                    <div class="space-y-4">
-                        <!-- Main Image -->
-                        <div class="bg-base-200 rounded-lg h-96 flex items-center justify-center overflow-hidden">
-                            <img id="mainImage"
-                                 th:src="${product.productUrl != null ? product.productUrl : '/images/default_product.jpeg'}"
-                                 alt="상품 이미지"
-                                 class="w-full h-full object-cover rounded-lg">
-                        </div>
-
-                        <!-- Product Images -->
-                        <div th:if="${productImages != null and !productImages.isEmpty()}" class="space-y-3">
-                            <h3 class="text-sm font-medium">상품 이미지</h3>
-                            <div class="flex gap-3 overflow-x-auto pb-2">
-                                <!-- Main product image thumbnail -->
-                                <div class="flex-shrink-0">
-                                    <img th:src="${product.productUrl != null ? product.productUrl : '/images/default_product.jpeg'}"
-                                         alt="메인 이미지"
-                                         onclick="changeMainImage(this.src, this)"
-                                         class="w-20 h-20 object-cover rounded-lg border-2 border-primary cursor-pointer hover:scale-105 active">
+            <div class="max-w-6xl mx-auto">
+                <div class="card bg-base-100 shadow-xl">
+                    <div class="card-body p-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- Product Image Gallery -->
+                            <div class="space-y-4">
+                                <!-- Main Image -->
+                                <div class="bg-base-200 rounded-lg h-96 flex items-center justify-center overflow-hidden">
+                                    <img id="mainImage"
+                                         th:src="${product.productUrl != null ? product.productUrl : '/images/default_product.jpeg'}"
+                                         alt="상품 이미지"
+                                         class="w-full h-full object-cover rounded-lg">
                                 </div>
 
-                                <!-- Additional product images -->
-                                <div th:each="image : ${productImages}" class="flex-shrink-0">
-                                    <img th:src="${image.url}" th:alt="'상품 이미지'"
-                                         onclick="changeMainImage(this.src, this)"
-                                         class="w-20 h-20 object-cover rounded-lg border-2 border-base-300 cursor-pointer hover:scale-105 hover:border-primary">
+                                <!-- Product Images -->
+                                <div th:if="${productImages != null and !productImages.isEmpty()}" class="space-y-3">
+                                    <h3 class="text-lg font-semibold">상품 이미지</h3>
+                                    <div class="flex gap-3 overflow-x-auto p-2">
+                                        <!-- Main product image thumbnail -->
+                                        <div class="flex-shrink-0">
+                                            <img th:src="${product.productUrl != null ? product.productUrl : '/images/default_product.jpeg'}"
+                                                 alt="메인 이미지"
+                                                 onclick="changeMainImage(this.src, this)"
+                                                 class="w-20 h-20 object-cover rounded-lg border-2 border-primary cursor-pointer hover:scale-105 transition-transform">
+                                        </div>
+
+                                        <!-- Additional product images -->
+                                        <div th:each="image : ${productImages}" class="flex-shrink-0">
+                                            <img th:src="${image.url}" th:alt="'상품 이미지'"
+                                                 onclick="changeMainImage(this.src, this)"
+                                                 class="w-20 h-20 object-cover rounded-lg border-2 border-base-300 cursor-pointer hover:scale-105 hover:border-primary transition-all">
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <!-- No additional images message -->
-                        <div th:if="${productImages == null or productImages.isEmpty()}" class="text-center py-4">
-                            <p class="text-sm text-base-content/60">추가 이미지가 없습니다.</p>
-                        </div>
-                    </div>
-
-                    <!-- Product Info -->
-                    <div class="space-y-6">
-                        <!-- Price -->
-                        <div class="bg-base-200 rounded-lg p-4">
-                                <span class="text-3xl font-bold"
-                                      th:text="${'₩' + #numbers.formatDecimal(product.price, 1, 'COMMA', 0, 'POINT')}">₩0</span>
-                        </div>
-
-                        <!-- Stock Status -->
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm font-medium">재고:</span>
-                            <span th:if="${product.stock > 0}"
-                                  class="badge badge-success"
-                                  th:text="${product.stock + '개'}">재고 있음</span>
-                            <span th:if="${product.stock <= 0}"
-                                  class="badge badge-error">품절</span>
-                        </div>
-
-                        <!-- Product Details -->
-                        <div class="space-y-4">
-                            <div class="border-t pt-4">
-                                <h3 class="text-lg font-medium mb-3">상품 정보</h3>
-                                <div class="space-y-2">
-                                    <div class="flex justify-between">
-                                        <span class="text-sm text-base-content/70">상품 ID</span>
-                                        <span class="text-sm font-medium" th:text="${product.productId}">-</span>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <span class="text-sm text-base-content/70">등록일</span>
-                                        <span class="text-sm font-medium"
-                                              th:text="${#temporals.format(product.createdAt, 'yyyy-MM-dd HH:mm')}">-</span>
-                                    </div>
-                                    <div th:if="${product.updatedAt != null}" class="flex justify-between">
-                                        <span class="text-sm text-base-content/70">수정일</span>
-                                        <span class="text-sm font-medium"
-                                              th:text="${#temporals.format(product.updatedAt, 'yyyy-MM-dd HH:mm')}">-</span>
-                                    </div>
+                                <!-- No additional images message -->
+                                <div th:if="${productImages == null or productImages.isEmpty()}" class="text-center py-4">
+                                    <p class="text-sm text-base-content/60">추가 이미지가 없습니다.</p>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Action Buttons -->
-                        <div class="space-y-3 pt-4">
-                            <form th:if="${product.stock > 0}" th:action="@{/cart/add}" method="post" class="space-y-3">
-                                <input type="hidden" name="productId" th:value="${product.productId}">
+                            <!-- Product Info -->
+                            <div class="space-y-6">
+                                <!-- Price -->
+                                <div class="card bg-base-200">
+                                    <div class="card-body p-6">
+                                        <div class="text-center">
+                                            <span class="text-4xl font-bold text-primary"
+                                                  th:text="${'₩' + #numbers.formatDecimal(product.price, 1, 'COMMA', 0, 'POINT')}">₩0</span>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                <!-- Product Options -->
-                                <div th:if="${productOptions != null and !productOptions.isEmpty()}" class="space-y-4">
-                                    <h3 class="text-lg font-medium">상품 옵션</h3>
+                                <!-- Stock Status -->
+                                <div class="flex items-center justify-center gap-2">
+                                    <span class="text-sm font-medium">재고:</span>
+                                    <span th:if="${product.totalStock > 0}"
+                                          class="badge badge-success badge-lg"
+                                          th:text="${product.totalStock + '개'}">재고 있음</span>
+                                    <span th:if="${product.totalStock <= 0}"
+                                          class="badge badge-error badge-lg">품절</span>
+                                </div>
 
-                                    <!-- Group options by type -->
-                                    <div th:each="optionGroup : ${groupedProductOptions}"
-                                         class="card bg-base-100 border">
-                                        <div class="card-body p-4">
-                                            <label class="block text-sm font-medium mb-2"
-                                                   th:text="${optionGroup.optionTypeName}">옵션 타입</label>
-                                            <div class="space-y-2">
-                                                <div th:each="option : ${optionGroup.options}"
-                                                     class="flex items-center justify-between p-3 border rounded-lg hover:border-primary transition-colors">
-                                                    <label class="flex items-center gap-3 cursor-pointer">
-                                                        <input type="radio"
-                                                               th:name="'option_' + ${optionGroup.optionTypeName}"
-                                                               th:value="${option.productOptionId}"
-                                                               th:data-extra-price="${option.extraPrice}"
-                                                               th:data-stock="${option.stock}"
-                                                               class="radio radio-primary"
-                                                               onchange="updateSelectedOption()">
-                                                        <span class="text-sm font-medium"
-                                                              th:text="${option.optionValue}">옵션 값</span>
-                                                    </label>
-                                                    <div class="text-right">
-                                                        <div class="text-sm font-medium"
-                                                             th:if="${option.extraPrice > 0}"
-                                                             th:text="${'+₩' + #numbers.formatDecimal(option.extraPrice, 1, 'COMMA', 0, 'POINT')}">
-                                                            +₩0
-                                                        </div>
-                                                        <div class="text-xs text-base-content/60"
-                                                             th:text="${'재고: ' + option.stock + '개'}">재고: 0개
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                <!-- Product Details -->
+                                <div class="card bg-base-100">
+                                    <div class="card-body p-4">
+                                        <h3 class="card-title text-lg mb-4">상품 정보</h3>
+                                        <div class="space-y-3">
+                                            <div class="flex justify-between">
+                                                <span class="text-sm text-base-content/70">상품 ID</span>
+                                                <span class="text-sm font-medium" th:text="${product.productId}">-</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-sm text-base-content/70">등록일</span>
+                                                <span class="text-sm font-medium"
+                                                      th:text="${#temporals.format(product.createdAt, 'yyyy-MM-dd HH:mm')}">-</span>
+                                            </div>
+                                            <div th:if="${product.updatedAt != null}" class="flex justify-between">
+                                                <span class="text-sm text-base-content/70">수정일</span>
+                                                <span class="text-sm font-medium"
+                                                      th:text="${#temporals.format(product.updatedAt, 'yyyy-MM-dd HH:mm')}">-</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Selected Option Info -->
-                                <div id="selectedOptionInfo" class="hidden alert alert-info">
-                                    <div class="flex justify-between items-center w-full">
-                                        <span class="text-sm font-medium">선택된 옵션:</span>
-                                        <span id="selectedOptionText" class="text-sm"></span>
-                                    </div>
-                                    <div id="extraPriceInfo" class="text-sm mt-1"></div>
-                                </div>
+                                <!-- Action Buttons -->
+                                <div class="space-y-4">
+                                    <form th:if="${product.totalStock > 0}" th:action="@{/cart/add}" method="post" class="space-y-4">
+                                        <input type="hidden" name="productId" th:value="${product.productId}">
 
-                                <!-- Quantity Selector -->
-                                <div class="flex items-center gap-4">
-                                    <label class="text-sm font-medium">수량:</label>
-                                    <div class="join">
-                                        <button type="button"
-                                                onclick="updateQuantity(-1)"
-                                                class="btn btn-sm join-item">
-                                            <i data-lucide="minus" class="h-4 w-4"></i>
-                                        </button>
-                                        <input type="number"
-                                               name="quantity"
-                                               id="quantity"
-                                               value="1"
-                                               min="1"
-                                               max="99"
-                                               class="input input-sm join-item w-16 text-center">
-                                        <button type="button"
-                                                onclick="updateQuantity(1)"
-                                                class="btn btn-sm join-item">
-                                            <i data-lucide="plus" class="h-4 w-4"></i>
-                                        </button>
-                                    </div>
-                                </div>
+                                        <!-- Product Options -->
+                                        <div th:if="${product.options != null and !product.options.isEmpty()}" class="space-y-4">
+                                            <h3 class="text-lg font-semibold">상품 옵션</h3>
 
-                                <button type="submit"
-                                        id="addToCartBtn"
-                                        class="btn btn-primary w-full">
-                                    <i data-lucide="shopping-cart" class="h-5 w-5"></i>장바구니에 추가
-                                </button>
-                            </form>
-                            <button th:if="${product.stock <= 0}"
-                                    disabled
-                                    class="btn btn-disabled w-full">
-                                품절
-                            </button>
+                                            <!-- SKU-based options -->
+                                            <div class="card bg-base-100">
+                                                <div class="card-body p-4">
+                                                    <label class="block text-sm font-medium mb-3">옵션 선택</label>
+                                                    <div class="space-y-2">
+                                                        <div th:each="option : ${product.options}"
+                                                             class="flex items-center justify-between p-3 border rounded-lg hover:border-primary transition-colors">
+                                                            <label class="flex items-center gap-3 cursor-pointer flex-1">
+                                                                <input type="radio"
+                                                                       name="selectedSku"
+                                                                       th:value="${option.sku}"
+                                                                       th:data-additional-price="${option.additionalPrice}"
+                                                                       th:data-stock="${option.stock}"
+                                                                       class="radio radio-primary"
+                                                                       onchange="updateSelectedOption()">
+                                                                <span class="text-sm font-medium"
+                                                                      th:text="${option.optionValue}">옵션 값</span>
+                                                            </label>
+                                                            <div class="text-right">
+                                                                <div class="text-sm font-medium text-primary"
+                                                                     th:if="${option.additionalPrice > 0}"
+                                                                     th:text="${'+₩' + #numbers.formatDecimal(option.additionalPrice, 1, 'COMMA', 0, 'POINT')}">
+                                                                    +₩0
+                                                                </div>
+                                                                <div class="text-xs text-base-content/60"
+                                                                     th:text="${'재고: ' + option.stock + '개'}">재고: 0개
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Selected Option Info -->
+                                        <div id="selectedOptionInfo" class="hidden">
+                                            <div class="alert alert-info">
+                                                <i data-lucide="info" class="h-4 w-4"></i>
+                                                <div class="flex-1">
+                                                    <div class="flex justify-between items-center w-full">
+                                                        <span class="text-sm font-medium">선택된 옵션:</span>
+                                                        <span id="selectedOptionText" class="text-sm"></span>
+                                                    </div>
+                                                    <div id="additionalPriceInfo" class="text-sm mt-1"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Quantity Selector -->
+                                        <div class="form-control">
+                                            <label class="label">
+                                                <span class="label-text font-medium">수량</span>
+                                            </label>
+                                            <div class="join w-full max-w-xs">
+                                                <button type="button"
+                                                        onclick="updateQuantity(-1)"
+                                                        class="btn btn-outline join-item">
+                                                    <i data-lucide="minus" class="h-4 w-4"></i>
+                                                </button>
+                                                <input type="number"
+                                                       name="quantity"
+                                                       id="quantity"
+                                                       value="1"
+                                                       min="1"
+                                                       max="99"
+                                                       class="input input-bordered join-item w-20 text-center">
+                                                <button type="button"
+                                                        onclick="updateQuantity(1)"
+                                                        class="btn btn-outline join-item">
+                                                    <i data-lucide="plus" class="h-4 w-4"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <button type="submit"
+                                                id="addToCartBtn"
+                                                class="btn btn-primary w-full btn-lg">
+                                            <i data-lucide="shopping-cart" class="h-5 w-5 mr-2"></i>장바구니에 추가
+                                        </button>
+                                    </form>
+                                    
+                                    <button th:if="${product.totalStock <= 0}"
+                                            disabled
+                                            class="btn btn-disabled w-full btn-lg">
+                                        <i data-lucide="x-circle" class="h-5 w-5 mr-2"></i>품절
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Back to Home -->
-        <div class="mt-6">
-            <a href="/"
-               class="btn btn-ghost btn-sm">
-                <i data-lucide="arrow-left" class="h-4 w-4"></i>
-                홈으로 돌아가기
-            </a>
+            <!-- Back to Home -->
+            <div class="text-center mt-8">
+                <a href="/"
+                   class="btn btn-ghost">
+                    <i data-lucide="arrow-left" class="h-4 w-4 mr-2"></i>
+                    홈으로 돌아가기
+                </a>
+            </div>
         </div>
     </div>
-
-    <script>
-        function changeMainImage(src, clickedElement = null) {
-            const mainImage = document.getElementById('mainImage');
-            mainImage.src = src;
-
-            const thumbnails = document.querySelectorAll('img[onclick*="changeMainImage"]');
-            thumbnails.forEach(thumb => {
-                thumb.classList.remove('border-primary');
-                thumb.classList.add('border-base-300');
-            });
-
-            if (clickedElement) {
-                clickedElement.classList.remove('border-base-300');
-                clickedElement.classList.add('border-primary');
-            }
-        }
-
-        function updateQuantity(change) {
-            const quantityInput = document.getElementById('quantity');
-            const currentQuantity = parseInt(quantityInput.value);
-            const newQuantity = Math.max(1, Math.min(99, currentQuantity + change));
-            quantityInput.value = newQuantity;
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const productOptions = document.querySelectorAll('input[type="radio"]');
-            const addToCartBtn = document.getElementById('addToCartBtn');
-
-            if (productOptions.length === 0) {
-                addToCartBtn.disabled = false;
-                addToCartBtn.classList.remove('btn-disabled');
-                addToCartBtn.classList.add('btn-primary');
-            }
-        });
-
-        function updateSelectedOption() {
-            const selectedOptionInfo = document.getElementById('selectedOptionInfo');
-            const selectedOptionText = document.getElementById('selectedOptionText');
-            const extraPriceInfo = document.getElementById('extraPriceInfo');
-            const addToCartBtn = document.getElementById('addToCartBtn');
-
-            const selectedRadios = document.querySelectorAll('input[type="radio"]:checked');
-
-            if (selectedRadios.length > 0) {
-                let selectedOptions = [];
-                let totalExtraPrice = 0;
-
-                selectedRadios.forEach(radio => {
-                    const optionText = radio.nextElementSibling.textContent;
-                    const extraPrice = parseFloat(radio.dataset.extraPrice) || 0;
-
-                    selectedOptions.push(optionText);
-                    totalExtraPrice += extraPrice;
-                });
-
-                selectedOptionText.textContent = selectedOptions.join(', ');
-                extraPriceInfo.textContent = totalExtraPrice > 0 ? `추가 금액: +₩${totalExtraPrice.toLocaleString()}` : '추가 금액: ₩0';
-
-                selectedOptionInfo.classList.remove('hidden');
-                addToCartBtn.disabled = false;
-                addToCartBtn.classList.remove('btn-disabled');
-                addToCartBtn.classList.add('btn-primary');
-            } else {
-                selectedOptionText.textContent = '옵션을 선택해주세요.';
-                extraPriceInfo.textContent = '추가 금액: ₩0';
-
-                selectedOptionInfo.classList.add('hidden');
-                addToCartBtn.disabled = true;
-                addToCartBtn.classList.remove('btn-primary');
-                addToCartBtn.classList.add('btn-disabled');
-            }
-        }
-
-        document.querySelector('form').addEventListener('submit', function (e) {
-            const selectedRadios = document.querySelectorAll('input[type="radio"]:checked');
-            const productOptions = document.querySelectorAll('input[type="radio"]');
-
-            if (productOptions.length > 0 && selectedRadios.length === 0) {
-                e.preventDefault();
-                alert('옵션을 선택해주세요.');
-                return;
-            }
-
-            const existingOptionInputs = document.querySelectorAll('input[name="optionId"]');
-            existingOptionInputs.forEach(input => input.remove());
-
-            selectedRadios.forEach(radio => {
-                const hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = 'optionId';
-                hiddenInput.value = radio.value;
-                this.appendChild(hiddenInput);
-            });
-        });
-    </script>
 </div>
+
+<script layout:fragment="scripts" th:inline="javascript">
+    function changeMainImage(src, clickedElement = null) {
+        const mainImage = document.getElementById('mainImage');
+        mainImage.src = src;
+
+        const thumbnails = document.querySelectorAll('img[onclick*="changeMainImage"]');
+        thumbnails.forEach(thumb => {
+            thumb.classList.remove('border-primary');
+            thumb.classList.add('border-base-300');
+        });
+
+        if (clickedElement) {
+            clickedElement.classList.remove('border-base-300');
+            clickedElement.classList.add('border-primary');
+        }
+    }
+
+    function updateQuantity(change) {
+        const quantityInput = document.getElementById('quantity');
+        const currentQuantity = parseInt(quantityInput.value);
+        const newQuantity = Math.max(1, Math.min(99, currentQuantity + change));
+        quantityInput.value = newQuantity;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const productOptions = document.querySelectorAll('input[name="selectedSku"]');
+        const addToCartBtn = document.getElementById('addToCartBtn');
+
+        if (productOptions.length === 0) {
+            addToCartBtn.disabled = false;
+            addToCartBtn.classList.remove('btn-disabled');
+            addToCartBtn.classList.add('btn-primary');
+        }
+    });
+
+    function updateSelectedOption() {
+        const selectedOptionInfo = document.getElementById('selectedOptionInfo');
+        const selectedOptionText = document.getElementById('selectedOptionText');
+        const additionalPriceInfo = document.getElementById('additionalPriceInfo');
+        const addToCartBtn = document.getElementById('addToCartBtn');
+
+        const selectedRadio = document.querySelector('input[name="selectedSku"]:checked');
+
+        if (selectedRadio) {
+            const optionText = selectedRadio.nextElementSibling.textContent;
+            const additionalPrice = parseFloat(selectedRadio.dataset.additionalPrice) || 0;
+            const stock = parseInt(selectedRadio.dataset.stock) || 0;
+
+            selectedOptionText.textContent = optionText;
+            additionalPriceInfo.textContent = additionalPrice > 0 ? `추가 금액: +₩${additionalPrice.toLocaleString()}` : '추가 금액: ₩0';
+
+            selectedOptionInfo.classList.remove('hidden');
+            addToCartBtn.disabled = false;
+            addToCartBtn.classList.remove('btn-disabled');
+            addToCartBtn.classList.add('btn-primary');
+        } else {
+            selectedOptionText.textContent = '옵션을 선택해주세요.';
+            additionalPriceInfo.textContent = '추가 금액: ₩0';
+
+            selectedOptionInfo.classList.add('hidden');
+            addToCartBtn.disabled = true;
+            addToCartBtn.classList.remove('btn-primary');
+            addToCartBtn.classList.add('btn-disabled');
+        }
+    }
+
+    document.querySelector('form').addEventListener('submit', function (e) {
+        const selectedRadio = document.querySelector('input[name="selectedSku"]:checked');
+        const productOptions = document.querySelectorAll('input[name="selectedSku"]');
+
+        if (productOptions.length > 0 && !selectedRadio) {
+            e.preventDefault();
+            alert('옵션을 선택해주세요.');
+            return;
+        }
+
+        // SKU를 hidden input으로 추가
+        if (selectedRadio) {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'sku';
+            hiddenInput.value = selectedRadio.value;
+            this.appendChild(hiddenInput);
+        }
+    });
+</script>
 </body>
 </html>

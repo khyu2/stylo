@@ -9,9 +9,9 @@ data class ProductResponse(
     val name: String,
     val description: String?,
     val price: BigDecimal,
-    val thumbnailUrl: String? = null,
-    val productUrl: String? = null,
-    val createdBy: Long,
+    val stock: Long = 0,
+    val productUrl: String,
+    val options: List<ProductOptionResponse>,
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?
 ) {
@@ -22,12 +22,13 @@ data class ProductResponse(
                 name = product.name,
                 description = product.description,
                 price = product.price,
-                thumbnailUrl = product.thumbnailUrl,
                 productUrl = productUrl,
-                createdBy = product.createdBy,
+                options = emptyList(),
                 createdAt = product.createdAt,
                 updatedAt = product.updatedAt
             )
         }
     }
+
+    val totalStock: Long get() = options.sumOf { it.stock }
 }

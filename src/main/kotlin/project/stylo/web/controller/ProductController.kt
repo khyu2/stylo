@@ -67,19 +67,11 @@ class ProductController(
     fun showProduct(@PathVariable productId: Long, model: Model): String {
         val product = productService.getProduct(productId)
         val productImages = productService.getProductImages(productId)
-//        val productOptions = productService.getProductOptions(productId)
 
-        // 그룹핑된 옵션 생성
-//        val groupedProductOptions = productOptions
-//            .groupBy { it.optionTypeName }
-//            .map { (optionTypeName, options) ->
-//                GroupedProductOptionResponse(optionTypeName, options)
-//            }
+        logger.info("product option details: ${product.options}")
 
         model.addAttribute("product", product)
         model.addAttribute("productImages", productImages)
-//        model.addAttribute("productOptions", productOptions)
-//        model.addAttribute("groupedProductOptions", groupedProductOptions)
         return "product/detail"
     }
 

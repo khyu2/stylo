@@ -22,6 +22,7 @@ import project.stylo.web.domain.enums.ImageOwnerType
 import project.stylo.web.dto.request.ProductRequest
 import project.stylo.web.dto.request.ProductSearchRequest
 import project.stylo.web.dto.response.PresignedUrlResponse
+import project.stylo.web.dto.response.ProductOptionResponse
 import project.stylo.web.dto.response.ProductResponse
 import project.stylo.web.exception.ProductExceptionType
 
@@ -59,8 +60,8 @@ class ProductService(
                 val name = option["name"] ?: throw BaseException(ProductExceptionType.OPTION_NAME_MISSING)
                 val value = option["value"] ?: throw BaseException(ProductExceptionType.OPTION_VALUE_MISSING)
 
-                optionKeyDao.save(product.productId, name)?.let { optionKeyId ->
-                    optionValueDao.save(optionKeyId, value)?.let { optionValueId ->
+                optionKeyDao.saveOrGetId(product.productId, name)?.let { optionKeyId ->
+                    optionValueDao.saveOrGetId(optionKeyId, value)?.let { optionValueId ->
                         optionVariantDao.save(productOptionId, optionValueId)
                     }
                 }
@@ -74,13 +75,19 @@ class ProductService(
     }
 
     @Transactional(readOnly = true)
-    fun getProduct(productId: Long): ProductResponse =
-        productDao.findById(productId)
-            ?.let {
-                val productUrl = fileStorageService.getPresignedUrl(it.thumbnailUrl!!)
-                ProductResponse.from(it, productUrl)
-            }
-            ?: throw BaseException(ProductExceptionType.PRODUCT_NOT_FOUND)
+    fun getProduct(productId: Long): ProductResponse {
+        val product = productDao.findById(productId) ?: throw BaseException(ProductExceptionType.PRODUCT_NOT_FOUND)
+
+        val productUrl = product.thumbnailUrl?.let { fileStorageService.getPresignedUrl(it) }
+            ?: throw BaseException(ProductExceptionType.NO_IMAGE_PROVIDED)
+
+        val options = productOptionDao.findAllByProductId(productId).map { productOption ->
+            val optionValues = optionValueDao.findAllByProductOptionId(productOption.productOptionId)
+            ProductOptionResponse.from(productOption, optionValues.joinToString(", "))
+        }
+
+        return ProductResponse.from(product, productUrl).copy(options = options)
+    }
 
     @Cacheable(PRODUCT_CACHE, key = "#productId")
     @Transactional(readOnly = true)
@@ -91,10 +98,6 @@ class ProductService(
             PresignedUrlResponse.from(presignedUrl)
         }
     }
-
-//    @Transactional(readOnly = true)
-//    fun getProductOptions(productId: Long): List<ProductOptionResponse> =
-//        productOptionDao.findProductOptionsWithDetails(productId)
 
     @Transactional(readOnly = true)
     fun getProducts(request: ProductSearchRequest, pageable: Pageable): Page<ProductResponse> {
