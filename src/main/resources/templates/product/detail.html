@@ -71,7 +71,8 @@
                                 </div>
 
                                 <!-- No additional images message -->
-                                <div th:if="${productImages == null or productImages.isEmpty()}" class="text-center py-4">
+                                <div th:if="${productImages == null or productImages.isEmpty()}"
+                                     class="text-center py-4">
                                     <p class="text-sm text-base-content/60">추가 이미지가 없습니다.</p>
                                 </div>
                             </div>
@@ -92,7 +93,7 @@
                                 <div class="flex items-center justify-center gap-2">
                                     <span class="text-sm font-medium">재고:</span>
                                     <span th:if="${product.totalStock > 0}"
-                                          class="badge badge-success badge-lg"
+                                          class="badge badge-info badge-lg"
                                           th:text="${product.totalStock + '개'}">재고 있음</span>
                                     <span th:if="${product.totalStock <= 0}"
                                           class="badge badge-error badge-lg">품절</span>
@@ -105,7 +106,8 @@
                                         <div class="space-y-3">
                                             <div class="flex justify-between">
                                                 <span class="text-sm text-base-content/70">상품 ID</span>
-                                                <span class="text-sm font-medium" th:text="${product.productId}">-</span>
+                                                <span class="text-sm font-medium"
+                                                      th:text="${product.productId}">-</span>
                                             </div>
                                             <div class="flex justify-between">
                                                 <span class="text-sm text-base-content/70">등록일</span>
@@ -123,44 +125,33 @@
 
                                 <!-- Action Buttons -->
                                 <div class="space-y-4">
-                                    <form th:if="${product.totalStock > 0}" th:action="@{/cart/add}" method="post" class="space-y-4">
+                                    <form th:if="${product.totalStock > 0}" th:action="@{/cart/add}" method="post"
+                                          class="space-y-4">
                                         <input type="hidden" name="productId" th:value="${product.productId}">
 
                                         <!-- Product Options -->
-                                        <div th:if="${product.options != null and !product.options.isEmpty()}" class="space-y-4">
+                                        <div th:if="${product.options != null and !product.options.isEmpty()}"
+                                             class="space-y-4">
                                             <h3 class="text-lg font-semibold">상품 옵션</h3>
 
-                                            <!-- SKU-based options -->
-                                            <div class="card bg-base-100">
-                                                <div class="card-body p-4">
-                                                    <label class="block text-sm font-medium mb-3">옵션 선택</label>
-                                                    <div class="space-y-2">
-                                                        <div th:each="option : ${product.options}"
-                                                             class="flex items-center justify-between p-3 border rounded-lg hover:border-primary transition-colors">
-                                                            <label class="flex items-center gap-3 cursor-pointer flex-1">
-                                                                <input type="radio"
-                                                                       name="selectedSku"
-                                                                       th:value="${option.sku}"
-                                                                       th:data-additional-price="${option.additionalPrice}"
-                                                                       th:data-stock="${option.stock}"
-                                                                       class="radio radio-primary"
-                                                                       onchange="updateSelectedOption()">
-                                                                <span class="text-sm font-medium"
-                                                                      th:text="${option.optionValue}">옵션 값</span>
-                                                            </label>
-                                                            <div class="text-right">
-                                                                <div class="text-sm font-medium text-primary"
-                                                                     th:if="${option.additionalPrice > 0}"
-                                                                     th:text="${'+₩' + #numbers.formatDecimal(option.additionalPrice, 1, 'COMMA', 0, 'POINT')}">
-                                                                    +₩0
-                                                                </div>
-                                                                <div class="text-xs text-base-content/60"
-                                                                     th:text="${'재고: ' + option.stock + '개'}">재고: 0개
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                            <!-- SKU-based options dropdown -->
+                                            <div class="form-control">
+                                                <label class="label">
+                                                    <span class="label-text font-medium">옵션 선택</span>
+                                                </label>
+                                                <select name="selectedSku"
+                                                        id="optionSelect"
+                                                        class="select select-bordered w-full"
+                                                        onchange="updateSelectedOption()">
+                                                    <option value="">옵션을 선택해주세요</option>
+                                                    <option th:each="option : ${product.options}"
+                                                            th:value="${option.sku}"
+                                                            th:data-additional-price="${option.additionalPrice}"
+                                                            th:data-stock="${option.stock}"
+                                                            th:text="${option.optionValue + (option.additionalPrice > 0 ? ' (+₩' + #numbers.formatDecimal(option.additionalPrice, 1, 'COMMA', 0, 'POINT') + ')' : '') + ' - 재고: ' + option.stock + '개'}">
+                                                        옵션 값
+                                                    </option>
+                                                </select>
                                             </div>
                                         </div>
 
@@ -180,7 +171,7 @@
 
                                         <!-- Quantity Selector -->
                                         <div class="form-control">
-                                            <label class="label">
+                                            <label class="label mr-4">
                                                 <span class="label-text font-medium">수량</span>
                                             </label>
                                             <div class="join w-full max-w-xs">
@@ -210,7 +201,7 @@
                                             <i data-lucide="shopping-cart" class="h-5 w-5 mr-2"></i>장바구니에 추가
                                         </button>
                                     </form>
-                                    
+
                                     <button th:if="${product.totalStock <= 0}"
                                             disabled
                                             class="btn btn-disabled w-full btn-lg">
@@ -260,10 +251,10 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        const productOptions = document.querySelectorAll('input[name="selectedSku"]');
+        const optionSelect = document.getElementById('optionSelect');
         const addToCartBtn = document.getElementById('addToCartBtn');
 
-        if (productOptions.length === 0) {
+        if (!optionSelect) {
             addToCartBtn.disabled = false;
             addToCartBtn.classList.remove('btn-disabled');
             addToCartBtn.classList.add('btn-primary');
@@ -275,13 +266,13 @@
         const selectedOptionText = document.getElementById('selectedOptionText');
         const additionalPriceInfo = document.getElementById('additionalPriceInfo');
         const addToCartBtn = document.getElementById('addToCartBtn');
+        const optionSelect = document.getElementById('optionSelect');
 
-        const selectedRadio = document.querySelector('input[name="selectedSku"]:checked');
-
-        if (selectedRadio) {
-            const optionText = selectedRadio.nextElementSibling.textContent;
-            const additionalPrice = parseFloat(selectedRadio.dataset.additionalPrice) || 0;
-            const stock = parseInt(selectedRadio.dataset.stock) || 0;
+        if (optionSelect && optionSelect.value) {
+            const selectedOption = optionSelect.options[optionSelect.selectedIndex];
+            const optionText = selectedOption.textContent.split(' - ')[0]; // 재고 정보 제외
+            const additionalPrice = parseFloat(selectedOption.dataset.additionalPrice) || 0;
+            const stock = parseInt(selectedOption.dataset.stock) || 0;
 
             selectedOptionText.textContent = optionText;
             additionalPriceInfo.textContent = additionalPrice > 0 ? `추가 금액: +₩${additionalPrice.toLocaleString()}` : '추가 금액: ₩0';
@@ -302,21 +293,20 @@
     }
 
     document.querySelector('form').addEventListener('submit', function (e) {
-        const selectedRadio = document.querySelector('input[name="selectedSku"]:checked');
-        const productOptions = document.querySelectorAll('input[name="selectedSku"]');
+        const optionSelect = document.getElementById('optionSelect');
 
-        if (productOptions.length > 0 && !selectedRadio) {
+        if (optionSelect && optionSelect.value === '') {
             e.preventDefault();
             alert('옵션을 선택해주세요.');
             return;
         }
 
         // SKU를 hidden input으로 추가
-        if (selectedRadio) {
+        if (optionSelect && optionSelect.value) {
             const hiddenInput = document.createElement('input');
             hiddenInput.type = 'hidden';
             hiddenInput.name = 'sku';
-            hiddenInput.value = selectedRadio.value;
+            hiddenInput.value = optionSelect.value;
             this.appendChild(hiddenInput);
         }
     });
