@@ -44,37 +44,31 @@ class ProductService(
         // thumbnailUrl 설정 (첫 번째 이미지 사용)
         val thumbnailUrl = request.images.firstOrNull { !it.isEmpty }?.let { file ->
             fileStorageService.upload(file, ImageOwnerType.PRODUCT)
-        }
+        } ?: throw BaseException(ProductExceptionType.NO_IMAGE_PROVIDED)
 
         // 상품 생성
         val product = productDao.save(member.memberId!!, request)
-
         productDao.updateThumbnail(product.productId, thumbnailUrl)
 
-        // 이미지 업로드 처리 (첫 번째 이미지는 썸네일로 사용했으므로 제외)
-        uploadImages(product, request.images.drop(1))
-
-        val productUrl = fileStorageService.getPresignedUrl(thumbnailUrl!!)
+        val productUrl = fileStorageService.getPresignedUrl(thumbnailUrl)
 
         request.combinations.forEach { combination ->
             val productOptionId = productOptionDao.save(combination, product.productId)
 
-            combination
-        }
+            combination.options.forEach { option ->
+                val name = option["name"] ?: throw BaseException(ProductExceptionType.OPTION_NAME_MISSING)
+                val value = option["value"] ?: throw BaseException(ProductExceptionType.OPTION_VALUE_MISSING)
 
-        // 옵션 키 및 옵션 값 저장
-        request.options.forEach { option ->
-            val optionKeyId = optionKeyDao.save(product.productId, option.name)
-            option.values.forEach { value ->
-                val optionValueId = optionValueDao.save(optionKeyId, value)
+                optionKeyDao.save(product.productId, name)?.let { optionKeyId ->
+                    optionValueDao.save(optionKeyId, value)?.let { optionValueId ->
+                        optionVariantDao.save(productOptionId, optionValueId)
+                    }
+                }
             }
         }
 
-        // 옵션 조합 저장
-        request.combinations.forEach { combination ->
-            val productOptionId = productOptionDao.save(combination, product.productId)
-//            optionVariantDao.save(productOptionId, optionValueId)
-        }
+        // 이미지 업로드 처리 (첫 번째 이미지는 썸네일로 사용했으므로 제외)
+        uploadImages(product, request.images.drop(1))
 
         return ProductResponse.from(product, productUrl)
     }

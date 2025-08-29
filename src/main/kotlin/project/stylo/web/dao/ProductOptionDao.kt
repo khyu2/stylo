@@ -20,5 +20,6 @@ class ProductOptionDao(private val dsl: DSLContext) {
             .set(PRODUCT_OPTION.ADDITIONAL_PRICE, request.additionalPrice)
             .set(PRODUCT_OPTION.STOCK, request.stock)
             .returning(PRODUCT_OPTION.PRODUCT_OPTION_ID)
-            .fetchOneInto(Long::class.java) ?: throw BaseException(OptionExceptionType.PRODUCT_OPTION_DUPLICATED)
+            .fetchOne(PRODUCT_OPTION.PRODUCT_OPTION_ID)
+            ?: throw BaseException(OptionExceptionType.PRODUCT_OPTION_DUPLICATED)
 }

@@ -12,11 +12,11 @@ class OptionValueDao(private val dsl: DSLContext) {
         private val OPTION_VALUE = JOptionValue.OPTION_VALUE
     }
 
-    fun save(optionKeyId: Long, value: String): Long {
+    fun save(optionKeyId: Long, value: String): Long? {
         return dsl.insertInto(OPTION_VALUE)
             .set(OPTION_VALUE.OPTION_KEY_ID, optionKeyId)
             .set(OPTION_VALUE.VALUE, value)
             .returning(OPTION_VALUE.OPTION_VALUE_ID)
-            .fetchOneInto(Long::class.java) ?: throw BaseException(OptionExceptionType.OPTION_VALUE_DUPLICATED)
+            .fetchOne(OPTION_VALUE.OPTION_VALUE_ID)
     }
 }

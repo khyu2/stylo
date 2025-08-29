@@ -55,7 +55,7 @@
                     </div>
 
                     <!-- Products Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         <th:block th:if="${#lists.isEmpty(products.content)}">
                             <div class="col-span-full text-center py-12">
                                 <div class="opacity-50">
@@ -66,17 +66,17 @@
                         </th:block>
 
                         <th:block th:each="product : ${products.content}">
-                            <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+                            <div class="card hover:shadow-2xl transition-shadow">
                                 <a th:href="@{/products/{productId}(productId=${product.productId})}">
                                     <figure class="px-4 pt-4">
                                         <img th:if="${product.productUrl != null and product.productUrl != ''}"
                                              th:src="${product.productUrl}"
                                              th:alt="${product.name}"
-                                             class="rounded-xl h-48 w-full object-cover" />
+                                             class="rounded-xl h-56 w-full object-cover" />
                                         <img th:unless="${product.productUrl != null and product.productUrl != ''}"
                                              src="/images/default_product.jpeg"
                                              th:alt="${product.name}"
-                                             class="rounded-xl h-48 w-full object-cover" />
+                                             class="rounded-xl h-56 w-full object-cover" />
                                     </figure>
                                     <div class="card-body">
                                         <h3 class="card-title text-sm" th:text="${product.name}">상품명</h3>

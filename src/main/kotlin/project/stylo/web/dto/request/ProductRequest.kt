@@ -44,6 +44,5 @@ data class OptionCombination(
     val sku: String,
     val additionalPrice: BigDecimal,
     val stock: Long,
-//    @JsonDeserialize(using = OptionMapListDeserializer::class)
     val options: List<Map<String, String>>
 )

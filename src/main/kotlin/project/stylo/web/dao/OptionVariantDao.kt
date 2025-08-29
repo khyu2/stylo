@@ -17,5 +17,6 @@ data class OptionVariantDao(private val dsl: DSLContext) {
             .set(OPTION_VARIANT.PRODUCT_OPTION_ID, productOptionId)
             .set(OPTION_VARIANT.OPTION_VALUE_ID, optionValueId)
             .returning(OPTION_VARIANT.OPTION_VARIANT_ID)
-            .fetchOneInto(Long::class.java) ?: throw BaseException(OptionExceptionType.OPTION_VALUE_DUPLICATED)
+            .fetchOne(OPTION_VARIANT.OPTION_VARIANT_ID)
+            ?: throw BaseException(OptionExceptionType.OPTION_VALUE_DUPLICATED)
 }
