@@ -13,24 +13,23 @@ import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import project.stylo.auth.resolver.Auth
 import project.stylo.web.domain.Member
 import project.stylo.web.dto.request.ProductRequest
 import project.stylo.web.dto.request.ProductSearchRequest
-import project.stylo.web.dto.response.ProductListResponse
 import project.stylo.web.dto.response.ProductResponse
-import project.stylo.web.dto.response.GroupedProductOptionResponse
 import project.stylo.web.service.CategoryService
+import project.stylo.web.service.ProductOptionService
 import project.stylo.web.service.ProductService
 
 @Controller
 @RequestMapping("/products")
 class ProductController(
     private val productService: ProductService,
-    private val categoryService: CategoryService
+    private val categoryService: CategoryService,
+    private val productOptionService: ProductOptionService,
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(ProductController::class.java)
@@ -67,8 +66,6 @@ class ProductController(
     fun showProduct(@PathVariable productId: Long, model: Model): String {
         val product = productService.getProduct(productId)
         val productImages = productService.getProductImages(productId)
-
-        logger.info("product option details: ${product.options}")
 
         model.addAttribute("product", product)
         model.addAttribute("productImages", productImages)

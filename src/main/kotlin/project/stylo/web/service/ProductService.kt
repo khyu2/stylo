@@ -1,5 +1,6 @@
 package project.stylo.web.service
 
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -7,6 +8,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
+import project.stylo.common.config.CacheConfig.Companion.CATEGORY_CACHE
 import project.stylo.common.config.CacheConfig.Companion.PRODUCT_CACHE
 import project.stylo.common.exception.BaseException
 import project.stylo.common.s3.FileStorageService
@@ -37,6 +39,7 @@ class ProductService(
     private val productOptionDao: ProductOptionDao,
     private val fileStorageService: FileStorageService
 ) {
+    @CacheEvict(CATEGORY_CACHE, allEntries = true)
     fun createProduct(member: Member, request: ProductRequest): ProductResponse {
         if (productDao.existsByName(request.name)) {
             throw BaseException(ProductExceptionType.PRODUCT_DUPLICATED)

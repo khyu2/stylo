@@ -1,13 +1,16 @@
 package project.stylo.web.dao
 
 import org.jooq.DSLContext
+import org.jooq.generated.tables.JOptionKey
 import org.jooq.generated.tables.JOptionValue
 import org.jooq.generated.tables.JOptionVariant
 import org.springframework.stereotype.Repository
+import project.stylo.web.domain.enums.OptionType
 
 @Repository
 class OptionValueDao(private val dsl: DSLContext) {
     companion object {
+        private val OPTION_KEY = JOptionKey.OPTION_KEY
         private val OPTION_VALUE = JOptionValue.OPTION_VALUE
         private val OPTION_VARIANT = JOptionVariant.OPTION_VARIANT
     }
@@ -33,5 +36,26 @@ class OptionValueDao(private val dsl: DSLContext) {
             .from(OPTION_VALUE)
             .join(OPTION_VARIANT).on(OPTION_VALUE.OPTION_VALUE_ID.eq(OPTION_VARIANT.OPTION_VALUE_ID))
             .where(OPTION_VARIANT.PRODUCT_OPTION_ID.eq(productOptionId))
+            .fetchInto(String::class.java)
+
+    fun findAllGenderOptions(): List<String> =
+        dsl.selectDistinct(OPTION_VALUE.VALUE)
+            .from(OPTION_VALUE)
+            .join(OPTION_KEY).on(OPTION_KEY.OPTION_KEY_ID.eq(OPTION_VALUE.OPTION_KEY_ID))
+            .where(OPTION_KEY.NAME.eq(OptionType.GENDER.name))
+            .fetchInto(String::class.java)
+
+    fun findAllSizeOptions(): List<String> =
+        dsl.selectDistinct(OPTION_VALUE.VALUE)
+            .from(OPTION_VALUE)
+            .join(OPTION_KEY).on(OPTION_KEY.OPTION_KEY_ID.eq(OPTION_VALUE.OPTION_KEY_ID))
+            .where(OPTION_KEY.NAME.eq(OptionType.SIZE.name))
+            .fetchInto(String::class.java)
+
+    fun findAllColorOptions(): List<String> =
+        dsl.selectDistinct(OPTION_VALUE.VALUE)
+            .from(OPTION_VALUE)
+            .join(OPTION_KEY).on(OPTION_KEY.OPTION_KEY_ID.eq(OPTION_VALUE.OPTION_KEY_ID))
+            .where(OPTION_KEY.NAME.eq(OptionType.COLOR.name))
             .fetchInto(String::class.java)
 }

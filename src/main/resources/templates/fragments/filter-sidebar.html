@@ -51,9 +51,9 @@
                 <div class="space-y-2 select-none">
                     <th:block th:each="genderOption : ${genderOptions}">
                         <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" name="genderIds" th:value="${genderOption.optionId}"
+                            <input type="checkbox" name="genderIds" th:value="${genderOption}"
                                    class="checkbox checkbox-primary checkbox-sm">
-                            <span class="label-text" th:text="${genderOption.value}"></span>
+                            <span class="label-text" th:text="${genderOption}"></span>
                         </label>
                     </th:block>
                 </div>
@@ -65,9 +65,9 @@
                 <div class="grid grid-cols-3 gap-2 select-none">
                     <th:block th:each="sizeOption : ${sizeOptions}">
                         <label class="label cursor-pointer justify-start gap-2">
-                            <input type="checkbox" name="sizeIds" th:value="${sizeOption.optionId}"
+                            <input type="checkbox" name="sizeIds" th:value="${sizeOption}"
                                    class="checkbox checkbox-primary checkbox-sm">
-                            <span class="label-text text-xs" th:text="${sizeOption.value}"></span>
+                            <span class="label-text text-xs" th:text="${sizeOption}"></span>
                         </label>
                     </th:block>
                 </div>
@@ -79,11 +79,11 @@
                 <div class="grid grid-cols-4 gap-2 select-none">
                     <th:block th:each="colorOption : ${colorOptions}">
                         <label class="relative cursor-pointer">
-                            <input type="checkbox" name="colorIds" th:value="${colorOption.optionId}"
+                            <input type="checkbox" name="colorIds" th:value="${colorOption}"
                                    class="sr-only peer">
                             <div class="w-6 h-6 rounded-full border-2 border-base-300 transition-all duration-200 peer-checked:border-primary peer-checked:ring-2 peer-checked:ring-primary/20"
-                                 th:style="'background-color: ' + ${colorOption.value}"
-                                 th:title="${colorOption.value}"></div>
+                                 th:style="'background-color: ' + ${colorOption}"
+                                 th:title="${colorOption}"></div>
                             <div class="absolute inset-0 flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity duration-200">
                                 <i data-lucide="check" class="w-4 h-4 stroke-[3] text-primary"></i>
                             </div>

@@ -1,6 +1,8 @@
 package project.stylo.web.dao
 
 import org.jooq.DSLContext
+import org.jooq.generated.tables.JOptionValue
+import org.jooq.generated.tables.JOptionVariant
 import org.jooq.generated.tables.JProduct
 import org.jooq.generated.tables.JProductOption
 import org.springframework.data.domain.Page
@@ -25,6 +27,8 @@ class ProductDao(
     companion object {
         private val PRODUCT = JProduct.PRODUCT
         private val PRODUCT_OPTION = JProductOption.PRODUCT_OPTION
+        private val OPTION_VALUE = JOptionValue.OPTION_VALUE
+        private val OPTION_VARIANT = JOptionVariant.OPTION_VARIANT
     }
 
     fun save(memberId: Long, request: ProductRequest): Product {
@@ -90,6 +94,7 @@ class ProductDao(
         val baseQuery = dsl.selectDistinct(PRODUCT.asterisk())
             .from(PRODUCT)
             .leftJoin(PRODUCT_OPTION).on(PRODUCT.PRODUCT_ID.eq(PRODUCT_OPTION.PRODUCT_ID))
+            .join(OPTION_VARIANT).on(OPTION_VARIANT.PRODUCT_OPTION_ID.eq(PRODUCT_OPTION.PRODUCT_OPTION_ID))
             .where(PRODUCT.DELETED_AT.isNull)
             .and(request.categoryId.andIfNotNull { PRODUCT.CATEGORY_ID.eq(it) })
             .and(
@@ -98,33 +103,33 @@ class ProductDao(
             )
             .and(request.minPrice.andIfNotNull { PRODUCT.PRICE.greaterOrEqual(it) })
             .and(request.maxPrice.andIfNotNull { PRODUCT.PRICE.lessOrEqual(it) })
-//            .and(
-//                request.genderIds.existsIfNotEmpty(
-//                    dsl,
-//                    PRODUCT_OPTION,
-//                    PRODUCT_OPTION.PRODUCT_ID,
-//                    PRODUCT.PRODUCT_ID,
-//                    PRODUCT_OPTION.OPTION_ID
-//                )
-//            )
-//            .and(
-//                request.sizeIds.existsIfNotEmpty(
-//                    dsl,
-//                    PRODUCT_OPTION,
-//                    PRODUCT_OPTION.PRODUCT_ID,
-//                    PRODUCT.PRODUCT_ID,
-//                    PRODUCT_OPTION.OPTION_ID
-//                )
-//            )
-//            .and(
-//                request.colorIds.existsIfNotEmpty(
-//                    dsl,
-//                    PRODUCT_OPTION,
-//                    PRODUCT_OPTION.PRODUCT_ID,
-//                    PRODUCT.PRODUCT_ID,
-//                    PRODUCT_OPTION.OPTION_ID
-//                )
-//            )
+            .and(
+                request.genderIds.existsIfNotEmpty(
+                    dsl,
+                    OPTION_VALUE,
+                    OPTION_VALUE.OPTION_VALUE_ID,
+                    OPTION_VARIANT.OPTION_VALUE_ID,
+                    OPTION_VALUE.VALUE
+                )
+            )
+            .and(
+                request.sizeIds.existsIfNotEmpty(
+                    dsl,
+                    OPTION_VALUE,
+                    OPTION_VALUE.OPTION_VALUE_ID,
+                    OPTION_VARIANT.OPTION_VALUE_ID,
+                    OPTION_VALUE.VALUE
+                )
+            )
+            .and(
+                request.colorIds.existsIfNotEmpty(
+                    dsl,
+                    OPTION_VALUE,
+                    OPTION_VALUE.OPTION_VALUE_ID,
+                    OPTION_VARIANT.OPTION_VALUE_ID,
+                    OPTION_VALUE.VALUE
+                )
+            )
 
         // 전체 개수 조회
         val totalCount = dsl.fetchCount(baseQuery)

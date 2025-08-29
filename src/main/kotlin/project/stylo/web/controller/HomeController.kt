@@ -8,12 +8,14 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import project.stylo.web.dto.request.ProductSearchRequest
 import project.stylo.web.service.CategoryService
+import project.stylo.web.service.ProductOptionService
 import project.stylo.web.service.ProductService
 
 @Controller
 class HomeController(
+    private val productService: ProductService,
     private val categoryService: CategoryService,
-    private val productService: ProductService
+    private val productOptionService: ProductOptionService
 ) {
     @GetMapping
     fun home(
@@ -25,9 +27,9 @@ class HomeController(
 
         mapOf(
             "categories" to categoryService.getAllCategories(),
-//            "genderOptions" to categoryService.getAllGenderOptions(),
-//            "sizeOptions" to categoryService.getAllSizeOptions(),
-//            "colorOptions" to categoryService.getAllColorOptions(),
+            "genderOptions" to productOptionService.getGenderOptions(),
+            "sizeOptions" to productOptionService.getSizeOptions(),
+            "colorOptions" to productOptionService.getColorOptions(),
             "products" to products,
             "currentPage" to products.number,
             "size" to products.size,

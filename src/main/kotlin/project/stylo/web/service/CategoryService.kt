@@ -14,16 +14,4 @@ class CategoryService(
     @Cacheable(CATEGORY_CACHE, key = "'categories'")
     @Transactional(readOnly = true)
     fun getAllCategories() = categoryDao.findAll()
-
-//    @Cacheable(CATEGORY_CACHE, key = "'genderOptions'")
-//    @Transactional(readOnly = true)
-//    fun getAllGenderOptions() = optionDao.findAllGenderOptions()
-//
-//    @Cacheable(CATEGORY_CACHE, key = "'sizeOptions'")
-//    @Transactional(readOnly = true)
-//    fun getAllSizeOptions() = optionDao.findAllSizeOptions()
-//
-//    @Cacheable(CATEGORY_CACHE, key = "'colorOptions'")
-//    @Transactional(readOnly = true)
-//    fun getAllColorOptions() = optionDao.findAllColorOptions()
 }

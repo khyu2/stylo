@@ -7,9 +7,9 @@ data class ProductSearchRequest(
     val keyword: String? = null,
     val minPrice: BigDecimal? = null,
     val maxPrice: BigDecimal? = null,
-    val genderIds: List<Long> = emptyList(),
-    val sizeIds: List<Long> = emptyList(),
-    val colorIds: List<Long> = emptyList(),
+    val genderIds: List<String> = emptyList(),
+    val sizeIds: List<String> = emptyList(),
+    val colorIds: List<String> = emptyList(),
     val sortBy: String = "createdAt",
     val sortDirection: String = "DESC"
 )
