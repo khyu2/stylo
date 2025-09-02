@@ -1,167 +1,180 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="ko"
       layout:decorate="~{layout/base}">
 <head>
     <title>장바구니 - Stylo</title>
+
 </head>
 <body>
-    <div layout:fragment="content">
-        <div class="max-w-6xl mx-auto px-4 py-8">
-            <!-- Page Header -->
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900">장바구니</h1>
-                <p class="text-gray-600 mt-2">선택한 상품들을 확인하고 주문하세요.</p>
-            </div>
+<div layout:fragment="content">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Page Header -->
+        <div class="mb-8 text-center">
+            <h1 class="text-4xl font-bold">장바구니</h1>
+            <p class="text-lg opacity-70 mt-2">선택한 상품들을 확인하고 주문하세요.</p>
+        </div>
 
-            <!-- Success/Error Messages -->
-            <div th:if="${success}" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <div class="flex">
-                    <i data-lucide="check-circle" class="h-5 w-5 text-green-400 mr-2"></i>
-                    <p class="text-green-800" th:text="${success}">성공 메시지</p>
-                </div>
-            </div>
+        <!-- Success/Error Messages -->
+        <div th:if="${success}" class="alert alert-success mb-6">
+            <i data-lucide="check-circle" class="h-5 w-5"></i>
+            <span th:text="${success}">성공 메시지</span>
+        </div>
+        <div th:if="${error}" class="alert alert-error mb-6">
+            <i data-lucide="alert-circle" class="h-5 w-5"></i>
+            <span th:text="${error}">오류 메시지</span>
+        </div>
 
-            <div th:if="${error}" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <div class="flex">
-                    <i data-lucide="alert-circle" class="h-5 w-5 text-red-400 mr-2"></i>
-                    <p class="text-red-800" th:text="${error}">오류 메시지</p>
-                </div>
-            </div>
+        <!-- Cart Content -->
+        <div th:if="${cartItems != null and !cartItems.isEmpty()}" class="card bg-base-100 shadow-xl">
+            <div class="card-body p-6">
+                <div class="space-y-4">
+                    <!-- Cart Item -->
+                    <div th:each="item : ${cartItems}"
+                         class="flex items-center gap-4 p-4 border border-base-300 rounded-box">
+                        <!-- Product Image -->
+                        <div class="flex-shrink-0">
+                            <img th:src="${item.thumbnailUrl != null ? item.thumbnailUrl : '/images/default_product.jpeg'}"
+                                 th:alt="${item.name}"
+                                 class="w-20 h-20 object-cover rounded-lg">
+                        </div>
 
-            <!-- Cart Content -->
-            <div th:if="${cartItems != null and !cartItems.isEmpty()}" class="bg-white rounded-lg shadow-sm border border-gray-200">
-                <!-- Cart Items -->
-                <div class="p-6">
-                    <div class="space-y-6">
-                        <!-- Cart Item -->
-                        <div th:each="item : ${cartItems}" class="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
-                            <!-- Product Image -->
-                            <div class="flex-shrink-0">
-                                <img th:src="${item.thumbnailUrl != null ? item.thumbnailUrl : '/images/default_product.jpeg'}"
-                                     th:alt="${item.name}"
-                                     class="w-20 h-20 object-cover rounded-lg">
+                        <!-- Product Info -->
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-lg font-medium" th:text="${item.getDisplayName()}">상품명</h3>
+                            <div class="mt-1 flex items-center gap-2">
+                                <p class="opacity-70"
+                                   th:text="${'₩' + #numbers.formatDecimal(item.price, 1, 'COMMA', 0, 'POINT')}">가격</p>
+                                <span th:if="${item.additionalPrice != null}"
+                                      class="badge badge-ghost badge-sm" th:text="${'+' + item.additionalPrice}">추가 가격</span>
+                                <!-- Stock Status -->
+                                <span th:if="${item.isOutOfStock()}" class="badge badge-error badge-sm">품절</span>
+                                <span th:else class="badge badge-info badge-sm" th:text="${'재고: ' + item.stock + '개'}">재고</span>
                             </div>
+                        </div>
 
-                            <!-- Product Info -->
-                            <div class="flex-1 min-w-0">
-                                <h3 class="text-lg font-medium text-gray-900" th:text="${item.getDisplayName()}">상품명</h3>
-                                <p class="text-gray-600 mt-1" th:text="${'₩' + #numbers.formatDecimal(item.price, 1, 'COMMA', 0, 'POINT')}">가격</p>
-                            </div>
-
-                            <!-- Quantity Controls -->
-                            <div class="flex items-center space-x-2">
-                                <form th:action="@{'/cart/update/' + ${item.cartItemId}}" method="post" class="flex items-center space-x-2">
+                        <!-- Quantity Controls -->
+                        <div>
+                            <form th:action="@{'/cart/update/' + ${item.cartItemId}}" method="post"
+                                  class="flex items-center gap-2">
+                                <div class="join">
                                     <button type="button"
                                             onclick="updateQuantity(this, -1)"
-                                            class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                            th:disabled="${item.isOutOfStock()}"
+                                            class="btn btn-outline join-item"
+                                            th:classappend="${item.isOutOfStock() ? 'btn-disabled' : ''}">
                                         <i data-lucide="minus" class="h-4 w-4"></i>
                                     </button>
                                     <input type="number"
                                            name="quantity"
                                            th:value="${item.quantity}"
+                                           th:max="${item.getAvailableQuantity()}"
                                            min="1"
                                            max="99"
-                                           class="w-16 text-center border border-gray-300 rounded-lg px-2 py-1">
+                                           th:disabled="${item.isOutOfStock()}"
+                                           class="input input-bordered join-item w-20 text-center"
+                                           th:classappend="${item.isOutOfStock() ? 'input-disabled' : ''}">
                                     <button type="button"
                                             onclick="updateQuantity(this, 1)"
-                                            class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                            th:disabled="${item.isOutOfStock()}"
+                                            class="btn btn-outline join-item"
+                                            th:classappend="${item.isOutOfStock() ? 'btn-disabled' : ''}">
                                         <i data-lucide="plus" class="h-4 w-4"></i>
                                     </button>
-                                    <button type="submit"
-                                            class="px-3 py-1 text-sm text-blue-600 hover:text-blue-700 transition-colors">
-                                        수정
-                                    </button>
-                                </form>
-                            </div>
-
-                            <!-- Total Price -->
-                            <div class="text-right">
-                                <p class="text-lg font-semibold text-gray-900"
-                                   th:text="${'₩' + #numbers.formatDecimal(item.getTotalPrice(), 1, 'COMMA', 0, 'POINT')}">총 가격</p>
-                            </div>
-
-                            <!-- Remove Button -->
-                            <div class="flex-shrink-0">
-                                <form th:action="@{'/cart/remove/' + ${item.cartItemId}}" method="post" class="inline">
-                                    <button type="submit"
-                                            onclick="return confirm('이 상품을 장바구니에서 제거하시겠습니까?')"
-                                            class="text-red-600 hover:text-red-700 transition-colors">
-                                        <i data-lucide="trash-2" class="h-5 w-5"></i>
-                                    </button>
-                                </form>
+                                </div>
+                                <button type="submit" class="btn btn-ghost btn-sm">수정</button>
+                            </form>
+                            <!-- Stock Warning -->
+                            <div th:if="${item.quantity > item.stock and item.stock > 0}"
+                                 class="text-xs text-error mt-1">
+                                재고 부족: <span th:text="${item.stock}">0</span>개만 구매 가능
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Cart Summary -->
-                <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
-                    <div class="flex justify-between items-center">
-                        <div class="flex space-x-4">
-                            <form th:action="@{/cart/clear}" method="post" class="inline">
-                                <button type="submit"
-                                        onclick="return confirm('장바구니를 모두 비우시겠습니까?')"
-                                        class="text-gray-600 hover:text-red-600 transition-colors">
-                                    <i data-lucide="trash" class="h-4 w-4 inline mr-1"></i>
-                                    장바구니 비우기
+                        <!-- Total Price -->
+                        <div class="text-right">
+                            <p class="text-lg font-semibold"
+                               th:id="'total-price-' + ${item.cartItemId}"
+                               th:text="${'₩' + #numbers.formatDecimal(item.getTotalPrice(), 1, 'COMMA', 0, 'POINT')}">총
+                                가격</p>
+                        </div>
+
+                        <!-- Remove Button -->
+                        <div class="flex-shrink-0">
+                            <form th:action="@{'/cart/remove/' + ${item.cartItemId}}" method="post" class="inline">
+                                <button type="submit" onclick="return confirm('이 상품을 장바구니에서 제거하시겠습니까?')"
+                                        class="btn btn-ghost btn-sm text-error">
+                                    <i data-lucide="trash-2" class="h-5 w-5"></i>
                                 </button>
                             </form>
                         </div>
-
-                        <div class="text-right">
-                            <p class="text-sm text-gray-600">총 상품 수: <span th:text="${cartItems.size()}">0</span>개</p>
-                            <span th:text="${'₩' + #numbers.formatDecimal(#aggregates.sum(cartItems.![totalPrice]), 1, 'COMMA', 0, 'POINT')}">₩0</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="p-6 border-t border-gray-200">
-                    <div class="flex justify-between items-center">
-                        <a href="/"
-                           class="inline-flex items-center text-gray-600 hover:text-primary-600 transition-colors">
-                            <i data-lucide="arrow-left" class="h-4 w-4 mr-1"></i>
-                            쇼핑 계속하기
-                        </a>
-
-                        <div class="flex space-x-3">
-                            <a href="/orders/create"
-                               class="inline-flex items-center px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
-                                <i data-lucide="credit-card" class="h-5 w-5 mr-2"></i>
-                                주문하기
-                            </a>
-                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Empty Cart -->
-            <div th:if="${cartItems == null or cartItems.isEmpty()}" class="text-center py-12">
-                <div class="max-w-md mx-auto">
-                    <i data-lucide="shopping-cart" class="h-16 w-16 text-gray-400 mx-auto mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">장바구니가 비어있습니다</h3>
-                    <p class="text-gray-600 mb-6">원하는 상품을 장바구니에 추가해보세요.</p>
-                    <a href="/"
-                       class="inline-flex items-center px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
-                        <i data-lucide="shopping-bag" class="h-5 w-5 mr-2"></i>
-                        쇼핑하러 가기
+            <!-- Cart Summary -->
+            <div class="bg-base-200 px-6 py-4 border-t border-base-300">
+                <div class="flex justify-between items-center">
+                    <div class="flex gap-2">
+                        <form th:action="@{/cart/clear}" method="post" class="inline">
+                            <button type="submit" onclick="return confirm('장바구니를 모두 비우시겠습니까?')" class="btn btn-ghost">
+                                <i data-lucide="trash" class="h-4 w-4 mr-2"></i>
+                                장바구니 비우기
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="text-right">
+                        <p class="text-sm opacity-70">총 상품 수: <span id="cart-total-items" th:text="${cartItems.size()}">0</span>개
+                        </p>
+                        <span class="text-2xl font-bold text-primary" id="cart-total-price"
+                              th:text="${'₩' + #numbers.formatDecimal(#aggregates.sum(cartItems.![totalPrice]), 1, 'COMMA', 0, 'POINT')}">₩0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="p-6 border-t border-base-300">
+                <div class="flex justify-between items-center">
+                    <a href="/" class="btn btn-ghost">
+                        <i data-lucide="arrow-left" class="h-4 w-4 mr-2"></i>
+                        쇼핑 계속하기
                     </a>
+
+                    <div class="flex gap-3">
+                        <a href="/orders/create" class="btn btn-primary btn-lg">
+                            <i data-lucide="credit-card" class="h-5 w-5 mr-2"></i>
+                            주문하기
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script layout:fragment="scripts">
-        function updateQuantity(button, change) {
-            const form = button.closest('form');
-            const quantityInput = form.querySelector('input[name="quantity"]');
-            const currentQuantity = parseInt(quantityInput.value);
-            const newQuantity = Math.max(1, Math.min(99, currentQuantity + change));
-            quantityInput.value = newQuantity;
-        }
-    </script>
+        <!-- Empty Cart -->
+        <div th:if="${cartItems == null or cartItems.isEmpty()}" class="text-center py-16">
+            <div class="max-w-md mx-auto">
+                <i data-lucide="shopping-cart" class="h-16 w-16 text-base-content/30 mx-auto mb-4"></i>
+                <h3 class="text-lg font-medium mb-2">장바구니가 비어있습니다</h3>
+                <p class="opacity-70 mb-6">원하는 상품을 장바구니에 추가해보세요.</p>
+                <a href="/" class="btn btn-primary btn-lg">
+                    <i data-lucide="shopping-bag" class="h-5 w-5 mr-2"></i>
+                    쇼핑하러 가기
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script layout:fragment="scripts">
+    function updateQuantity(button, change) {
+        const form = button.closest('form');
+        const quantityInput = form.querySelector('input[name="quantity"]');
+        const currentQuantity = parseInt(quantityInput.value);
+        const newQuantity = Math.max(1, Math.min(99, currentQuantity + change));
+        quantityInput.value = newQuantity;
+    }
+</script>
 </body>
 </html>

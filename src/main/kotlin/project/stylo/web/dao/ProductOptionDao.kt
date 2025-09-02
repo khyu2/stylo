@@ -24,6 +24,11 @@ class ProductOptionDao(private val dsl: DSLContext) {
             .fetchOne(PRODUCT_OPTION.PRODUCT_OPTION_ID)
             ?: throw BaseException(OptionExceptionType.PRODUCT_OPTION_DUPLICATED)
 
+    fun findById(productOptionId: Long): ProductOption? =
+        dsl.selectFrom(PRODUCT_OPTION)
+            .where(PRODUCT_OPTION.PRODUCT_OPTION_ID.eq(productOptionId))
+            .fetchOneInto(ProductOption::class.java)
+
     fun findAllByProductId(productId: Long): List<ProductOption> =
         dsl.selectFrom(PRODUCT_OPTION)
             .where(PRODUCT_OPTION.PRODUCT_ID.eq(productId))

@@ -134,18 +134,18 @@
                                              class="space-y-4">
                                             <h3 class="text-lg font-semibold">상품 옵션</h3>
 
-                                            <!-- SKU-based options dropdown -->
+                                            <!-- ProductOptionId-based options dropdown -->
                                             <div class="form-control">
                                                 <label class="label">
                                                     <span class="label-text font-medium">옵션 선택</span>
                                                 </label>
-                                                <select name="selectedSku"
+                                                <select name="productOptionId"
                                                         id="optionSelect"
                                                         class="select select-bordered w-full"
                                                         onchange="updateSelectedOption()">
                                                     <option value="">옵션을 선택해주세요</option>
                                                     <option th:each="option : ${product.options}"
-                                                            th:value="${option.sku}"
+                                                            th:value="${option.productOptionId}"
                                                             th:data-additional-price="${option.additionalPrice}"
                                                             th:data-stock="${option.stock}"
                                                             th:text="${option.optionValue + (option.additionalPrice > 0 ? ' (+₩' + #numbers.formatDecimal(option.additionalPrice, 1, 'COMMA', 0, 'POINT') + ')' : '') + ' - 재고: ' + option.stock + '개'}">
@@ -255,6 +255,7 @@
         const addToCartBtn = document.getElementById('addToCartBtn');
 
         if (!optionSelect) {
+            // 옵션이 없는 상품의 경우 버튼 활성화
             addToCartBtn.disabled = false;
             addToCartBtn.classList.remove('btn-disabled');
             addToCartBtn.classList.add('btn-primary');
@@ -301,14 +302,8 @@
             return;
         }
 
-        // SKU를 hidden input으로 추가
-        if (optionSelect && optionSelect.value) {
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'sku';
-            hiddenInput.value = optionSelect.value;
-            this.appendChild(hiddenInput);
-        }
+        // productOptionId와 quantity는 이미 폼에 포함되어 있음
+        // 추가적인 hidden input은 필요하지 않음
     });
 </script>
 </body>

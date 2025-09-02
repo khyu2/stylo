@@ -5,23 +5,26 @@ import java.math.BigDecimal
 data class CartItemResponse(
     val cartItemId: Long,
     val productId: Long,
-    val optionId: Long?,
-    val quantity: Int,
+    val productOptionId: Long?,
+    val quantity: Long,
     val name: String,
     val price: BigDecimal,
+    val additionalPrice: BigDecimal,
     val thumbnailUrl: String?,
-    val optionValue: String?,
-    val optionTypeName: String?
+    val sku: String? = null,
+    val stock: Long = 0,
 ) {
-    fun getTotalPrice(): BigDecimal {
-        return price.multiply(BigDecimal(quantity))
-    }
+    fun getTotalPrice(): BigDecimal = (price + additionalPrice) * BigDecimal(quantity)
 
     fun getDisplayName(): String {
-        return if (optionValue != null && optionTypeName != null) {
-            "$name ($optionTypeName: $optionValue)"
+        return if (!sku.isNullOrBlank()) {
+            "$name ($sku)"
         } else {
             name
         }
     }
+
+    fun isOutOfStock(): Boolean = stock <= 0
+
+    fun getAvailableQuantity(): Long = maxOf(0, stock)
 }

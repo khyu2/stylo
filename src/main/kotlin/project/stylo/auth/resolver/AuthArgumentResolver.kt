@@ -17,8 +17,9 @@ import project.stylo.common.utils.SecurityUtils
 
 @Component
 class AuthArgumentResolver : HandlerMethodArgumentResolver {
-
-    private val logger = LoggerFactory.getLogger(this.javaClass)
+    companion object {
+        private val logger = LoggerFactory.getLogger(AuthArgumentResolver::class.java)
+    }
 
     override fun supportsParameter(parameter: MethodParameter): Boolean {
         return parameter.hasParameterAnnotation(Auth::class.java)

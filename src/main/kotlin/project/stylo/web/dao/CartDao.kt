@@ -3,7 +3,9 @@ package project.stylo.web.dao
 import org.jooq.DSLContext
 import org.jooq.generated.tables.JCartItem
 import org.jooq.generated.tables.JProduct
+import org.jooq.generated.tables.JProductOption
 import org.springframework.stereotype.Repository
+import project.stylo.web.domain.CartItem
 import project.stylo.web.dto.response.CartItemResponse
 
 @Repository
@@ -12,93 +14,63 @@ class CartDao(
 ) {
     companion object {
         private val PRODUCT = JProduct.PRODUCT
+        private val PRODUCT_OPTION = JProductOption.PRODUCT_OPTION
         private val CART_ITEM = JCartItem.CART_ITEM
     }
 
-    fun findByMemberId(memberId: Long): List<CartItemResponse> {
-        return dsl
-            .select(
-                CART_ITEM.CART_ITEM_ID,
-                CART_ITEM.PRODUCT_OPTION_ID,
-                CART_ITEM.QUANTITY,
-                PRODUCT.NAME,
-                PRODUCT.PRICE,
-                PRODUCT.THUMBNAIL_URL,
-            )
+    fun findById(cartItemId: Long): CartItem? =
+        dsl.selectFrom(CART_ITEM)
+            .where(CART_ITEM.CART_ITEM_ID.eq(cartItemId))
+            .fetchOneInto(CartItem::class.java)
+
+    fun findByMemberId(memberId: Long): List<CartItemResponse> =
+        dsl.select(
+            CART_ITEM.CART_ITEM_ID.`as`("cartItemId"),
+            PRODUCT.PRODUCT_ID.`as`("productId"),
+            CART_ITEM.PRODUCT_OPTION_ID.`as`("productOptionId"),
+            CART_ITEM.QUANTITY.`as`("quantity"),
+            PRODUCT.NAME.`as`("name"),
+            PRODUCT.PRICE.`as`("price"),
+            PRODUCT_OPTION.ADDITIONAL_PRICE.`as`("additionalPrice"),
+            PRODUCT.THUMBNAIL_URL.`as`("thumbnailUrl"),
+            PRODUCT_OPTION.SKU.`as`("sku"),
+            PRODUCT_OPTION.STOCK.`as`("stock")
+        )
             .from(CART_ITEM)
+            .join(PRODUCT_OPTION).on(PRODUCT_OPTION.PRODUCT_OPTION_ID.eq(CART_ITEM.PRODUCT_OPTION_ID))
+            .join(PRODUCT).on(PRODUCT.PRODUCT_ID.eq(PRODUCT_OPTION.PRODUCT_ID))
             .where(CART_ITEM.MEMBER_ID.eq(memberId))
             .fetchInto(CartItemResponse::class.java)
-    }
 
-    fun save(memberId: Long, productId: Long, optionIds: List<Long>?, quantity: Long) {
-        if (optionIds.isNullOrEmpty()) {
-            // 옵션이 없는 경우
-            saveSingleItem(memberId, productId, null, quantity)
-        } else {
-            // 여러 옵션이 있는 경우, 각 옵션을 별도의 장바구니 아이템으로 저장
-            optionIds.forEach { optionId ->
-                saveSingleItem(memberId, productId, optionId, quantity)
-            }
-        }
-    }
+    fun save(cartItem: CartItem) =
+        dsl.insertInto(CART_ITEM)
+            .set(CART_ITEM.MEMBER_ID, cartItem.memberId)
+            .set(CART_ITEM.PRODUCT_OPTION_ID, cartItem.productOptionId)
+            .set(CART_ITEM.QUANTITY, cartItem.quantity)
+            .execute()
 
-    private fun saveSingleItem(memberId: Long, productId: Long, optionId: Long?, quantity: Long) {
-        // 기존 장바구니 아이템이 있는지 확인
-        val existingItem = dsl
-            .select(CART_ITEM.CART_ITEM_ID, CART_ITEM.QUANTITY)
-            .from(CART_ITEM)
-            .where(CART_ITEM.MEMBER_ID.eq(memberId))
-            .fetchOne()
-
-        if (existingItem != null) {
-            // 기존 아이템이 있으면 수량 업데이트
-            val currentQuantity = existingItem.getValue(CART_ITEM.QUANTITY)
-            val cartItemId = existingItem.getValue(CART_ITEM.CART_ITEM_ID)
-
-            dsl
-                .update(CART_ITEM)
-                .set(CART_ITEM.QUANTITY, currentQuantity?.plus(quantity))
-                .where(CART_ITEM.CART_ITEM_ID.eq(cartItemId))
-                .execute()
-        } else {
-            // 새 아이템 추가
-            dsl
-                .insertInto(CART_ITEM)
-                .set(CART_ITEM.MEMBER_ID, memberId)
-                .set(CART_ITEM.QUANTITY, quantity)
-                .execute()
-        }
-    }
-
-    fun updateQuantity(memberId: Long, cartItemId: Long, quantity: Long) {
-        dsl
-            .update(CART_ITEM)
+    fun updateQuantity(memberId: Long, cartItemId: Long, quantity: Long) =
+        dsl.update(CART_ITEM)
             .set(CART_ITEM.QUANTITY, quantity)
             .where(CART_ITEM.CART_ITEM_ID.eq(cartItemId))
             .and(CART_ITEM.MEMBER_ID.eq(memberId))
             .execute()
-    }
 
-    fun delete(memberId: Long, cartItemId: Long) {
-        dsl
-            .deleteFrom(CART_ITEM)
+    fun delete(memberId: Long, cartItemId: Long) =
+        dsl.deleteFrom(CART_ITEM)
             .where(CART_ITEM.CART_ITEM_ID.eq(cartItemId))
             .and(CART_ITEM.MEMBER_ID.eq(memberId))
             .execute()
-    }
 
-    fun deleteAll(memberId: Long) {
-        dsl
-            .deleteFrom(CART_ITEM)
+    fun deleteAll(memberId: Long) =
+        dsl.deleteFrom(CART_ITEM)
             .where(CART_ITEM.MEMBER_ID.eq(memberId))
             .execute()
-    }
 
-    fun getCartItemCount(memberId: Long): Long? {
-        return dsl
-            .selectCount()
+    fun getCartItemCount(memberId: Long): Long? =
+        dsl.selectCount()
             .from(CART_ITEM)
             .where(CART_ITEM.MEMBER_ID.eq(memberId))
             .fetchOneInto(Long::class.java)
-    }
+
 }

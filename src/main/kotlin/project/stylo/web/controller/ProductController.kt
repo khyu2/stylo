@@ -2,9 +2,6 @@ package project.stylo.web.controller
 
 import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
-import org.springframework.data.web.PageableDefault
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -13,15 +10,11 @@ import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import project.stylo.auth.resolver.Auth
 import project.stylo.web.domain.Member
 import project.stylo.web.dto.request.ProductRequest
-import project.stylo.web.dto.request.ProductSearchRequest
-import project.stylo.web.dto.response.ProductResponse
 import project.stylo.web.service.CategoryService
-import project.stylo.web.service.ProductOptionService
 import project.stylo.web.service.ProductService
 
 @Controller
@@ -29,7 +22,6 @@ import project.stylo.web.service.ProductService
 class ProductController(
     private val productService: ProductService,
     private val categoryService: CategoryService,
-    private val productOptionService: ProductOptionService,
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(ProductController::class.java)
@@ -38,15 +30,7 @@ class ProductController(
     @GetMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
     fun showCreateForm(model: Model): String {
-        mapOf(
-            "categories" to categoryService.getAllCategories(),
-//            "genderOptions" to categoryService.getAllGenderOptions(),
-//            "sizeOptions" to categoryService.getAllSizeOptions(),
-//            "colorOptions" to categoryService.getAllColorOptions()
-        ).forEach { (key, value) ->
-            model.addAttribute(key, value)
-        }
-
+        model.addAttribute("categories", categoryService.getAllCategories())
         return "product/create"
     }
 
@@ -102,19 +86,5 @@ class ProductController(
         productService.deleteProduct(productId)
         redirectAttributes.addFlashAttribute("success", "상품이 성공적으로 삭제되었습니다.")
         return "redirect:/"
-    }
-}
-
-@RestController
-@RequestMapping("/api/products")
-class ProductApiController(
-    private val productService: ProductService
-) {
-    @GetMapping
-    fun getProducts(
-        @PageableDefault pageable: Pageable,
-        @ModelAttribute("request") request: ProductSearchRequest
-    ): Page<ProductResponse> {
-        return productService.getProducts(request, pageable)
     }
 }

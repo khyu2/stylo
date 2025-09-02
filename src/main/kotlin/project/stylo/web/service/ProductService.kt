@@ -27,6 +27,8 @@ import project.stylo.web.dto.response.PresignedUrlResponse
 import project.stylo.web.dto.response.ProductOptionResponse
 import project.stylo.web.dto.response.ProductResponse
 import project.stylo.web.exception.ProductExceptionType
+import project.stylo.web.dto.request.OptionCombination
+import java.math.BigDecimal
 
 @Service
 @Transactional
@@ -56,19 +58,31 @@ class ProductService(
 
         val productUrl = fileStorageService.getPresignedUrl(thumbnailUrl)
 
-        request.combinations.forEach { combination ->
-            val productOptionId = productOptionDao.save(combination, product.productId)
+        // 옵션 조합이 있는 경우 처리
+        if (request.combinations.isNotEmpty()) {
+            request.combinations.forEach { combination ->
+                val productOptionId = productOptionDao.save(combination, product.productId)
 
-            combination.options.forEach { option ->
-                val name = option["name"] ?: throw BaseException(ProductExceptionType.OPTION_NAME_MISSING)
-                val value = option["value"] ?: throw BaseException(ProductExceptionType.OPTION_VALUE_MISSING)
+                combination.options.forEach { option ->
+                    val name = option["name"] ?: throw BaseException(ProductExceptionType.OPTION_NAME_MISSING)
+                    val value = option["value"] ?: throw BaseException(ProductExceptionType.OPTION_VALUE_MISSING)
 
-                optionKeyDao.saveOrGetId(product.productId, name)?.let { optionKeyId ->
-                    optionValueDao.saveOrGetId(optionKeyId, value)?.let { optionValueId ->
-                        optionVariantDao.save(productOptionId, optionValueId)
+                    optionKeyDao.saveOrGetId(product.productId, name)?.let { optionKeyId ->
+                        optionValueDao.saveOrGetId(optionKeyId, value)?.let { optionValueId ->
+                            optionVariantDao.save(productOptionId, optionValueId)
+                        }
                     }
                 }
             }
+        } else {
+            // 옵션이 없는 상품의 경우 기본 ProductOption 생성
+            val defaultCombination = OptionCombination(
+                sku = "DEFAULT",
+                additionalPrice = BigDecimal.ZERO,
+                stock = 0L,
+                options = emptyList()
+            )
+            productOptionDao.save(defaultCombination, product.productId)
         }
 
         // 이미지 업로드 처리 (첫 번째 이미지는 썸네일로 사용했으므로 제외)
