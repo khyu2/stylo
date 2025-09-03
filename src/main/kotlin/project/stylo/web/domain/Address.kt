@@ -10,6 +10,7 @@ data class Address(
     val address: String,
     val addressDetail: String? = null,
     val postalCode: String,
+    val requestMessage: String? = null,
     val defaultAddress: Boolean = false,
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,

@@ -24,5 +24,7 @@ data class AddressRequest(
     @field:Pattern(regexp = "^\\d{5}$", message = "우편번호는 5자리 숫자여야 합니다")
     val postalCode: String,
 
+    val requestMessage: String,
+
     val defaultAddress: Boolean = false
 )

@@ -180,12 +180,14 @@
                                                     <span class="font-medium" th:text="${address.recipient}">수령인</span>
                                                 </div>
                                                 <p class="text-sm opacity-70 mb-1" th:text="${address.phone}">연락처</p>
-                                                <p class="text-sm opacity-70">
+                                                <p class="text-sm opacity-70 mb-1">
                                                     <span th:text="${address.address}">주소</span>
                                                     <span th:if="${address.addressDetail != null}"
                                                           th:text="', ' + ${address.addressDetail}">상세주소</span>
                                                     <span th:text="' (우편번호: ' + ${address.postalCode} + ')'">우편번호</span>
                                                 </p>
+                                                <p class="text-sm opacity-70" th:if="${address.requestMessage}"
+                                                   th:text="${'요청사항 : ' + address.requestMessage}">요청사항</p>
                                             </div>
                                             <div class="flex space-x-2">
                                                 <!-- 기본 배송지인 경우 별표 아이콘 표시 -->
@@ -372,6 +374,17 @@
                                        placeholder="상세주소를 입력하세요">
                                 <i data-lucide="building"
                                    class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 opacity-50"></i>
+                            </div>
+                        </div>
+                        <div class="form-control">
+                            <label for="requestMessage" class="label">
+                                <span class="label-text font-medium">요청사항</span>
+                                <span class="label-text-alt opacity-60">(선택사항)</span>
+                            </label>
+                            <div class="relative">
+                                <textarea rows="4" id="requestMessage" th:field="*{requestMessage}"
+                                          class="textarea w-full focus:input-primary transition-all duration-200"
+                                          placeholder="요청사항을 입력하세요"></textarea>
                             </div>
                         </div>
                     </div>

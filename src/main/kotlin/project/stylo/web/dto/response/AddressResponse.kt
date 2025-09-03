@@ -10,6 +10,7 @@ data class AddressResponse(
     val address: String,
     val addressDetail: String?,
     val postalCode: String,
+    val requestMessage: String?,
     val defaultAddress: Boolean
 ) {
     companion object {
@@ -22,6 +23,7 @@ data class AddressResponse(
                 address = address.address,
                 addressDetail = address.addressDetail,
                 postalCode = address.postalCode,
+                requestMessage = address.requestMessage,
                 defaultAddress = address.defaultAddress
             )
         }

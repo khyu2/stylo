@@ -55,6 +55,7 @@ class AddressDao(private val dsl: DSLContext) {
             .set(ADDRESS.ADDRESS_, request.address)
             .set(ADDRESS.ADDRESS_DETAIL, request.addressDetail)
             .set(ADDRESS.POSTAL_CODE, request.postalCode)
+            .set(ADDRESS.REQUEST_MESSAGE, request.requestMessage)
             .set(ADDRESS.DEFAULT_ADDRESS, request.defaultAddress)
             .returning(ADDRESS.ADDRESS_ID)
             .fetchOne(ADDRESS.ADDRESS_ID)!!
@@ -70,6 +71,7 @@ class AddressDao(private val dsl: DSLContext) {
             .set(ADDRESS.ADDRESS_DETAIL, address.addressDetail)
             .set(ADDRESS.POSTAL_CODE, address.postalCode)
             .set(ADDRESS.DEFAULT_ADDRESS, address.defaultAddress)
+            .set(ADDRESS.REQUEST_MESSAGE, address.requestMessage)
             .where(ADDRESS.ADDRESS_ID.eq(address.addressId))
             .execute()
 
