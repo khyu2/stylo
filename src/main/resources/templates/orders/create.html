@@ -34,15 +34,18 @@
             <div class="lg:col-span-2 space-y-6">
                 <!-- Shipping Address Selection -->
                 <div class="card bg-base-100 shadow-xl">
-                    <div class="card-body p-6 space-y-4" x-data="{ addrChoice: '' }" x-init="addrChoice = document.querySelector('input[name=\'addrChoice\']:checked')?.value || 'NEW'">
+                    <div class="card-body p-6 space-y-4" x-data="{ addrChoice: '' }"
+                         x-init="addrChoice = document.querySelector('input[name=\'addrChoice\']:checked')?.value || 'NEW'">
                         <div class="flex items-center justify-between">
                             <h2 class="card-title">배송지 선택</h2>
-                            <span class="badge badge-ghost" th:if="${addresses != null}" th:text="${addresses.size()} + '개'">0개</span>
+                            <span class="badge badge-ghost" th:if="${addresses != null}"
+                                  th:text="${addresses.size()} + '개'">0개</span>
                         </div>
 
                         <!-- Address list -->
                         <div th:if="${addresses != null and !addresses.isEmpty()}" class="space-y-3">
-                            <label th:each="addr, iterStat : ${addresses}" class="flex items-start gap-3 p-4 border border-base-300 rounded-box hover:bg-base-200">
+                            <label th:each="addr, iterStat : ${addresses}"
+                                   class="flex items-start gap-3 p-4 border border-base-300 rounded-box hover:bg-base-200">
                                 <input type="radio" name="addrChoice" class="radio radio-primary mt-1"
                                        th:value="${addr.addressId}"
                                        th:checked="${addr.defaultAddress or iterStat.index == 0}"
@@ -50,13 +53,17 @@
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-2">
                                         <span class="font-medium" th:text="${addr.recipient}">수취인</span>
-                                        <span th:if="${addr.defaultAddress}" class="badge badge-primary badge-sm">기본</span>
+                                        <span th:if="${addr.defaultAddress}"
+                                              class="badge badge-primary badge-sm">기본</span>
                                     </div>
                                     <div class="text-sm opacity-80 truncate">
                                         <span th:text="${addr.address}">주소</span>
-                                        <span th:if="${addr.addressDetail != null}" th:text="${' ' + addr.addressDetail}"></span>
+                                        <span th:if="${addr.addressDetail != null}"
+                                              th:text="${' ' + addr.addressDetail}"></span>
                                     </div>
-                                    <div class="text-sm opacity-70" th:text="${addr.phone + ' • ' + addr.postalCode}">연락처</div>
+                                    <div class="text-sm opacity-70" th:text="${addr.phone + ' • ' + addr.postalCode}">
+                                        연락처
+                                    </div>
                                 </div>
                             </label>
                         </div>
@@ -65,37 +72,40 @@
                             <span>등록된 배송지가 없습니다. 아래에서 새 배송지를 입력해 주세요.</span>
                         </div>
 
-                        <!-- New address: Radio + Collapse -->
-                        <div class="collapse bg-base-200 border rounded-box" :class="addrChoice === 'NEW' ? 'border-primary' : 'border-base-300'">
-                            <input type="radio" name="addrChoice" value="NEW" x-model="addrChoice" />
+                        <!-- New address -->
+                        <div class="collapse bg-base-200 border rounded-box"
+                             :class="addrChoice === 'NEW' ? 'border-primary' : 'border-base-300'">
+                            <input type="radio" name="addrChoice" value="NEW" x-model="addrChoice"/>
                             <div class="collapse-title text-md font-medium">새 주소로 배송</div>
                             <div class="collapse-content">
                                 <form class="space-y-4" action="#" method="post" onsubmit="return false;">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div class="form-control w-full">
                                             <div class="label"><span class="label-text">이름</span></div>
-                                            <input type="text" class="input input-bordered w-full" placeholder="홍길동" />
+                                            <input type="text" class="input input-bordered w-full" placeholder="홍길동"/>
                                         </div>
                                         <div class="form-control w-full">
                                             <div class="label"><span class="label-text">연락처</span></div>
-                                            <input type="tel" class="input input-bordered w-full" placeholder="010-1234-5678" />
+                                            <input type="tel" class="input input-bordered w-full"
+                                                   placeholder="010-1234-5678"/>
                                         </div>
                                     </div>
                                     <div class="form-control w-full">
                                         <div class="label"><span class="label-text">우편번호</span></div>
-                                        <input type="text" class="input input-bordered w-full" placeholder="12345" />
+                                        <input type="text" class="input input-bordered w-full" placeholder="12345"/>
                                     </div>
                                     <div class="form-control w-full">
                                         <div class="label"><span class="label-text">주소</span></div>
-                                        <input type="text" class="input input-bordered w-full" placeholder="도로명 주소" />
+                                        <input type="text" class="input input-bordered w-full" placeholder="도로명 주소"/>
                                     </div>
                                     <div class="form-control w-full">
                                         <div class="label"><span class="label-text">상세 주소</span></div>
-                                        <input type="text" class="input input-bordered w-full" placeholder="동/호수 등" />
+                                        <input type="text" class="input input-bordered w-full" placeholder="동/호수 등"/>
                                     </div>
                                     <div class="form-control w-full">
                                         <div class="label"><span class="label-text">배송 요청사항</span></div>
-                                        <textarea class="textarea textarea-bordered w-full" rows="3" placeholder="문 앞에 놓아주세요"></textarea>
+                                        <textarea class="textarea textarea-bordered w-full" rows="3"
+                                                  placeholder="문 앞에 놓아주세요"></textarea>
                                     </div>
                                 </form>
                             </div>
@@ -108,9 +118,10 @@
                     <div class="card-body p-6">
                         <h2 class="card-title">결제 수단</h2>
                         <div class="join join-vertical w-full md:join-horizontal">
-                            <input class="join-item btn btn-outline" type="radio" name="payment" aria-label="신용/체크카드" checked />
-                            <input class="join-item btn btn-outline" type="radio" name="payment" aria-label="계좌이체" />
-                            <input class="join-item btn btn-outline" type="radio" name="payment" aria-label="무통장입금" />
+                            <input class="join-item btn btn-outline" type="radio" name="payment" aria-label="신용/체크카드"
+                                   checked/>
+                            <input class="join-item btn btn-outline" type="radio" name="payment" aria-label="계좌이체"/>
+                            <input class="join-item btn btn-outline" type="radio" name="payment" aria-label="무통장입금"/>
                         </div>
                         <p class="text-sm opacity-70 mt-2">결제는 현재 데모 상태입니다.</p>
                     </div>
@@ -124,21 +135,28 @@
                         <h2 class="card-title">주문 요약</h2>
                         <div class="divide-y divide-base-300">
                             <div th:each="item : ${cartItems}" class="py-3 flex items-center gap-3">
-                                <img th:src="${item.thumbnailUrl != null ? item.thumbnailUrl : '/images/default_product.jpeg'}" th:alt="${item.name}" class="w-12 h-12 rounded-lg object-cover">
+                                <img th:src="${item.thumbnailUrl != null ? item.thumbnailUrl : '/images/default_product.jpeg'}"
+                                     th:alt="${item.name}" class="w-12 h-12 rounded-lg object-cover">
                                 <div class="flex-1 min-w-0">
                                     <p class="truncate" th:text="${item.getDisplayName()}">상품명</p>
                                     <p class="text-sm opacity-70" th:text="${'수량: ' + item.quantity}">수량</p>
                                 </div>
                                 <div class="text-right">
-                                    <p class="font-medium" th:text="${'₩' + #numbers.formatDecimal(item.getTotalPrice(), 1, 'COMMA', 0, 'POINT')}">₩0</p>
+                                    <p class="font-medium"
+                                       th:text="${'₩' + #numbers.formatDecimal(item.getTotalPrice(), 1, 'COMMA', 0, 'POINT')}">
+                                        ₩0</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="pt-2 space-y-1 text-sm">
-                            <div class="flex justify-between"><span>상품 합계</span><span th:text="${'₩' + #numbers.formatDecimal(#aggregates.sum(cartItems.![totalPrice]), 1, 'COMMA', 0, 'POINT')}">₩0</span></div>
+                            <div class="flex justify-between"><span>상품 합계</span><span
+                                    th:text="${'₩' + #numbers.formatDecimal(#aggregates.sum(cartItems.![totalPrice]), 1, 'COMMA', 0, 'POINT')}">₩0</span>
+                            </div>
                             <div class="flex justify-between"><span>배송비</span><span>₩0</span></div>
-                            <div class="flex justify-between font-semibold text-primary mt-1"><span>총 결제 금액</span><span th:text="${'₩' + #numbers.formatDecimal(#aggregates.sum(cartItems.![totalPrice]), 1, 'COMMA', 0, 'POINT')}">₩0</span></div>
+                            <div class="flex justify-between font-semibold text-primary mt-1"><span>총 결제 금액</span><span
+                                    th:text="${'₩' + #numbers.formatDecimal(#aggregates.sum(cartItems.![totalPrice]), 1, 'COMMA', 0, 'POINT')}">₩0</span>
+                            </div>
                         </div>
 
                         <button type="button" class="btn btn-primary btn-lg w-full">
@@ -154,7 +172,7 @@
 </div>
 
 <script layout:fragment="scripts">
-    // 데모: 스크립트 없이 Alpine.js 바인딩(x-model)로 새 주소 폼 토글 동작을 처리합니다.
+
 </script>
 </body>
 </html>

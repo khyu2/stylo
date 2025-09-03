@@ -70,8 +70,8 @@ class MemberService(
         }
     }
 
-    fun getAddresses(memberId: Long): List<AddressResponse> =
-        addressDao.findAllByMemberId(memberId).map { AddressResponse.from(it) }
+    fun getAddresses(member: Member): List<AddressResponse> =
+        addressDao.findAllByMemberId(member.memberId!!).map { AddressResponse.from(it) }
 
     fun createAddress(member: Member, request: AddressRequest) {
         val addresses = addressDao.findAllByMemberId(member.memberId!!)

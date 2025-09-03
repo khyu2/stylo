@@ -28,7 +28,7 @@ class ProfileController(
         model.addAttribute("member", member)
 
         // 배송지 목록 추가
-        val addresses = memberService.getAddresses(member.memberId!!)
+        val addresses = memberService.getAddresses(member)
         model.addAttribute("addresses", addresses)
 
         // AddressRequest 객체 추가 (폼 바인딩용)
