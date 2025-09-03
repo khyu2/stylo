@@ -41,4 +41,22 @@ class ProductOptionDao(private val dsl: DSLContext) {
             .and(PRODUCT_OPTION.STOCK.ge(quantity))
             .execute()
 
+    fun findByIds(ids: Collection<Long>): Map<Long, ProductOption> =
+        if (ids.isEmpty()) emptyMap() else
+            dsl.selectFrom(PRODUCT_OPTION)
+                .where(PRODUCT_OPTION.PRODUCT_OPTION_ID.`in`(ids))
+                .fetchInto(ProductOption::class.java)
+                .associateBy { it.productOptionId }
+
+    fun decreaseStockInBatch(deltas: Map<Long, Long>): Int {
+        if (deltas.isEmpty()) return 0
+        val queries = deltas.map { (id, qty) ->
+            dsl.update(PRODUCT_OPTION)
+                .set(PRODUCT_OPTION.STOCK, PRODUCT_OPTION.STOCK.minus(qty))
+                .where(PRODUCT_OPTION.PRODUCT_OPTION_ID.eq(id))
+                .and(PRODUCT_OPTION.STOCK.ge(qty))
+        }
+        val results = dsl.batch(queries).execute()
+        return results.count { it > 0 }
+    }
 }

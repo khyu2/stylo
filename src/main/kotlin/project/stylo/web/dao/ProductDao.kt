@@ -50,6 +50,14 @@ class ProductDao(
             .and(PRODUCT.DELETED_AT.isNull)
             .fetchOneInto(Product::class.java)
 
+    fun findByIds(productIds: Collection<Long>): Map<Long, Product> =
+        if (productIds.isEmpty()) emptyMap() else
+            dsl.selectFrom(PRODUCT)
+                .where(PRODUCT.PRODUCT_ID.`in`(productIds))
+                .and(PRODUCT.DELETED_AT.isNull)
+                .fetchInto(Product::class.java)
+                .associateBy { it.productId }
+
     fun findAll(): List<Product> =
         dsl.selectFrom(PRODUCT)
             .where(PRODUCT.DELETED_AT.isNull)

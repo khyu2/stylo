@@ -11,15 +11,14 @@ class OrdersDao(private val dsl: DSLContext) {
         private val ORDERS = JOrders.ORDERS
     }
 
-    fun save(orders: Orders) =
+    fun save(orders: Orders): Long =
         dsl.insertInto(ORDERS)
             .set(ORDERS.MEMBER_ID, orders.memberId)
             .set(ORDERS.ADDRESS_ID, orders.addressId)
             .set(ORDERS.TOTAL_AMOUNT, orders.totalAmount)
             .set(ORDERS.STATUS, orders.status.name)
             .returning(ORDERS.ORDER_ID)
-            .fetchOne()!!
-            .let { it[ORDERS.ORDER_ID] }
+            .fetchOne(ORDERS.ORDER_ID)!!
 
     fun findById(id: Long): Orders? =
         dsl.selectFrom(ORDERS)

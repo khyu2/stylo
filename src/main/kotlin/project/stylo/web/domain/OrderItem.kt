@@ -4,10 +4,10 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 
 data class OrderItem(
-    val orderItemId: Long,
-    val orderId: Long,
+    val orderItemId: Long? = null,
+    val orderId: Long?,
     val productOptionId: Long,
-    val quantity: Int,
+    val quantity: Long,
     val price: BigDecimal,
-    val createdAt: LocalDateTime,
+    val createdAt: LocalDateTime? = null,
 )
