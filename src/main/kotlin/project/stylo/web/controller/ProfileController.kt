@@ -31,7 +31,7 @@ class ProfileController(
         val addresses = memberService.getAddresses(member)
         model.addAttribute("addresses", addresses)
 
-        // AddressRequest 객체 추가 (폼 바인딩용)
+        // AddressRequest 객체 추가
         model.addAttribute(
             "addressRequest", AddressRequest(
                 recipient = "",
@@ -39,6 +39,7 @@ class ProfileController(
                 address = "",
                 addressDetail = null,
                 postalCode = "",
+                requestMessage = "",
                 defaultAddress = false
             )
         )

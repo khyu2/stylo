@@ -34,4 +34,11 @@ class ProductOptionDao(private val dsl: DSLContext) {
             .where(PRODUCT_OPTION.PRODUCT_ID.eq(productId))
             .fetchInto(ProductOption::class.java)
 
+    fun decreaseStock(productOptionId: Long, quantity: Long): Int =
+        dsl.update(PRODUCT_OPTION)
+            .set(PRODUCT_OPTION.STOCK, PRODUCT_OPTION.STOCK.minus(quantity))
+            .where(PRODUCT_OPTION.PRODUCT_OPTION_ID.eq(productOptionId))
+            .and(PRODUCT_OPTION.STOCK.ge(quantity))
+            .execute()
+
 }

@@ -1,6 +1,7 @@
 package project.stylo.web.controller
 
 import jakarta.validation.Valid
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -12,13 +13,19 @@ import project.stylo.web.domain.Member
 import project.stylo.web.dto.request.OrderCreateRequest
 import project.stylo.web.service.CartService
 import project.stylo.web.service.MemberService
+import project.stylo.web.service.OrdersService
 
 @Controller
 @RequestMapping("/orders")
 class OrdersController(
     private val cartService: CartService,
-    private val memberService: MemberService
+    private val memberService: MemberService,
+    private val ordersService: OrdersService
 ) {
+    companion object {
+        private val logger = LoggerFactory.getLogger(OrdersController::class.java)
+    }
+
     @GetMapping("/create")
     fun createOrderPage(@Auth member: Member, model: Model): String {
         val cartItems = cartService.getCartItems(member)
@@ -33,6 +40,15 @@ class OrdersController(
         @Auth member: Member,
         @Valid @ModelAttribute request: OrderCreateRequest
     ): String {
+        logger.info("Creating order for memberId=${member.memberId} with request=$request")
+
+        // 새 주소지 생성
+        if (request.addressId == null && request.addressRequest != null) {
+            memberService.createAddress(member, request.addressRequest)
+        }
+
+        ordersService.createOrder(member, request)
+
         return "redirect:/orders"
     }
 }
