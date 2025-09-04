@@ -32,6 +32,7 @@ class AuthController(
                 email = "",
                 password = "",
                 name = "",
+                phone = "",
                 isTerm = true,
                 isMarketing = false
             )

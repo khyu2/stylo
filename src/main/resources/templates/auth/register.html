@@ -57,6 +57,19 @@
                             <span class="label-text-alt text-error" th:errors="*{email}">이메일 오류</span>
                         </label>
 
+                        <!-- Phone Field -->
+                        <label for="phone" class="label">
+                            <span class="label-text font-medium">연락처 <span class="text-error">*</span></span>
+                        </label>
+                        <input id="phone" name="phone" type="text" required
+                               class="input input-bordered input-primary focus:input-primary w-full"
+                               th:classappend="${#fields.hasErrors('phone')} ? 'input-error' : ''"
+                               placeholder="010-1234-5678"
+                               th:field="*{phone}">
+                        <label class="label" th:if="${#fields.hasErrors('phone')}">
+                            <span class="label-text-alt text-error" th:errors="*{phone}">연락처 오류</span>
+                        </label>
+
                         <!-- Password Field -->
                         <label for="password" class="label">
                             <span class="label-text font-medium">비밀번호 <span class="text-error">*</span></span>

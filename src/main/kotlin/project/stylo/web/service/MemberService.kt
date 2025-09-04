@@ -38,6 +38,7 @@ class MemberService(
                 email = request.email,
                 password = passwordEncoder.encode(request.password),
                 name = request.name,
+                phone = request.phone,
                 role = MemberRole.USER,
                 isTerm = request.isTerm,
                 isMarketing = request.isMarketing ?: false
@@ -74,7 +75,7 @@ class MemberService(
     fun getAddresses(member: Member): List<AddressResponse> =
         addressDao.findAllByMemberId(member.memberId!!).map { AddressResponse.from(it) }
 
-    fun createAddress(member: Member, request: AddressRequest) {
+    fun createAddress(member: Member, request: AddressRequest): AddressResponse {
         val addresses = addressDao.findAllByMemberId(member.memberId!!)
 
         val isDefault = when {
@@ -87,7 +88,8 @@ class MemberService(
             addressDao.resetDefaultAddress(member.memberId)
         }
 
-        addressDao.save(member.memberId, request.copy(defaultAddress = isDefault))
+        val address = addressDao.save(member.memberId, request.copy(defaultAddress = isDefault))
+        return AddressResponse.from(address)
     }
 
     fun updateDefaultAddress(member: Member, addressId: Long) {
