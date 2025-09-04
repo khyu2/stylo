@@ -58,6 +58,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("com.github.ben-manes.caffeine:caffeine")
 
+    // json
+    implementation("com.googlecode.json-simple:json-simple:1.1.1")
+
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
     // kotest

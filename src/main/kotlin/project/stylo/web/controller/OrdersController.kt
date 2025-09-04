@@ -23,8 +23,11 @@ class OrdersController(
 ) {
     @GetMapping("/create")
     fun createOrderPage(@Auth member: Member, model: Model): String {
+        // orderId 는 ORDER-timestamp-randomNumber 형태로 생성
+        val orderId = "ORDER-${System.currentTimeMillis()}-${(1000..9999).random()}"
         val cartItems = cartService.getCartItems(member)
         val addresses = memberService.getAddresses(member)
+        model.addAttribute("orderId", orderId)
         model.addAttribute("cartItems", cartItems)
         model.addAttribute("addresses", addresses)
         return "orders/create"

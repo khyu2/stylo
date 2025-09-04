@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="ko" layout:decorate="~{layout/base}">
+<head>
+  <meta charset="utf-8" />
+  <title>결제 성공</title>
+</head>
+<body>
+<div layout:fragment="content" class="px-4 py-8">
+  <div class="max-w-2xl mx-auto">
+    <div class="card bg-base-100 shadow">
+      <div class="card-body space-y-2">
+        <h2 class="card-title">결제 성공</h2>
+        <p id="orderId" class="text-sm"></p>
+        <p id="amount" class="text-sm"></p>
+        <p id="paymentKey" class="text-xs text-neutral"></p>
+        <div class="card-actions justify-end">
+          <a href="/" class="btn btn-primary">홈으로</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<th:block layout:fragment="scripts">
+<script>
+  // 쿼리 파라미터 값 검증 및 서버 승인 요청
+  const urlParams = new URLSearchParams(window.location.search);
+  const paymentKey = urlParams.get("paymentKey");
+  const orderId = urlParams.get("orderId");
+  const amount = urlParams.get("amount");
+
+  async function confirm() {
+    const requestData = { paymentKey, orderId, amount };
+    const response = await fetch("/payment/confirm", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestData),
+    });
+
+    const json = await response.json();
+
+    if (!response.ok) {
+      console.log(json);
+      window.location.href = `/fail?message=${json.message}&code=${json.code}`;
+      return;
+    }
+
+    console.log(json);
+  }
+  confirm();
+
+  const paymentKeyElement = document.getElementById("paymentKey");
+  const orderIdElement = document.getElementById("orderId");
+  const amountElement = document.getElementById("amount");
+
+  orderIdElement.textContent = "주문번호: " + orderId;
+  amountElement.textContent = "결제 금액: " + amount;
+  paymentKeyElement.textContent = "paymentKey: " + paymentKey;
+</script>
+</th:block>
+</body>
+</html>

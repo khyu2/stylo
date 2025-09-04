@@ -96,41 +96,52 @@
                                 <div class="space-y-4">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div class="form-control w-full">
-                                            <label for="recipient" class="label"><span class="label-text">이름</span></label>
-                                            <input type="text" id="recipient" name="addressRequest.recipient" class="input input-bordered w-full"
+                                            <label for="recipient" class="label"><span
+                                                    class="label-text">이름</span></label>
+                                            <input type="text" id="recipient" name="addressRequest.recipient"
+                                                   class="input input-bordered w-full"
                                                    placeholder="홍길동"/>
                                         </div>
                                         <div class="form-control w-full">
                                             <label for="phone" class="label"><span class="label-text">연락처</span></label>
-                                            <input type="tel" id="phone" name="addressRequest.phone" class="input input-bordered w-full"
+                                            <input type="tel" id="phone" name="addressRequest.phone"
+                                                   class="input input-bordered w-full"
                                                    placeholder="010-1234-5678"/>
                                         </div>
                                     </div>
                                     <div class="form-control w-full">
-                                        <label for="postalCode" class="label"><span class="label-text">우편번호</span></label>
-                                        <input type="text" id="postalCode" name="addressRequest.postalCode" class="input input-bordered w-full"
+                                        <label for="postalCode" class="label"><span
+                                                class="label-text">우편번호</span></label>
+                                        <input type="text" id="postalCode" name="addressRequest.postalCode"
+                                               class="input input-bordered w-full"
                                                placeholder="12345"/>
                                     </div>
                                     <div class="form-control w-full">
                                         <label for="address" class="label"><span class="label-text">주소</span></label>
-                                        <input type="text" id="address" name="addressRequest.address" class="input input-bordered w-full"
+                                        <input type="text" id="address" name="addressRequest.address"
+                                               class="input input-bordered w-full"
                                                placeholder="도로명 주소"/>
                                     </div>
                                     <div class="form-control w-full">
-                                        <label for="addressDetail" class="label"><span class="label-text">상세 주소</span></label>
-                                        <input type="text" id="addressDetail" name="addressRequest.addressDetail" class="input input-bordered w-full"
+                                        <label for="addressDetail" class="label"><span
+                                                class="label-text">상세 주소</span></label>
+                                        <input type="text" id="addressDetail" name="addressRequest.addressDetail"
+                                               class="input input-bordered w-full"
                                                placeholder="동/호수 등"/>
                                     </div>
                                     <div class="form-control w-full">
-                                        <label for="requestMessage" class="label"><span class="label-text">배송 요청사항</span></label>
-                                        <textarea id="requestMessage" name="addressRequest.requestMessage" class="textarea textarea-bordered w-full"
+                                        <label for="requestMessage" class="label"><span
+                                                class="label-text">배송 요청사항</span></label>
+                                        <textarea id="requestMessage" name="addressRequest.requestMessage"
+                                                  class="textarea textarea-bordered w-full"
                                                   rows="3"
                                                   placeholder="문 앞에 놓아주세요"></textarea>
                                     </div>
                                     <div class="form-control w-full">
                                         <label class="label cursor-pointer justify-start gap-3">
-<!--                                            <input type="hidden" name="addressRequest.defaultAddress" value="false" />-->
-                                            <input type="checkbox" class="checkbox checkbox-primary" name="addressRequest.defaultAddress" />
+                                            <!--                                            <input type="hidden" name="addressRequest.defaultAddress" value="false" />-->
+                                            <input type="checkbox" class="checkbox checkbox-primary"
+                                                   name="addressRequest.defaultAddress"/>
                                             <span class="label-text">기본 배송지로 저장</span>
                                         </label>
                                     </div>
@@ -188,7 +199,8 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary btn-lg w-full">
+                        <button type="button" class="btn btn-primary btn-lg w-full"
+                                onclick="openModal('checkoutModal'); initTossPayment();">
                             <i data-lucide="credit-card" class="h-5 w-5 mr-2"></i>
                             결제하기
                         </button>
@@ -198,10 +210,80 @@
             </div>
         </form>
     </div>
+
+    <!-- 결제 모달 -->
+    <dialog id="checkoutModal" class="modal">
+        <div class="modal-box max-w-2xl">
+            <h3 class="font-bold text-lg mb-2">결제</h3>
+            <p class="opacity-70 text-sm mb-4">아래에서 결제 수단을 선택하고 약관에 동의해주세요.</p>
+            <div id="payment-method"></div>
+            <div id="agreement" class="mt-4"></div>
+            <div class="modal-action">
+                <button id="payment-button" class="btn btn-primary">결제하기</button>
+                <form method="dialog">
+                    <button class="btn btn-ghost">닫기</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
 </div>
 
-<script layout:fragment="scripts">
+<th:block layout:fragment="scripts">
+    <script src="https://js.tosspayments.com/v2/standard"></script>
+    <script th:inline="javascript">
+        function openModal(id) {
+            const dlg = document.getElementById(id);
+            if (!dlg) return;
+            if (typeof dlg.showModal === 'function') {
+                dlg.showModal();
+            } else {
+                dlg.setAttribute('open', '');
+            }
+        }
 
-</script>
+        async function initTossPayment() {
+            // ------  결제위젯 초기화 ------
+            const clientKey = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm";
+            const tossPayments = TossPayments(clientKey);
+
+            // 회원 결제
+            const customerKey = /*[[${#authentication.name}]]*/ "UNKNOWN_USER";
+            const widgets = tossPayments.widgets({customerKey});
+            // 비회원 결제
+            // const widgets = tossPayments.widgets({ customerKey: TossPayments.ANONYMOUS });
+
+            // ------ 주문의 결제 금액 설정 ------
+            await widgets.setAmount({
+                currency: "KRW",
+                value: /*[[${#aggregates.sum(cartItems.![totalPrice])}]]*/ 50000,
+            });
+
+            await Promise.all([
+                // ------  결제 UI 렌더링 ------
+                widgets.renderPaymentMethods({
+                    selector: "#payment-method",
+                    variantKey: "DEFAULT",
+                }),
+                // ------  이용약관 UI 렌더링 ------
+                widgets.renderAgreement({selector: "#agreement", variantKey: "AGREEMENT"}),
+            ]);
+
+            // ------ '결제하기' 버튼 누르면 결제창 띄우기 ------
+            const phone = /*[[${#authentication.principal.member.phone}]]*/ "UNKNOWN_PHONE";
+            const sanitizedPhone = phone.replace(/-/g, '');
+            document.getElementById("payment-button").onclick = async function () {
+                await widgets.requestPayment({
+                    orderId: /*[[${orderId}]]*/ "RANDOM_ORDER_ID_12345",
+                    orderName: "Stylo 주문",
+                    successUrl: window.location.origin + "/payment/success",
+                    failUrl: window.location.origin + "/payment/fail",
+                    customerEmail: /*[[${#authentication.name}]]*/ "UNKNOWN_EMAIL",
+                    customerName: /*[[${#authentication.principal.member.name}]]*/ "UNKNOWN_NAME",
+                    customerMobilePhone: sanitizedPhone,
+                });
+            };
+        }
+    </script>
+</th:block>
 </body>
 </html>

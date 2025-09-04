@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="ko" layout:decorate="~{layout/base}">
+<head>
+  <meta charset="utf-8" />
+  <title>결제 실패</title>
+</head>
+<body>
+<div layout:fragment="content" class="px-4 py-8">
+  <div class="max-w-2xl mx-auto">
+    <div class="alert alert-error">
+      <i data-lucide="circle-alert"></i>
+      <div>
+        <h3 class="font-bold">결제 실패</h3>
+        <div class="text-sm">
+          <p id="code"></p>
+          <p id="message"></p>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 text-right">
+      <a href="/" class="btn btn-ghost">홈으로</a>
+    </div>
+  </div>
+</div>
+
+<th:block layout:fragment="scripts">
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const codeElement = document.getElementById("code");
+  const messageElement = document.getElementById("message");
+  codeElement.textContent = "에러코드: " + urlParams.get("code");
+  messageElement.textContent = "실패 사유: " + urlParams.get("message");
+</script>
+</th:block>
+</body>
+</html>
