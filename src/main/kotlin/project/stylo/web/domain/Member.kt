@@ -8,6 +8,7 @@ data class Member(
     val email: String,
     var password: String,
     var name: String,
+    var phone: String? = null,
     val role: MemberRole,
     val isTerm: Boolean = true,
     var isMarketing: Boolean = false,

@@ -48,6 +48,7 @@ class MemberDao(private val dsl: DSLContext) {
     fun update(member: Member) =
         dsl.update(MEMBER)
             .set(MEMBER.NAME, member.name)
+            .set(MEMBER.PHONE, member.phone)
             .set(MEMBER.IS_MARKETING, member.isMarketing)
             .set(MEMBER.UPDATED_AT, LocalDateTime.now())
             .where(MEMBER.MEMBER_ID.eq(member.memberId))

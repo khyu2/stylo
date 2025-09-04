@@ -48,6 +48,7 @@ class MemberService(
     fun updateProfile(member: Member, request: MemberUpdateRequest) {
         member.apply {
             name = request.name ?: name
+            phone = request.phone ?: phone
             isMarketing = request.isMarketing ?: isMarketing
         }
 

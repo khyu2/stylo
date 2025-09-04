@@ -2618,6 +2618,9 @@
   .text-info {
     color: var(--color-info);
   }
+  .text-neutral {
+    color: var(--color-neutral);
+  }
   .text-neutral-content {
     color: var(--color-neutral-content);
   }
@@ -2653,9 +2656,6 @@
   }
   .opacity-70 {
     opacity: 70%;
-  }
-  .opacity-80 {
-    opacity: 80%;
   }
   .shadow {
     --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
