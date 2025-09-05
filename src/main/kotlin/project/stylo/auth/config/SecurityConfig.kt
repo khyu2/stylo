@@ -95,8 +95,7 @@ class SecurityConfig(
     }
 
     @Bean
-    fun passwordEncoder(): PasswordEncoder =
-        PasswordEncoderFactories.createDelegatingPasswordEncoder()
+    fun passwordEncoder(): PasswordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder()
 
     override fun addArgumentResolvers(argumentResolvers: MutableList<HandlerMethodArgumentResolver>) {
         argumentResolvers.add(authArgumentResolver)

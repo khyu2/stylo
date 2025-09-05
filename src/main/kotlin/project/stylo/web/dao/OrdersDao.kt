@@ -25,4 +25,11 @@ class OrdersDao(private val dsl: DSLContext) {
             .where(ORDERS.ORDER_ID.eq(id))
             .and(ORDERS.DELETED_AT.isNull)
             .fetchOneInto(Orders::class.java)
+
+    fun findAllByMemberId(memberId: Long): List<Orders> =
+        dsl.selectFrom(ORDERS)
+            .where(ORDERS.MEMBER_ID.eq(memberId))
+            .and(ORDERS.DELETED_AT.isNull)
+            .orderBy(ORDERS.ORDER_ID.desc())
+            .fetchInto(Orders::class.java)
 }

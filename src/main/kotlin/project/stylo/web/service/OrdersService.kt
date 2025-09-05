@@ -1,5 +1,6 @@
 package project.stylo.web.service
 
+import jakarta.servlet.http.HttpSession
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import project.stylo.common.exception.BaseException
@@ -7,19 +8,23 @@ import project.stylo.web.dao.AddressDao
 import project.stylo.web.dao.CartDao
 import project.stylo.web.dao.OrderItemDao
 import project.stylo.web.dao.OrdersDao
+import project.stylo.web.dao.PaymentDao
 import project.stylo.web.dao.ProductDao
 import project.stylo.web.dao.ProductOptionDao
 import project.stylo.web.domain.Member
 import project.stylo.web.domain.OrderItem
 import project.stylo.web.domain.Orders
+import project.stylo.web.domain.Payment
 import project.stylo.web.domain.enums.OrderStatus
+import project.stylo.web.domain.enums.PaymentStatus
+import project.stylo.web.domain.enums.PgProviderType
 import project.stylo.web.dto.request.OrderCreateRequest
+import project.stylo.web.dto.response.OrderCreateResponse
 import project.stylo.web.exception.MemberExceptionType
 import project.stylo.web.exception.ProductExceptionType
 import java.math.BigDecimal
 
 @Service
-@Transactional
 class OrdersService(
     private val cartDao: CartDao,
     private val addressDao: AddressDao,
@@ -27,9 +32,11 @@ class OrdersService(
     private val orderItemDao: OrderItemDao,
     private val productDao: ProductDao,
     private val productOptionDao: ProductOptionDao,
+    private val paymentDao: PaymentDao
 ) {
-    // TODO: 주문 중복 검증, 결제 연동, 동시성 문제
-    fun createOrder(member: Member, request: OrderCreateRequest) {
+    // TODO: 주문 중복 검증, 재고 동시성 문제, 주문/결제 트랜잭션 분리, 주문 취소/환불 처리
+    @Transactional
+    fun createOrder(member: Member, request: OrderCreateRequest, session: HttpSession): OrderCreateResponse {
         val address = request.addressId?.let { addressDao.findById(it) }
             ?: throw BaseException(MemberExceptionType.ADDRESS_NOT_FOUND)
 
@@ -96,6 +103,58 @@ class OrdersService(
             throw BaseException(ProductExceptionType.INSUFFICIENT_STOCK)
         }
 
-        // TODO: 결제 프로세스 연결
+        // 결제 생성
+        val orderUuid = "ORDER-${System.currentTimeMillis()}-${(1000..9999).random()}"
+        paymentDao.save(
+            Payment(
+                orderId = orderId,
+                memberId = member.memberId,
+                orderUid = orderUuid,
+                amount = totalAmount,
+                currency = "KRW",
+                method = request.paymentMethod,
+                pgProvider = PgProviderType.TOSS,
+                status = PaymentStatus.READY
+            )
+        )
+
+        session.setAttribute("orderId", orderUuid)
+        session.setAttribute("totalAmount", totalAmount)
+
+        return OrderCreateResponse(
+            orderId = orderUuid,
+            amount = totalAmount,
+            customerName = member.name,
+            customerEmail = member.email,
+            customerPhone = member.phone,
+        )
+    }
+
+    data class OrderSummaryView(
+        val orderId: Long,
+        val createdAt: java.time.LocalDateTime?,
+        val totalAmount: java.math.BigDecimal,
+        val status: project.stylo.web.domain.enums.OrderStatus,
+        val orderUid: String?,
+        val paymentKey: String?,
+        val paymentStatus: project.stylo.web.domain.enums.PaymentStatus?,
+    )
+
+    fun listOrders(member: Member): List<OrderSummaryView> {
+        val orders = ordersDao.findAllByMemberId(member.memberId!!)
+        val orderIds = orders.mapNotNull { it.orderId }
+        val paymentMap = paymentDao.findByOrderIds(orderIds)
+        return orders.map { o ->
+            val p = o.orderId?.let { paymentMap[it] }
+            OrderSummaryView(
+                orderId = o.orderId!!,
+                createdAt = o.createdAt,
+                totalAmount = o.totalAmount,
+                status = o.status,
+                orderUid = p?.orderUid,
+                paymentKey = p?.paymentKey,
+                paymentStatus = p?.status,
+            )
+        }
     }
 }

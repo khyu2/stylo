@@ -1,15 +1,19 @@
 package project.stylo.web.controller
 
+import jakarta.servlet.http.HttpSession
 import jakarta.validation.Valid
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseBody
 import project.stylo.auth.resolver.Auth
 import project.stylo.web.domain.Member
 import project.stylo.web.dto.request.OrderCreateRequest
+import project.stylo.web.dto.response.OrderCreateResponse
 import project.stylo.web.service.CartService
 import project.stylo.web.service.MemberService
 import project.stylo.web.service.OrdersService
@@ -21,30 +25,33 @@ class OrdersController(
     private val memberService: MemberService,
     private val ordersService: OrdersService
 ) {
+    @GetMapping
+    fun listOrders(@Auth member: Member, model: Model): String {
+        val orders = ordersService.listOrders(member)
+        model.addAttribute("orders", orders)
+        return "orders/index"
+    }
+
     @GetMapping("/create")
     fun createOrderPage(@Auth member: Member, model: Model): String {
-        // orderId 는 ORDER-timestamp-randomNumber 형태로 생성
-        val orderId = "ORDER-${System.currentTimeMillis()}-${(1000..9999).random()}"
         val cartItems = cartService.getCartItems(member)
         val addresses = memberService.getAddresses(member)
-        model.addAttribute("orderId", orderId)
         model.addAttribute("cartItems", cartItems)
         model.addAttribute("addresses", addresses)
         return "orders/create"
     }
 
+    @ResponseBody
     @PostMapping("/create")
     fun createOrder(
         @Auth member: Member,
-        @Valid @ModelAttribute request: OrderCreateRequest
-    ): String {
+        @Valid @ModelAttribute request: OrderCreateRequest,
+        session: HttpSession,
+    ): ResponseEntity<OrderCreateResponse> {
         // 새 주소지 생성
-        if (request.addressId == null && request.addressRequest != null) {
-            memberService.createAddress(member, request.addressRequest)
-        }
+        if (request.addressId == null && request.addressRequest != null)
+            memberService.createAddress(member, request.addressRequest).let { request.addressId = it.addressId }
 
-        ordersService.createOrder(member, request)
-
-        return "redirect:/orders"
+        return ResponseEntity.ok(ordersService.createOrder(member, request, session))
     }
 }

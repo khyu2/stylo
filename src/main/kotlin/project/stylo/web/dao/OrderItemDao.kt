@@ -34,4 +34,9 @@ class OrderItemDao(private val dsl: DSLContext) {
         }
         return insert.execute()
     }
+
+    fun findByOrderId(orderId: Long): List<OrderItem> =
+        dsl.selectFrom(ORDER_ITEM)
+            .where(ORDER_ITEM.ORDER_ID.eq(orderId))
+            .fetchInto(OrderItem::class.java)
 }

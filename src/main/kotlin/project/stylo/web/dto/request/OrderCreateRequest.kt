@@ -10,7 +10,7 @@ data class OrderItemRequest(
 )
 
 data class OrderCreateRequest(
-    val addressId: Long?,                 // 기존 배송지 ID (없으면 null)
+    var addressId: Long?,                 // 기존 배송지 ID (없으면 null)
     val addressRequest: AddressRequest?,  // 새 배송지 정보
 
     @field:NotNull(message = "결제수단은 필수입니다.")
