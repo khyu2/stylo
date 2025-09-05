@@ -7,21 +7,29 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
+import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import project.stylo.auth.resolver.Auth
+import project.stylo.web.dao.PaymentDao
+import project.stylo.web.domain.Member
+import project.stylo.web.service.PaymentService
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.StandardCharsets
-import java.util.Base64
+import java.util.*
 
 @Controller
 @RequestMapping("/payment")
 class PaymentController(
     @Value("\${payments.toss.secretKey:test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6}")
     private val widgetSecretKey: String,
+    private val paymentDao: PaymentDao,
+    private val paymentService: PaymentService,
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(PaymentController::class.java)
@@ -32,6 +40,9 @@ class PaymentController(
 
     @GetMapping("/fail")
     fun payFail(): String = "payment/fail"
+
+    @GetMapping("/confirm")
+    fun confirmPage(): String = "orders/create"
 
     @PostMapping("/confirm")
     fun confirmPayment(@RequestBody jsonBody: String): ResponseEntity<JSONObject> {
@@ -92,6 +103,40 @@ class PaymentController(
             }
         }
 
+        // 결제 승인 성공 시 paymentDao에 저장
+        if (isSuccess) {
+            try {
+                val orderUid = jsonObject["orderId"] as String
+                val paymentKey = jsonObject["paymentKey"] as String
+                val transactionId = jsonObject["lastTransactionKey"] as String
+                paymentDao.confirm(orderUid, paymentKey, transactionId)
+            } catch (e: Exception) {
+                logger.warn("결제 정보 저장 중 오류", e)
+            }
+        }
+
         return ResponseEntity.status(code).body(jsonObject)
+    }
+
+    // TODO: ResponseDTO 만들기, Service 분리
+    @GetMapping("/detail")
+    fun paymentDetail(
+        @Auth member: Member,
+        @RequestParam paymentKey: String,
+        model: Model
+    ): String {
+        val payment = paymentDao.findByPaymentKey(paymentKey)
+        if (payment == null) {
+            model.addAttribute("message", "유효하지 않은 결제 정보입니다")
+            model.addAttribute("code", "PAYMENT_NOT_FOUND")
+            return "payment/fail"
+        }
+        val detail = paymentService.getPaymentDetail(member, paymentKey)
+        model.addAttribute("payment", detail.payment)
+        model.addAttribute("order", detail.order)
+        model.addAttribute("orderItems", detail.orderItems)
+        model.addAttribute("buyer", detail.buyer)
+        model.addAttribute("shipping", detail.shipping)
+        return "payment/detail"
     }
 }
