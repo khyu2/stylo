@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="ko"
+      layout:decorate="~{layout/base}">
+<head>
+    <meta charset="utf-8"/>
+    <title>주문 내역 - Stylo</title>
+</head>
+<body>
+<div layout:fragment="content" class="px-4 py-8">
+    <div class="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold">주문 내역</h1>
+                <p class="opacity-70">내가 주문한 내역과 결제 상태를 확인하세요.</p>
+            </div>
+            <a href="/orders/create" class="btn btn-primary">새 주문</a>
+        </div>
+
+        <div th:if="${orders == null or #lists.isEmpty(orders)}" class="alert">
+            <i data-lucide="info" class="h-5 w-5"></i>
+            <span>아직 주문 내역이 없습니다.</span>
+        </div>
+
+        <div th:if="${orders != null and !#lists.isEmpty(orders)}" class="card bg-base-100 shadow">
+            <div class="card-body p-0">
+                <div class="overflow-x-auto">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>주문일</th>
+                            <th>주문번호</th>
+                            <th class="text-right">총 금액</th>
+                            <th>주문 상태</th>
+                            <th>결제 상태</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="o : ${orders}">
+                            <td th:text="${o.createdAt != null ? #temporals.format(o.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">-</td>
+                            <td class="break-all" th:text="${o.orderUid} ?: '-'">-</td>
+                            <td class="text-right" th:text="${'₩' + #numbers.formatDecimal(o.totalAmount, 1, 'COMMA', 0, 'POINT')}">₩0</td>
+                            <td><span class="badge" th:text="${o.status}">PENDING</span></td>
+                            <td>
+                                <span th:if="${o.paymentStatus != null}"
+                                      th:text="${o.paymentStatus}"
+                                      class="badge badge-ghost">-</span>
+                                <span th:unless="${o.paymentStatus != null}" class="opacity-60">-</span>
+                            </td>
+                            <td class="text-right">
+                                <a th:if="${o.paymentKey != null}"
+                                   th:href="${'/payment/detail?paymentKey=' + o.paymentKey}"
+                                   class="btn btn-sm btn-ghost">상세</a>
+                                <span th:unless="${o.paymentKey != null}" class="text-sm opacity-60">결제 대기</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end">
+            <a href="/" class="btn btn-ghost">홈으로</a>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+    <script>
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+        }
+    </script>
+</th:block>
+</body>
+</html>

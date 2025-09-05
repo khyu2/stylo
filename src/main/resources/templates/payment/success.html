@@ -1,62 +1,58 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="ko" layout:decorate="~{layout/base}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="ko"
+      layout:decorate="~{layout/base}">
 <head>
-  <meta charset="utf-8" />
-  <title>결제 성공</title>
+    <meta charset="utf-8"/>
+    <title>결제 성공</title>
 </head>
 <body>
 <div layout:fragment="content" class="px-4 py-8">
-  <div class="max-w-2xl mx-auto">
-    <div class="card bg-base-100 shadow">
-      <div class="card-body space-y-2">
-        <h2 class="card-title">결제 성공</h2>
-        <p id="orderId" class="text-sm"></p>
-        <p id="amount" class="text-sm"></p>
-        <p id="paymentKey" class="text-xs text-neutral"></p>
-        <div class="card-actions justify-end">
-          <a href="/" class="btn btn-primary">홈으로</a>
+    <div class="max-w-2xl mx-auto">
+        <div class="card bg-base-100 shadow">
+            <div class="card-body space-y-4">
+                <h2 class="card-title">결제 확인 중...</h2>
+                <div id="loading" class="flex items-center gap-3">
+                    <span class="loading loading-spinner loading-md text-primary"></span>
+                    <span class="opacity-70">결제 승인 확인을 진행하고 있습니다. 잠시만 기다려 주세요.</span>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>
 
 <th:block layout:fragment="scripts">
-<script>
-  // 쿼리 파라미터 값 검증 및 서버 승인 요청
-  const urlParams = new URLSearchParams(window.location.search);
-  const paymentKey = urlParams.get("paymentKey");
-  const orderId = urlParams.get("orderId");
-  const amount = urlParams.get("amount");
+    <script>
+        // 쿼리 파라미터 값 검증 및 서버 승인 요청
+        const urlParams = new URLSearchParams(window.location.search);
+        const paymentKey = urlParams.get("paymentKey");
+        const orderId = urlParams.get("orderId");
+        const amount = urlParams.get("amount");
 
-  async function confirm() {
-    const requestData = { paymentKey, orderId, amount };
-    const response = await fetch("/payment/confirm", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(requestData),
-    });
+        async function confirm() {
+            const requestData = {paymentKey, orderId, amount};
+            const response = await fetch("/payment/confirm", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(requestData),
+            });
 
-    const json = await response.json();
+            const json = await response.json();
 
-    if (!response.ok) {
-      console.log(json);
-      window.location.href = `/fail?message=${json.message}&code=${json.code}`;
-      return;
-    }
+            if (!response.ok) {
+                console.log(json);
+                window.location.href = `/payment/fail?message=${json.message}&code=${json.code}`;
+                return;
+            }
 
-    console.log(json);
-  }
-  confirm();
+            console.log(json);
+        }
 
-  const paymentKeyElement = document.getElementById("paymentKey");
-  const orderIdElement = document.getElementById("orderId");
-  const amountElement = document.getElementById("amount");
-
-  orderIdElement.textContent = "주문번호: " + orderId;
-  amountElement.textContent = "결제 금액: " + amount;
-  paymentKeyElement.textContent = "paymentKey: " + paymentKey;
-</script>
+        (async () => {
+            await confirm();
+            // 승인 성공 시 결제 상세 페이지로 이동 (로딩만 보여주고 이동)
+            window.location.replace(`/payment/detail?paymentKey=${encodeURIComponent(paymentKey)}`);
+        })();
+    </script>
 </th:block>
 </body>
 </html>

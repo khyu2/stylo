@@ -44,6 +44,7 @@
                     <input type="hidden" th:name="${'cartItems[' + iter.index + '].quantity'}"
                            th:value="${item.quantity}"/>
                 </div>
+                <input type="hidden" name="paymentMethod" id="paymentMethodInput"/>
             </div>
             <!-- Left: Order Form -->
             <div class="lg:col-span-2 space-y-6">
@@ -150,22 +151,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Payment Method -->
-                <div class="card bg-base-100 shadow-xl">
-                    <div class="card-body p-6">
-                        <h2 class="card-title">결제 수단</h2>
-                        <div class="join join-vertical w-full md:join-horizontal">
-                            <input class="join-item btn btn-outline" type="radio" name="paymentMethod" value="CARD"
-                                   aria-label="신용/체크카드" checked/>
-                            <input class="join-item btn btn-outline" type="radio" name="paymentMethod"
-                                   value="BANK_TRANSFER" aria-label="계좌이체"/>
-                            <input class="join-item btn btn-outline" type="radio" name="paymentMethod"
-                                   value="BANK_DEPOSIT" aria-label="무통장입금"/>
-                        </div>
-                        <p class="text-sm opacity-70 mt-2">결제는 현재 데모 상태입니다.</p>
-                    </div>
-                </div>
             </div>
 
             <!-- Right: Summary -->
@@ -258,7 +243,7 @@
                 value: /*[[${#aggregates.sum(cartItems.![totalPrice])}]]*/ 50000,
             });
 
-            await Promise.all([
+            const [paymentMethodWidget] = await Promise.all([
                 // ------  결제 UI 렌더링 ------
                 widgets.renderPaymentMethods({
                     selector: "#payment-method",
@@ -269,18 +254,61 @@
             ]);
 
             // ------ '결제하기' 버튼 누르면 결제창 띄우기 ------
-            const phone = /*[[${#authentication.principal.member.phone}]]*/ "UNKNOWN_PHONE";
-            const sanitizedPhone = phone.replace(/-/g, '');
             document.getElementById("payment-button").onclick = async function () {
-                await widgets.requestPayment({
-                    orderId: /*[[${orderId}]]*/ "RANDOM_ORDER_ID_12345",
-                    orderName: "Stylo 주문",
-                    successUrl: window.location.origin + "/payment/success",
-                    failUrl: window.location.origin + "/payment/fail",
-                    customerEmail: /*[[${#authentication.name}]]*/ "UNKNOWN_EMAIL",
-                    customerName: /*[[${#authentication.principal.member.name}]]*/ "UNKNOWN_NAME",
-                    customerMobilePhone: sanitizedPhone,
+                const modal = document.getElementById("checkoutModal");
+                if (modal) {
+                    modal.close();
+                }
+
+                const paymentMethod = await paymentMethodWidget.getSelectedPaymentMethod();
+                const paymentMethodType = paymentMethod.code;
+
+                // 주문 생성: 기존 주문 폼의 데이터를 수집하여 서버로 전송
+                const form = document.querySelector('form[action="/orders/create"]') || document.querySelector('form');
+                if (!form) {
+                    console.error('Order form not found.');
+                    return;
+                }
+
+                // hidden input 에 paymentMethod 설정
+                const pmInput = document.getElementById('paymentMethodInput');
+                if (pmInput) pmInput.value = paymentMethodType;
+
+                // FormData -> URLSearchParams 로 변환하여 x-www-form-urlencoded 로 전송
+                const fd = new FormData(form);
+                const params = new URLSearchParams();
+                fd.forEach((value, key) => {
+                    if (value != null) params.append(key, value.toString());
                 });
+
+                try {
+                    const response = await fetch('/orders/create', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'},
+                        body: params.toString()
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('Order creation failed:', errorText);
+                        alert('주문 생성에 실패했습니다. 다시 시도해주세요.');
+                        return;
+                    }
+
+                    const data = await response.json();
+
+                    await widgets.requestPayment({
+                        orderId: data.orderId,
+                        orderName: "Stylo 주문",
+                        successUrl: window.location.origin + "/payment/success",
+                        failUrl: window.location.origin + "/payment/fail",
+                        customerEmail: data.customerEmail,
+                        customerName: data.customerName,
+                        customerMobilePhone: data.sanitizedPhone,
+                    });
+                } catch (e) {
+                    console.error('주문 생성 요청 실패', e);
+                }
             };
         }
     </script>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="ko"
+      layout:decorate="~{layout/base}">
+<head>
+    <meta charset="utf-8"/>
+    <title>결제 내역 - Stylo</title>
+</head>
+<body>
+<div layout:fragment="content" class="px-4 py-8">
+    <div class="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold">주문 상세</h1>
+                <p class="opacity-70">주문 및 결제 정보를 확인하세요.</p>
+            </div>
+            <a href="/" class="btn btn-ghost">홈으로</a>
+        </div>
+
+        <!-- 1. 주문 기본 정보 -->
+        <div class="card bg-base-100 shadow">
+            <div class="card-body p-6">
+                <h2 class="card-title mb-4">주문 기본 정보</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <div class="text-sm opacity-70">주문 번호</div>
+                        <div class="font-medium break-all" th:text="${payment.orderUid}">ORDER-XXXX</div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">주문 일시</div>
+                        <div class="font-medium" th:text="${(order != null and order.createdAt != null) ? #temporals.format(order.createdAt, 'yyyy-MM-dd HH:mm') : payment.approvedAt}">-</div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">주문 상태</div>
+                        <div>
+                            <span class="badge badge-primary" th:text="${order != null ? order.status : payment.status}">DONE</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">총 결제 금액 / 수단</div>
+                        <div class="font-semibold text-primary" th:text="${'₩' + #numbers.formatDecimal(payment.amount, 1, 'COMMA', 0, 'POINT')}">₩0</div>
+                        <div class="text-sm opacity-70" th:text="${payment.method}">CARD</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 상품 정보 -->
+        <div class="card bg-base-100 shadow">
+            <div class="card-body p-6">
+                <h2 class="card-title mb-4">상품 정보</h2>
+                <div th:if="${orderItems == null or #lists.isEmpty(orderItems)}" class="opacity-70 text-sm">상품 정보가 없습니다.</div>
+                <div th:each="item : ${orderItems}" class="flex items-center gap-4 py-4 border-t first:border-t-0">
+                    <img th:src="${item.thumbnailUrl}" alt="thumb" class="w-16 h-16 rounded-lg object-cover">
+                    <div class="flex-1 min-w-0">
+                        <div class="font-medium truncate" th:text="${item.name}">상품명</div>
+                        <div class="text-sm opacity-70" th:text="${'옵션: ' + item.optionSku}">옵션</div>
+                        <div class="text-sm opacity-70" th:text="${'수량: ' + item.quantity}">수량</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm" th:text="${'개당 ₩' + #numbers.formatDecimal(item.unitPrice, 1, 'COMMA', 0, 'POINT')}">개당</div>
+                        <div class="font-semibold" th:text="${'합계 ₩' + #numbers.formatDecimal(item.totalPrice, 1, 'COMMA', 0, 'POINT')}">합계</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 주문자 정보 -->
+        <div class="card bg-base-100 shadow">
+            <div class="card-body p-6">
+                <h2 class="card-title mb-4">주문자 정보</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <div class="text-sm opacity-70">주문자명</div>
+                        <div class="font-medium" th:text="${buyer?.name}">-</div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">전화번호</div>
+                        <div class="font-medium" th:text="${buyer?.phone}">-</div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">휴대폰 번호</div>
+                        <div class="font-medium" th:text="${buyer?.phone}">-</div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">이메일 주소</div>
+                        <div class="font-medium break-all" th:text="${buyer?.email}">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. 배송 정보 -->
+        <div class="card bg-base-100 shadow">
+            <div class="card-body p-6">
+                <h2 class="card-title mb-4">배송 정보</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div class="col-span-1 lg:col-span-2">
+                        <div class="text-sm opacity-70">받으시는 분</div>
+                        <div class="font-medium" th:text="${shipping?.recipient}">-</div>
+                    </div>
+                    <div class="col-span-1 lg:col-span-3">
+                        <div class="text-sm opacity-70">주소</div>
+                        <div class="font-medium break-all" th:text="${shipping != null ? (shipping.address + (shipping.addressDetail != null ? ', ' + shipping.addressDetail : '') + (shipping.postalCode != null ? ' (' + shipping.postalCode + ')' : '')) : '-'}">-</div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">전화번호</div>
+                        <div class="font-medium" th:text="${shipping?.phone}">-</div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">휴대폰 번호</div>
+                        <div class="font-medium" th:text="${shipping?.phone}">-</div>
+                    </div>
+                    <div class="col-span-full" th:if="${shipping?.requestMessage}">
+                        <div class="text-sm opacity-70">배송 메시지</div>
+                        <div class="font-medium" th:text="${shipping?.requestMessage}">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. 결제 정보 -->
+        <div class="card bg-base-100 shadow">
+            <div class="card-body p-6 space-y-3">
+                <h2 class="card-title mb-2">결제 정보</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" th:with="sumAmount=${(order != null and order.totalAmount != null) ? order.totalAmount : payment.amount}">
+                    <div>
+                        <div class="text-sm opacity-70">상품 금액 합계</div>
+                        <div class="font-medium" th:text="${'₩' + #numbers.formatDecimal(sumAmount, 1, 'COMMA', 0, 'POINT')}">₩0</div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">총 결제 금액</div>
+                        <div class="font-semibold text-primary" th:text="${'₩' + #numbers.formatDecimal(payment.amount, 1, 'COMMA', 0, 'POINT')}">₩0</div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">할인 내역</div>
+                        <div class="font-medium">-</div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">배송비 등</div>
+                        <div class="font-medium">₩0</div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">결제 수단</div>
+                        <div class="font-medium" th:text="${payment.method}">CARD</div>
+                    </div>
+                    <div>
+                        <div class="text-sm opacity-70">결제 영수증</div>
+<!--                        <a th:if="${payment.receipt != null and payment.receipt.url != null}"-->
+<!--                           th:href="${payment.receipt.url}"-->
+<!--                           target="_blank" class="link link-primary">영수증 보기</a>-->
+<!--                        <span th:unless="${payment.receipt != null and payment.receipt.url != null}" class="opacity-70">-</span>-->
+                    </div>
+                </div>
+
+                <!-- Method specific small box -->
+                <div class="divider my-2"></div>
+                <div class="flex items-center gap-3 text-sm opacity-70">
+                    <i data-lucide="info" class="h-4 w-4"></i>
+                    <span>결제 상태: <span class="badge badge-ghost" th:text="${payment.status}">DONE</span></span>
+                    <span class="ml-2">paymentKey: <span class="break-all" th:text="${payment.paymentKey}">pay_...</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 결제 수단 상세 (축소 유지, 간결) -->
+<!--        <div class="card bg-base-100 shadow">-->
+<!--            <div class="card-body p-6 space-y-4">-->
+<!--                <div class="flex items-center gap-3">-->
+<!--                    <i data-lucide="credit-card" class="h-5 w-5"></i>-->
+<!--                    <h3 class="font-semibold">결제 수단 상세</h3>-->
+<!--                </div>-->
+<!--                <div th:if="${payment.card != null}" class="grid grid-cols-1 md:grid-cols-2 gap-4">-->
+<!--                    <div><div class="text-sm opacity-70">카드사</div><div class="font-medium" th:text="${payment.card.company}">-</div></div>-->
+<!--                    <div><div class="text-sm opacity-70">카드번호</div><div class="font-medium" th:text="${payment.card.number}">-</div></div>-->
+<!--                    <div><div class="text-sm opacity-70">할부</div><div class="font-medium" th:text="${payment.card.installmentPlanMonths} ?: '일시불'">일시불</div></div>-->
+<!--                    <div><div class="text-sm opacity-70">승인번호</div><div class="font-medium" th:text="${payment.card.approveNo}">-</div></div>-->
+<!--                </div>-->
+<!--                <div th:if="${payment.virtualAccount != null}" class="grid grid-cols-1 md:grid-cols-2 gap-4">-->
+<!--                    <div><div class="text-sm opacity-70">은행</div><div class="font-medium" th:text="${payment.virtualAccount.bank}">-</div></div>-->
+<!--                    <div><div class="text-sm opacity-70">계좌번호</div><div class="font-medium break-all" th:text="${payment.virtualAccount.accountNumber}">-</div></div>-->
+<!--                    <div><div class="text-sm opacity-70">예금주</div><div class="font-medium" th:text="${payment.virtualAccount.customerName}">-</div></div>-->
+<!--                    <div><div class="text-sm opacity-70">만료일시</div><div class="font-medium" th:text="${payment.virtualAccount.dueDate}">-</div></div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+
+        <div class="flex justify-end gap-2">
+            <a href="/orders" class="btn btn-ghost">주문 내역</a>
+            <a href="/orders/create" class="btn btn-ghost">다른 상품 주문</a>
+            <a href="/" class="btn btn-primary">홈으로</a>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+    <script>
+        // Lucide icons rendering (base layout should call lucide.createIcons(), but ensure after DOM)
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+        }
+    </script>
+</th:block>
+</body>
+</html>
