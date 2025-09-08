@@ -42,11 +42,11 @@
                             <td th:text="${o.createdAt != null ? #temporals.format(o.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">-</td>
                             <td class="break-all" th:text="${o.orderUid} ?: '-'">-</td>
                             <td class="text-right" th:text="${'₩' + #numbers.formatDecimal(o.totalAmount, 1, 'COMMA', 0, 'POINT')}">₩0</td>
-                            <td><span class="badge" th:text="${o.status}">PENDING</span></td>
+                            <td><span class="badge badge-primary" th:text="${o.status}">PENDING</span></td>
                             <td>
                                 <span th:if="${o.paymentStatus != null}"
                                       th:text="${o.paymentStatus}"
-                                      class="badge badge-ghost">-</span>
+                                      class="badge badge-success">-</span>
                                 <span th:unless="${o.paymentStatus != null}" class="opacity-60">-</span>
                             </td>
                             <td class="text-right">
