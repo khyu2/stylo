@@ -1,120 +1,696 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" 
+<html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" 
       lang="ko"
       layout:decorate="~{layout/base}">
 <head>
     <title th:text="${'상품 수정 - ' + product.name}">상품 수정</title>
 </head>
 <body>
-    <div layout:fragment="content">
-        <div class="max-w-4xl mx-auto px-4 py-8">
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+<div layout:fragment="content">
+    <div class="bg-base-100">
+        <div class="container mx-auto px-4 py-8">
             <!-- Page Header -->
-            <div class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-900">상품 수정</h1>
-                <p class="text-gray-600 mt-2" th:text="${'상품: ' + product.name}">상품명</p>
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold">상품 수정</h1>
+                <p class="text-lg opacity-70 mt-2" th:text="${'상품: ' + product.name}">상품명</p>
+            </div>
+
+            <!-- Alerts -->
+            <div th:if="${success}" class="alert alert-success mb-6">
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                <span th:text="${success}"></span>
+            </div>
+            <div th:if="${error}" class="alert alert-error mb-6">
+                <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                <span th:text="${error}"></span>
             </div>
 
             <!-- Product Form -->
-            <form th:action="@{'/products/' + ${product.productId} + '/edit'}" method="post" class="space-y-6">
-                <!-- Product Name -->
-                <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-                        상품명 <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" 
-                           id="name" 
-                           name="name" 
-                           required
-                           th:value="${product.name}"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                           placeholder="상품명을 입력하세요">
-                </div>
+            <div class="max-w-4xl mx-auto">
+                <div class="card bg-base-100 shadow-xl">
+                    <div class="card-body p-6">
+                        <form th:action="@{'/products/' + ${product.productId} + '/edit'}" method="post"
+                              enctype="multipart/form-data" class="space-y-6">
+                            <!-- Product Name -->
+                            <div class="form-control">
+                                <label class="label" for="name">
+                                    <span class="label-text text-base">상품명 <span class="text-error">*</span></span>
+                                </label>
+                                <input type="text"
+                                       id="name"
+                                       name="name"
+                                       required
+                                       th:value="${product.name}"
+                                       class="input input-bordered w-full"
+                                       placeholder="상품명을 입력하세요">
+                            </div>
 
-                <!-- Product Description -->
-                <div>
-                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-                        상품 설명
-                    </label>
-                    <textarea id="description" 
-                              name="description" 
-                              rows="4"
-                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                              placeholder="상품에 대한 설명을 입력하세요"
-                              th:text="${product.description}"></textarea>
-                </div>
+                            <!-- Product Description -->
+                            <div class="form-control">
+                                <label class="label" for="description">
+                                    <span class="label-text text-base">상품 설명</span>
+                                </label>
+                                <textarea id="description"
+                                          name="description"
+                                          rows="4"
+                                          class="textarea w-full"
+                                          placeholder="상품에 대한 설명을 입력하세요"
+                                          th:text="${product.description}"></textarea>
+                            </div>
 
-                <!-- Price and Stock -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="price" class="block text-sm font-medium text-gray-700 mb-2">
-                            가격 <span class="text-red-500">*</span>
-                        </label>
-                        <div class="relative">
-                            <input type="number" 
-                                   id="price" 
-                                   name="price" 
-                                   required
-                                   min="0"
-                                   step="0.01"
-                                   th:value="${product.price}"
-                                   class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                   placeholder="0">
-                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₩</span>
-                        </div>
+                            <!-- Category & Base Price -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="form-control">
+                                    <label class="label" for="category">
+                                        <span class="label-text text-base">카테고리 <span class="text-error">*</span></span>
+                                    </label>
+                                    <select id="category"
+                                            name="categoryId"
+                                            required
+                                            class="select select-bordered w-full">
+                                        <option value="">카테고리를 선택하세요</option>
+                                        <option th:each="category : ${categories}"
+                                                th:value="${category.categoryId}"
+                                                th:selected="${category.categoryId} == ${product.categoryId}"
+                                                th:text="${category.name}">카테고리명
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-control">
+                                    <label class="label" for="price">
+                                        <span class="label-text text-base">가격 <span class="text-error">*</span></span>
+                                    </label>
+                                    <div class="join w-full">
+                                        <span class="join-item bg-base-200 px-4 flex items-center">₩</span>
+                                        <input type="number"
+                                               id="price"
+                                               name="price"
+                                               required
+                                               min="0"
+                                               step="0.01"
+                                               th:value="${product.price}"
+                                               class="input input-bordered join-item w-full"
+                                               placeholder="0">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Product Images (optional) -->
+                            <div id="imageUpload">
+                                <label class="label">
+                                    <span class="label-text text-base">상품 이미지</span>
+                                </label>
+                                <div class="space-y-4">
+                                    <!-- Upload Area -->
+                                    <div id="uploadArea"
+                                         class="border-2 border-dashed border-base-300 rounded-lg p-8 text-center hover:border-primary transition-colors">
+                                        <div class="space-y-4">
+                                            <div class="flex justify-center">
+                                                <i data-lucide="upload" class="w-12 h-12 opacity-50"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-lg font-medium">이미지를 드래그하거나 클릭하여 업로드</p>
+                                                <p class="text-sm opacity-70 mt-1">PNG, JPG, GIF 최대 10MB</p>
+                                            </div>
+                                            <div class="flex justify-center gap-3">
+                                                <input type="file"
+                                                       id="fileInput"
+                                                       name="images"
+                                                       multiple
+                                                       accept="image/*"
+                                                       class="hidden">
+                                                <button type="button"
+                                                        id="selectFileBtn"
+                                                        class="btn btn-primary">
+                                                    <i data-lucide="folder-open" class="w-4 h-4"></i>
+                                                    파일 선택
+                                                </button>
+                                                <button type="button"
+                                                        id="clearImagesBtn"
+                                                        class="btn btn-outline btn-error hidden">
+                                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                    전체 삭제
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Image Preview Grid -->
+                                    <div id="imagePreviewContainer" class="space-y-4 hidden">
+                                        <div class="flex items-center justify-between">
+                                            <h3 class="text-lg font-semibold">업로드된 이미지 (<span id="imageCount">0</span>/10)
+                                            </h3>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-sm opacity-70">첫 번째 이미지가 대표 이미지로 등록됩니다.</span>
+                                            </div>
+                                        </div>
+
+                                        <div id="imageGrid"
+                                             class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Options Section -->
+                            <div class="divider"></div>
+                            <div class="space-y-6">
+                                <div>
+                                    <h2 class="text-2xl font-bold mb-4">상품 옵션 설정</h2>
+                                    <p class="text-sm opacity-70 mb-6">상품의 옵션을 설정하고 조합을 생성합니다.</p>
+
+                                    <div class="space-y-4">
+                                        <div x-data="optionManager()"
+                                             x-init="initOptionsFromServer(); initCombinationsFromServer()">
+                                            <!-- Option Inputs -->
+                                            <div class="space-y-4">
+                                                <template x-for="(option, index) in options" :key="index">
+                                                    <div class="flex items-center gap-3 p-3 bg-base-100 rounded-lg">
+                                                        <select :name="`options[${index}].name`"
+                                                                x-model="option.name"
+                                                                class="select select-bordered select-sm w-32" required>
+                                                            <option value="" disabled>타입</option>
+                                                            <option value="GENDER">성별</option>
+                                                            <option value="SIZE">사이즈</option>
+                                                            <option value="COLOR">색상</option>
+                                                        </select>
+                                                        <input type="text"
+                                                               :name="`options[${index}].values`"
+                                                               x-model="option.values"
+                                                               placeholder="값을 쉼표로 구분 (예: 남성,여성)"
+                                                               class="input input-bordered input-sm flex-1" required>
+                                                        <button type="button"
+                                                                @click="removeOption(index)"
+                                                                class="btn  btn-error btn-sm">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                                 stroke="currentColor" stroke-width="2" fill="none"
+                                                                 stroke-linecap="round" stroke-linejoin="round"
+                                                                 class="lucide lucide-trash2-icon lucide-trash-2 w-4 h-4">
+                                                                <path d="M10 11v6"/>
+                                                                <path d="M14 11v6"/>
+                                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+                                                                <path d="M3 6h18"/>
+                                                                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </template>
+                                            </div>
+
+                                            <!-- Add Option Button -->
+                                            <div class="flex justify-center mt-4">
+                                                <button type="button"
+                                                        @click="addOption()"
+                                                        class="btn btn-primary">
+                                                    <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                                                    옵션 추가
+                                                </button>
+                                            </div>
+
+                                            <!-- Generate Combinations Button -->
+                                            <div class="flex justify-center mt-6">
+                                                <button type="button"
+                                                        @click="generateCombinations()"
+                                                        class="btn btn-info btn-lg">
+                                                    <i data-lucide="refresh-cw" class="w-5 h-5 mr-2"></i>
+                                                    조합 생성
+                                                </button>
+                                            </div>
+
+                                            <!-- Combinations Display -->
+                                            <div x-show="combinations.length > 0" class="mt-8">
+                                                <h3 class="text-xl font-bold mb-6 text-center">옵션 조합</h3>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                    <template x-for="(combo, index) in combinations" :key="index">
+                                                        <div class="card bg-base-100 border-2 border-base-300">
+                                                            <div class="card-body p-4">
+                                                                <div class="mb-4">
+                                                                    <h4 class="font-bold text-sm mb-2">
+                                                                        SKU: <span x-text="combo.sku"
+                                                                                   class="font-mono text-primary"></span>
+                                                                    </h4>
+                                                                    <div class="space-y-1">
+                                                                        <template x-for="option in combo.options"
+                                                                                  :key="option.name + option.value">
+                                                                            <div class="text-sm opacity-70">
+                                                                                <span class="font-medium"
+                                                                                      x-text="option.name"></span>:
+                                                                                <span x-text="option.value"></span>
+                                                                            </div>
+                                                                        </template>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="grid grid-cols-2 gap-3">
+                                                                    <div class="form-control">
+                                                                        <label class="label">
+                                                                            <span class="label-text text-xs font-medium">추가 가격</span>
+                                                                        </label>
+                                                                        <div class="join w-full">
+                                                                            <label class="label join-item bg-base-300 px-2 text-xs">₩</label>
+                                                                            <input type="number"
+                                                                                   :name="`combinations[${index}].additionalPrice`"
+                                                                                   x-model="combo.additionalPrice"
+                                                                                   min="0"
+                                                                                   step="0.01"
+                                                                                   class="input input-bordered join-item w-full input-sm"
+                                                                                   placeholder="0">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="form-control">
+                                                                        <label class="label">
+                                                                            <span class="label-text text-xs font-medium">재고</span>
+                                                                        </label>
+                                                                        <input type="number"
+                                                                               :name="`combinations[${index}].stock`"
+                                                                               x-model="combo.stock"
+                                                                               min="0"
+                                                                               class="input input-bordered w-full input-sm"
+                                                                               placeholder="0">
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Hidden fields for form submission -->
+                                                                <input type="hidden"
+                                                                       :name="`combinations[${index}].sku`"
+                                                                       x-model="combo.sku">
+                                                                <input type="hidden"
+                                                                       :name="`combinations[${index}].options`"
+                                                                       x-model="JSON.stringify(combo.options)">
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Product Info -->
+                            <div class="divider"></div>
+                            <div class="bg-base-200 rounded-lg p-4">
+                                <h3 class="text-sm font-medium mb-3">상품 정보</h3>
+                                <dl class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <dt class="opacity-70">상품 ID</dt>
+                                        <dd class="font-medium" th:text="${product.productId}">-</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="opacity-70">등록일</dt>
+                                        <dd class="font-medium"
+                                            th:text="${#temporals.format(product.createdAt, 'yyyy-MM-dd HH:mm')}">-
+                                        </dd>
+                                    </div>
+                                    <div th:if="${product.updatedAt != null}">
+                                        <dt class="opacity-70">수정일</dt>
+                                        <dd class="font-medium"
+                                            th:text="${#temporals.format(product.updatedAt, 'yyyy-MM-dd HH:mm')}">-
+                                        </dd>
+                                    </div>
+                                </dl>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="divider"></div>
+                            <div class="flex justify-end gap-4">
+                                <a th:href="@{'/products/' + ${product.productId}}" class="btn btn-outline">
+                                    <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                                    취소
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i data-lucide="check" class="w-4 h-4 mr-2"></i>
+                                    상품 수정
+                                </button>
+                            </div>
+                        </form>
                     </div>
-
-                    <div>
-                        <label for="stock" class="block text-sm font-medium text-gray-700 mb-2">
-                            재고 <span class="text-red-500">*</span>
-                        </label>
-                        <input type="number" 
-                               id="stock" 
-                               name="stock" 
-                               required
-                               min="0"
-                               th:value="${product.stock}"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                               placeholder="0">
-                    </div>
                 </div>
-
-                <!-- Product Info -->
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <h3 class="text-sm font-medium text-gray-700 mb-3">상품 정보</h3>
-                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <dt class="text-gray-600">상품 ID</dt>
-                            <dd class="font-medium text-gray-900" th:text="${product.productId}">-</dd>
-                        </div>
-                        <div>
-                            <dt class="text-gray-600">등록일</dt>
-                            <dd class="font-medium text-gray-900" 
-                                th:text="${#temporals.format(product.createdAt, 'yyyy-MM-dd HH:mm')}">-</dd>
-                        </div>
-                        <div th:if="${product.updatedAt != null}">
-                            <dt class="text-gray-600">수정일</dt>
-                            <dd class="font-medium text-gray-900" 
-                                th:text="${#temporals.format(product.updatedAt, 'yyyy-MM-dd HH:mm')}">-</dd>
-                        </div>
-                    </dl>
-                </div>
-
-                <!-- Form Actions -->
-                <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-                    <a th:href="@{'/products/' + ${product.productId}}"
-                       class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
-                        취소
-                    </a>
-                    <button type="submit" 
-                            class="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
-                        상품 수정
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
+</div>
+
+<script layout:fragment="scripts" th:inline="javascript">
+    // Image Upload functionality (Edit page variant: images not required)
+    document.addEventListener('DOMContentLoaded', function () {
+        const imageUpload = {
+            images: [],
+            maxFiles: 10,
+            isDragOver: false,
+
+            init() {
+                this.bindEvents();
+            },
+
+            bindEvents() {
+                const fileInput = document.getElementById('fileInput');
+                const selectFileBtn = document.getElementById('selectFileBtn');
+                const clearImagesBtn = document.getElementById('clearImagesBtn');
+                const reorderImagesBtn = document.getElementById('reorderImagesBtn');
+                const uploadArea = document.getElementById('uploadArea');
+
+                if (!fileInput) return;
+
+                // File input change
+                fileInput.addEventListener('change', (e) => {
+                    this.handleFileSelect(e);
+                });
+
+                // Select file button
+                if (selectFileBtn) {
+                    selectFileBtn.addEventListener('click', () => fileInput.click());
+                }
+
+                // Clear images button
+                if (clearImagesBtn) {
+                    clearImagesBtn.addEventListener('click', () => this.clearImages());
+                }
+
+                // Reorder images button
+                if (reorderImagesBtn) {
+                    reorderImagesBtn.addEventListener('click', () => this.reorderImages());
+                }
+
+                // Drag and drop events
+                if (uploadArea) {
+                    uploadArea.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        this.isDragOver = true;
+                        uploadArea.classList.add('border-primary', 'bg-primary/10');
+                    });
+
+                    uploadArea.addEventListener('dragleave', (e) => {
+                        e.preventDefault();
+                        this.isDragOver = false;
+                        uploadArea.classList.remove('border-primary', 'bg-primary/10');
+                    });
+
+                    uploadArea.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        this.isDragOver = false;
+                        uploadArea.classList.remove('border-primary', 'bg-primary/10');
+                        const files = Array.from(e.dataTransfer.files);
+                        this.processFiles(files);
+                    });
+                }
+            },
+
+            handleFileSelect(event) {
+                const files = Array.from(event.target.files);
+                this.processFiles(files);
+            },
+
+            processFiles(files) {
+                if (this.images.length + files.length > this.maxFiles) {
+                    alert(`최대 ${this.maxFiles}장까지만 업로드 가능합니다.`);
+                    return;
+                }
+
+                files.forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        if (file.size > 10 * 1024 * 1024) {
+                            alert(`${file.name} 파일이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다.`);
+                            return;
+                        }
+
+                        const previewUrl = URL.createObjectURL(file);
+                        const img = new Image();
+                        img.onload = () => {
+                            this.images.push({
+                                file: file,
+                                preview: previewUrl,
+                                name: file.name,
+                                size: this.formatFileSize(file.size)
+                            });
+                            this.updateUI();
+                        };
+                        img.onerror = () => {
+                            try {
+                                URL.revokeObjectURL(previewUrl);
+                            } catch (e) {
+                            }
+                            alert(`${file.name} 이미지 파일이 손상되었습니다.`);
+                        };
+                        img.src = previewUrl;
+                    } else {
+                        alert(`${file.name}은(는) 이미지 파일이 아닙니다.`);
+                    }
+                });
+            },
+
+            updateUI() {
+                this.updateImageGrid();
+                this.updateButtons();
+                this.updateFileInput();
+            },
+
+            updateImageGrid() {
+                const imageGrid = document.getElementById('imageGrid');
+                const imageCount = document.getElementById('imageCount');
+                const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+
+                if (!imageGrid || !imageCount || !imagePreviewContainer) return;
+
+                imageCount.textContent = this.images.length;
+
+                if (this.images.length > 0) {
+                    imagePreviewContainer.classList.remove('hidden');
+                    imageGrid.innerHTML = '';
+
+                    this.images.forEach((image, index) => {
+                        const imageElement = this.createImageElement(image, index);
+                        imageGrid.appendChild(imageElement);
+                    });
+                } else {
+                    imagePreviewContainer.classList.add('hidden');
+                }
+            },
+
+            createImageElement(image, index) {
+                const div = document.createElement('div');
+                div.className = 'relative group';
+                div.innerHTML = `
+                    <div class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow">
+                        <figure class="relative">
+                            <img src="${image.preview}"
+                                 alt="상품 이미지 ${index + 1}"
+                                 class="block w-full h-32 object-cover rounded-t-lg bg-white">
+
+                            <div class="absolute inset-0 bg-transparent group-hover:bg-black/30 transition-all duration-200 flex items-center justify-center pointer-events-none">
+                                <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 space-y-2 pointer-events-auto">
+                                    ${index > 0 ? `
+                                        <button type="button" class="move-up-btn btn btn-circle btn-sm bg-white hover:bg-gray-100" data-index="${index}">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                            </svg>
+                                        </button>
+                                    ` : ''}
+                                    ${index < this.images.length - 1 ? `
+                                        <button type="button" class="move-down-btn btn btn-circle btn-sm bg-white hover:bg-gray-100" data-index="${index}">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+
+                            <button type="button" class="remove-image-btn absolute top-2 right-2 btn btn-circle btn-sm btn-error opacity-0 group-hover:opacity-100 transition-opacity duration-200" data-index="${index}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+
+                            ${index === 0 ? `
+                                <div class="absolute top-2 left-2 badge badge-primary">대표</div>
+                            ` : ''}
+                        </figure>
+                        <div class="card-body p-2">
+                            <p class="text-xs opacity-70 truncate">${image.name}</p>
+                        </div>
+                    </div>
+                `;
+
+                const removeBtn = div.querySelector('.remove-image-btn');
+                if (removeBtn) removeBtn.addEventListener('click', () => this.removeImage(index));
+
+                const moveUpBtn = div.querySelector('.move-up-btn');
+                if (moveUpBtn) moveUpBtn.addEventListener('click', () => this.moveImage(index, -1));
+
+                const moveDownBtn = div.querySelector('.move-down-btn');
+                if (moveDownBtn) moveDownBtn.addEventListener('click', () => this.moveImage(index, 1));
+
+                return div;
+            },
+
+            updateButtons() {
+                const clearBtn = document.getElementById('clearImagesBtn');
+                const reorderBtn = document.getElementById('reorderImagesBtn');
+
+                if (clearBtn) {
+                    if (this.images.length > 0) clearBtn.classList.remove('hidden');
+                    else clearBtn.classList.add('hidden');
+                }
+                if (reorderBtn) {
+                    if (this.images.length > 1) reorderBtn.classList.remove('hidden');
+                    else reorderBtn.classList.add('hidden');
+                }
+            },
+
+            updateFileInput() {
+                const fileInput = document.getElementById('fileInput');
+                if (!fileInput) return;
+                // For edit page, images are optional. Keep required false.
+                fileInput.required = false;
+
+                // Update the actual file input with selected NEW images only
+                const dataTransfer = new DataTransfer();
+                this.images.forEach(img => {
+                    if (img.file) {
+                        dataTransfer.items.add(img.file)
+                    }
+                });
+                fileInput.files = dataTransfer.files;
+            },
+
+            removeImage(index) {
+                const image = this.images[index];
+                if (image && image.preview && typeof image.preview === 'string' && image.preview.startsWith('blob:')) {
+                    try {
+                        URL.revokeObjectURL(image.preview);
+                    } catch (e) {
+                    }
+                }
+                this.images.splice(index, 1);
+                this.updateUI();
+            },
+
+            clearImages() {
+                this.images.forEach(img => {
+                    if (img && img.preview && typeof img.preview === 'string' && img.preview.startsWith('blob:')) {
+                        try {
+                            URL.revokeObjectURL(img.preview);
+                        } catch (e) {
+                        }
+                    }
+                });
+                this.images = [];
+                this.updateUI();
+            },
+
+            moveImage(index, direction) {
+                const newIndex = index + direction;
+                if (newIndex >= 0 && newIndex < this.images.length) {
+                    const temp = this.images[index];
+                    this.images[index] = this.images[newIndex];
+                    this.images[newIndex] = temp;
+                    this.updateUI();
+                }
+            },
+
+            reorderImages() {
+                alert('순서 변경 기능은 드래그 앤 드롭으로 구현 예정입니다.');
+            },
+
+            formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        };
+
+        // Initialize image upload
+        imageUpload.init();
+
+        // Preload existing images from server
+        const serverImages = /*[[${productImages}]]*/ [];
+        if (Array.isArray(serverImages)) {
+            serverImages.forEach(img => {
+                if (img && img.url) {
+                    imageUpload.images.push({file: null, preview: img.url, name: '기존 이미지', size: '', existing: true});
+                }
+            });
+            imageUpload.updateUI();
+        }
+    });
+
+    // Option Manager functionality for edit page
+    function optionManager() {
+        return {
+            options: [{name: '', values: ''}],
+            combinations: [],
+
+            initOptionsFromServer() {
+                const defs = /*[[${product.optionDefinitions}]]*/ [];
+                if (Array.isArray(defs) && defs.length > 0) {
+                    this.options = defs.map(d => ({
+                        name: d.name,
+                        values: Array.isArray(d.values) ? d.values.join(',') : ''
+                    }));
+                }
+            },
+
+            initCombinationsFromServer() {
+                const serverOptions = /*[[${product.options}]]*/ [];
+                if (Array.isArray(serverOptions) && serverOptions.length > 0) {
+                    this.combinations = serverOptions.map(op => ({
+                        sku: op.sku,
+                        additionalPrice: op.additionalPrice,
+                        stock: op.stock,
+                        options: String(op.optionValue || '')
+                            .split(',')
+                            .map(v => v.trim())
+                            .filter(v => v)
+                            .map(v => ({name: '옵션', value: v}))
+                    }));
+                }
+            },
+
+            addOption() {
+                this.options.push({name: '', values: ''});
+            },
+
+            removeOption(index) {
+                if (this.options.length > 1) {
+                    this.options.splice(index, 1);
+                    this.generateCombinations();
+                }
+            },
+
+            generateCombinations() {
+                const validOptions = this.options.filter(opt => opt.name && opt.values.trim());
+                if (validOptions.length === 0) {
+                    this.combinations = [];
+                    return;
+                }
+                const optionMap = {};
+                validOptions.forEach(opt => {
+                    const values = opt.values.split(',').map(v => v.trim()).filter(v => v);
+                    if (values.length > 0) {
+                        optionMap[opt.name] = values;
+                    }
+                });
+                const keys = Object.keys(optionMap);
+                if (keys.length === 0) {
+                    this.combinations = [];
+                    return;
+                }
+                const combos = keys.reduce((acc, key) =>
+                    acc.flatMap(c => optionMap[key].map(v => ({...c, [key]: v}))), [{}]
+                ).map(combo => ({
+                    sku: `PROD-${Object.values(combo).join('-')}`,
+                    additionalPrice: 0,
+                    stock: 0,
+                    options: Object.entries(combo).map(([k, v]) => ({name: k, value: v}))
+                }));
+                this.combinations = combos;
+            }
+        }
+    }
+</script>
 </body>
 </html>

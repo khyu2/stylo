@@ -1,7 +1,6 @@
 package project.stylo.web.service
 
 import org.springframework.cache.annotation.CacheEvict
-import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import project.stylo.common.config.CacheConfig.Companion.CATEGORY_CACHE
-import project.stylo.common.config.CacheConfig.Companion.PRODUCT_CACHE
 import project.stylo.common.exception.BaseException
 import project.stylo.common.s3.FileStorageService
 import project.stylo.web.dao.ImageDao
@@ -21,13 +19,14 @@ import project.stylo.web.dao.ProductOptionDao
 import project.stylo.web.domain.Member
 import project.stylo.web.domain.Product
 import project.stylo.web.domain.enums.ImageOwnerType
+import project.stylo.web.dto.request.OptionCombination
 import project.stylo.web.dto.request.ProductRequest
 import project.stylo.web.dto.request.ProductSearchRequest
+import project.stylo.web.dto.response.OptionDefinitionResponse
 import project.stylo.web.dto.response.PresignedUrlResponse
 import project.stylo.web.dto.response.ProductOptionResponse
 import project.stylo.web.dto.response.ProductResponse
 import project.stylo.web.exception.ProductExceptionType
-import project.stylo.web.dto.request.OptionCombination
 import java.math.BigDecimal
 
 @Service
@@ -103,10 +102,23 @@ class ProductService(
             ProductOptionResponse.from(productOption, optionValues.joinToString(", "))
         }
 
-        return ProductResponse.from(product, productUrl).copy(options = options)
+        val optionDefinitions = optionKeyDao.findAllByProductId(productId).map { keyEntry ->
+            val values = optionValueDao.findAllByOptionKeyId(keyEntry.optionKeyId)
+            OptionDefinitionResponse(
+                name = keyEntry.name,
+                values = values
+            )
+        }
+
+        val productImages = getProductImages(productId)
+
+        return ProductResponse.from(product, productUrl).copy(
+            options = options,
+            productImages = productImages,
+            optionDefinitions = optionDefinitions
+        )
     }
 
-    @Cacheable(PRODUCT_CACHE, key = "#productId")
     @Transactional(readOnly = true)
     fun getProductImages(productId: Long): List<PresignedUrlResponse> {
         val imageUrls = imageDao.findAllByProductId(productId)
@@ -146,11 +158,12 @@ class ProductService(
     }
 
     fun deleteProduct(productId: Long) {
-        // 상품 관련 이미지 삭제
         val product = productDao.findById(productId)
         product?.let {
-            // 이미지 URL에서 파일명 추출하여 삭제
-            // 실제 구현에서는 이미지 URL을 저장하는 별도 테이블이 필요할 수 있음
+            val imageUrls = imageDao.findAllByProductId(productId)
+            imageUrls.forEach { imageUrl ->
+                fileStorageService.delete(imageUrl)
+            }
         }
 
         productDao.delete(productId)

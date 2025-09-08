@@ -38,6 +38,12 @@ class OptionValueDao(private val dsl: DSLContext) {
             .where(OPTION_VARIANT.PRODUCT_OPTION_ID.eq(productOptionId))
             .fetchInto(String::class.java)
 
+    fun findAllByOptionKeyId(optionKeyId: Long): List<String> =
+        dsl.select(OPTION_VALUE.VALUE)
+            .from(OPTION_VALUE)
+            .where(OPTION_VALUE.OPTION_KEY_ID.eq(optionKeyId))
+            .fetchInto(String::class.java)
+
     fun findAllGenderOptions(): List<String> =
         dsl.selectDistinct(OPTION_VALUE.VALUE)
             .from(OPTION_VALUE)

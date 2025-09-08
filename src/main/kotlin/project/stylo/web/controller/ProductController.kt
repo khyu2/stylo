@@ -49,10 +49,9 @@ class ProductController(
     @GetMapping("/{productId}")
     fun showProduct(@PathVariable productId: Long, model: Model): String {
         val product = productService.getProduct(productId)
-        val productImages = productService.getProductImages(productId)
 
         model.addAttribute("product", product)
-        model.addAttribute("productImages", productImages)
+        model.addAttribute("productImages", product.productImages)
         return "product/detail"
     }
 
@@ -61,6 +60,8 @@ class ProductController(
     fun showEditForm(@PathVariable productId: Long, model: Model): String {
         val product = productService.getProduct(productId)
         model.addAttribute("product", product)
+        model.addAttribute("categories", categoryService.getAllCategories())
+        model.addAttribute("productImages", product.productImages)
         return "product/edit"
     }
 

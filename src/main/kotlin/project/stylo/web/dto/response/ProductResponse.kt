@@ -9,9 +9,12 @@ data class ProductResponse(
     val name: String,
     val description: String?,
     val price: BigDecimal,
+    val categoryId: Long,
     val stock: Long = 0,
     val productUrl: String,
+    val productImages: List<PresignedUrlResponse>? = emptyList(),
     val options: List<ProductOptionResponse>,
+    val optionDefinitions: List<OptionDefinitionResponse> = emptyList(),
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?
 ) {
@@ -22,8 +25,11 @@ data class ProductResponse(
                 name = product.name,
                 description = product.description,
                 price = product.price,
+                categoryId = product.categoryId,
                 productUrl = productUrl,
+                productImages = emptyList(),
                 options = emptyList(),
+                optionDefinitions = emptyList(),
                 createdAt = product.createdAt,
                 updatedAt = product.updatedAt
             )

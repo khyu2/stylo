@@ -3,6 +3,7 @@ package project.stylo.web.dao
 import org.jooq.DSLContext
 import org.jooq.generated.tables.JOptionKey
 import org.springframework.stereotype.Repository
+import project.stylo.web.dto.response.OptionKeyResponse
 
 @Repository
 class OptionKeyDao(private val dsl: DSLContext) {
@@ -25,4 +26,9 @@ class OptionKeyDao(private val dsl: DSLContext) {
             .returning(OPTION_KEY.OPTION_KEY_ID)
             .fetchOne(OPTION_KEY.OPTION_KEY_ID)
     }
+
+    fun findAllByProductId(productId: Long): List<OptionKeyResponse> =
+        dsl.selectFrom(OPTION_KEY)
+            .where(OPTION_KEY.PRODUCT_ID.eq(productId))
+            .fetchInto(OptionKeyResponse::class.java)
 }
