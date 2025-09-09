@@ -22,7 +22,6 @@ import project.stylo.web.domain.enums.ImageOwnerType
 import project.stylo.web.dto.request.ProductRequest
 import project.stylo.web.dto.request.ProductSearchRequest
 import project.stylo.web.dto.response.OptionDefinitionResponse
-import project.stylo.web.dto.response.PresignedUrlResponse
 import project.stylo.web.dto.response.ProductOptionResponse
 import project.stylo.web.dto.response.ProductResponse
 import project.stylo.web.exception.ProductExceptionType
@@ -111,12 +110,9 @@ class ProductService(
     }
 
     @Transactional(readOnly = true)
-    fun getProductImages(productId: Long): List<PresignedUrlResponse> {
+    fun getProductImages(productId: Long): List<String> {
         val imageUrls = imageDao.findAllByProductId(productId)
-        return imageUrls.map { imageUrl ->
-            val presignedUrl = fileStorageService.getPresignedUrl(imageUrl)
-            PresignedUrlResponse.from(presignedUrl)
-        }
+        return imageUrls.map { imageUrl -> fileStorageService.getPresignedUrl(imageUrl) }
     }
 
     @Transactional(readOnly = true)

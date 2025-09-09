@@ -623,16 +623,30 @@
                 }
 
                 // 조합 생성
-                const combos = keys.reduce((acc, key) =>
+                this.combinations = keys.reduce((acc, key) =>
                     acc.flatMap(c => optionMap[key].map(v => ({...c, [key]: v}))), [{}]
-                ).map(combo => ({
-                    sku: `PROD-${Object.values(combo).join('-')}`,
-                    additionalPrice: 0,
-                    stock: 0,
-                    options: Object.entries(combo).map(([k, v]) => ({name: k, value: v}))
-                }));
+                ).map((combo, index) => {
+                    // 카테고리 코드 생성 (카테고리명의 첫 2글자를 대문자로)
+                    const categoryCode = document.getElementById('category').selectedOptions[0]?.value?.substring(0, 2).toUpperCase() || 'CT';
 
-                this.combinations = combos;
+                    // 상품번호 생성 (현재 타임스탬프 기반)
+                    const productNumber = Date.now().toString().slice(-6);
+
+                    // 옵션 조합 코드 생성
+                    const optionCode = Object.entries(combo)
+                        .map(([k, v]) => `${k.substring(0, 1)}${v.substring(0, 1)}`)
+                        .join('');
+
+                    // SKU: 카테고리코드-상품번호-옵션코드-순번
+                    const sku = `${categoryCode}-${productNumber}-${optionCode}-${(index + 1).toString().padStart(2, '0')}`;
+
+                    return {
+                        sku: sku,
+                        additionalPrice: 0,
+                        stock: 0,
+                        options: Object.entries(combo).map(([k, v]) => ({name: k, value: v}))
+                    };
+                });
             }
         }
     }

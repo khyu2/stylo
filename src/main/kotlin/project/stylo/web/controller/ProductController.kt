@@ -46,7 +46,6 @@ class ProductController(
         val product = productService.getProduct(productId)
 
         model.addAttribute("product", product)
-        model.addAttribute("productImages", product.productImages)
         return "product/detail"
     }
 

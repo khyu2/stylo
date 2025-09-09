@@ -11,14 +11,14 @@ data class ProductResponse(
     val price: BigDecimal,
     val categoryId: Long,
     val stock: Long = 0,
-    val productImages: List<PresignedUrlResponse>? = emptyList(),
+    val productImages: List<String>? = emptyList(),
     val options: List<ProductOptionResponse>,
     val optionDefinitions: List<OptionDefinitionResponse> = emptyList(),
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?
 ) {
     companion object {
-        fun from(product: Product, productImages: List<PresignedUrlResponse>? = null): ProductResponse {
+        fun from(product: Product, productImages: List<String>? = null): ProductResponse {
             return ProductResponse(
                 productId = product.productId,
                 name = product.name,

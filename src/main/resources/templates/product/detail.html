@@ -44,26 +44,30 @@
                                 <!-- Main Image -->
                                 <div class="bg-base-200 rounded-lg h-96 flex items-center justify-center overflow-hidden">
                                     <img id="mainImage"
-                                         th:src="${product.productUrl != null ? product.productUrl : '/images/default_product.jpeg'}"
+                                         th:src="${product.productImages != null ? product.productImages[0] : '/images/default_product.jpeg'}"
                                          alt="상품 이미지"
                                          class="w-full h-full object-cover rounded-lg">
                                 </div>
 
                                 <!-- Product Images -->
-                                <div th:if="${productImages != null and !productImages.isEmpty()}" class="space-y-3">
+                                <div th:if="${product.productImages != null and !product.productImages.isEmpty()}"
+                                     class="space-y-3">
                                     <h3 class="text-lg font-semibold">상품 이미지</h3>
                                     <div class="flex gap-3 overflow-x-auto p-2">
                                         <!-- Main product image thumbnail -->
                                         <div class="flex-shrink-0">
-                                            <img th:src="${product.productUrl != null ? product.productUrl : '/images/default_product.jpeg'}"
+                                            <img th:src="${product.productImages != null ? product.productImages[0] : '/images/default_product.jpeg'}"
                                                  alt="메인 이미지"
                                                  onclick="changeMainImage(this.src, this)"
                                                  class="w-20 h-20 object-cover rounded-lg border-2 border-primary cursor-pointer hover:scale-105 transition-transform">
                                         </div>
 
                                         <!-- Additional product images -->
-                                        <div th:each="image : ${productImages}" class="flex-shrink-0">
-                                            <img th:src="${image.url}" th:alt="'상품 이미지'"
+                                        <!-- Additional product images -->
+                                        <div th:each="image, iterStat : ${product.productImages}"
+                                             th:if="${iterStat.index > 0}"
+                                             class="flex-shrink-0">
+                                            <img th:src="${image}" th:alt="'상품 이미지'"
                                                  onclick="changeMainImage(this.src, this)"
                                                  class="w-20 h-20 object-cover rounded-lg border-2 border-base-300 cursor-pointer hover:scale-105 hover:border-primary transition-all">
                                         </div>
@@ -71,7 +75,7 @@
                                 </div>
 
                                 <!-- No additional images message -->
-                                <div th:if="${productImages == null or productImages.isEmpty()}"
+                                <div th:if="${product.productImages == null or product.productImages.isEmpty()}"
                                      class="text-center py-4">
                                     <p class="text-sm text-base-content/60">추가 이미지가 없습니다.</p>
                                 </div>

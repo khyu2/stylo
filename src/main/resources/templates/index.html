@@ -22,7 +22,7 @@
                                name="keyword"
                                th:value="${searchRequest?.keyword}"
                                placeholder="상품명을 검색하세요."
-                               class="input input-bordered join-item w-full text-center" />
+                               class="input input-bordered join-item w-full text-center"/>
                         <button type="submit" class="btn btn-primary join-item">
                             <i data-lucide="search" class="w-5 h-5"></i>
                         </button>
@@ -69,14 +69,14 @@
                             <div class="card hover:shadow-2xl transition-shadow">
                                 <a th:href="@{/products/{productId}(productId=${product.productId})}">
                                     <figure class="px-4 pt-4">
-                                        <img th:if="${product.productImages[0].url != null and product.productImages[0].url != ''}"
-                                             th:src="${product.productImages[0].url}"
+                                        <img th:if="${!#lists.isEmpty(product.productImages) and product.productImages[0] != null and product.productImages[0] != '/images/default_product.jpeg'}"
+                                             th:src="${product.productImages[0]}"
                                              th:alt="${product.name}"
-                                             class="rounded-xl h-56 w-full object-cover" />
-                                        <img th:unless="${product.productImages[0].url != null and product.productImages[0].url != ''}"
+                                             class="rounded-xl h-56 w-full object-cover"/>
+                                        <img th:unless="${!#lists.isEmpty(product.productImages) and product.productImages[0] != null and product.productImages[0] != '/images/default_product.jpeg'}"
                                              src="/images/default_product.jpeg"
                                              th:alt="${product.name}"
-                                             class="rounded-xl h-56 w-full object-cover" />
+                                             class="rounded-xl h-56 w-full object-cover"/>
                                     </figure>
                                     <div class="card-body">
                                         <h3 class="card-title text-sm" th:text="${product.name}">상품명</h3>
@@ -97,7 +97,8 @@
                                th:href="@{/(page=${currentPage - 1}, size=${size}, categoryId=${currentCategoryId}, keyword=${searchRequest?.keyword}, sort=${pageable.sort})}"
                                class="join-item btn">이전</a>
                             <button th:unless="${products.hasPrevious}"
-                                    class="join-item btn btn-disabled">이전</button>
+                                    class="join-item btn btn-disabled">이전
+                            </button>
 
                             <!-- Page Numbers -->
                             <th:block
@@ -115,7 +116,9 @@
                                 </th:block>
 
                                 <th:block th:if="${end < products.totalPages - 1}">
-                                    <button th:if="${end < products.totalPages - 2}" class="join-item btn btn-disabled">...</button>
+                                    <button th:if="${end < products.totalPages - 2}" class="join-item btn btn-disabled">
+                                        ...
+                                    </button>
                                     <a th:href="@{/(page=${products.totalPages - 1}, size=${size}, categoryId=${currentCategoryId}, keyword=${searchRequest?.keyword}, sort=${pageable.sort})}"
                                        class="join-item btn"
                                        th:text="${products.totalPages}"></a>
@@ -127,7 +130,8 @@
                                th:href="@{/(page=${currentPage + 1}, size=${size}, categoryId=${currentCategoryId}, keyword=${searchRequest?.keyword}, sort=${pageable.sort})}"
                                class="join-item btn">다음</a>
                             <button th:unless="${products.hasNext}"
-                                    class="join-item btn btn-disabled">다음</button>
+                                    class="join-item btn btn-disabled">다음
+                            </button>
                         </div>
                     </div>
                 </div>
