@@ -19,7 +19,6 @@ import project.stylo.web.dao.ProductOptionDao
 import project.stylo.web.domain.Member
 import project.stylo.web.domain.Product
 import project.stylo.web.domain.enums.ImageOwnerType
-import project.stylo.web.dto.request.OptionCombination
 import project.stylo.web.dto.request.ProductRequest
 import project.stylo.web.dto.request.ProductSearchRequest
 import project.stylo.web.dto.response.OptionDefinitionResponse
@@ -27,7 +26,6 @@ import project.stylo.web.dto.response.PresignedUrlResponse
 import project.stylo.web.dto.response.ProductOptionResponse
 import project.stylo.web.dto.response.ProductResponse
 import project.stylo.web.exception.ProductExceptionType
-import java.math.BigDecimal
 
 @Service
 @Transactional
@@ -46,75 +44,68 @@ class ProductService(
             throw BaseException(ProductExceptionType.PRODUCT_DUPLICATED)
         }
 
-        // thumbnailUrl 설정 (첫 번째 이미지 사용)
-        val thumbnailUrl = request.images.firstOrNull { !it.isEmpty }?.let { file ->
-            fileStorageService.upload(file, ImageOwnerType.PRODUCT)
-        } ?: throw BaseException(ProductExceptionType.NO_IMAGE_PROVIDED)
-
         // 상품 생성
         val product = productDao.save(member.memberId!!, request)
-        productDao.updateThumbnail(product.productId, thumbnailUrl)
 
-        val productUrl = fileStorageService.getPresignedUrl(thumbnailUrl)
+        // 옵션 및 옵션 값, 옵션 조합 생성
+        if (request.combinations.isEmpty())
+            throw BaseException(ProductExceptionType.NO_COMBINATION_PROVIDED)
 
-        // 옵션 조합이 있는 경우 처리
-        if (request.combinations.isNotEmpty()) {
-            request.combinations.forEach { combination ->
-                val productOptionId = productOptionDao.save(combination, product.productId)
+        request.combinations.forEach { combination ->
+            val productOptionId = productOptionDao.save(combination, product.productId)
 
-                combination.options.forEach { option ->
-                    val name = option["name"] ?: throw BaseException(ProductExceptionType.OPTION_NAME_MISSING)
-                    val value = option["value"] ?: throw BaseException(ProductExceptionType.OPTION_VALUE_MISSING)
+            combination.options.forEach { option ->
+                val name = option["name"] ?: throw BaseException(ProductExceptionType.OPTION_NAME_MISSING)
+                val value = option["value"] ?: throw BaseException(ProductExceptionType.OPTION_VALUE_MISSING)
 
-                    optionKeyDao.saveOrGetId(product.productId, name)?.let { optionKeyId ->
-                        optionValueDao.saveOrGetId(optionKeyId, value)?.let { optionValueId ->
-                            optionVariantDao.save(productOptionId, optionValueId)
-                        }
+                optionKeyDao.saveOrGetId(product.productId, name)?.let { optionKeyId ->
+                    optionValueDao.saveOrGetId(optionKeyId, value)?.let { optionValueId ->
+                        optionVariantDao.save(productOptionId, optionValueId)
                     }
                 }
             }
-        } else {
-            // 옵션이 없는 상품의 경우 기본 ProductOption 생성
-            val defaultCombination = OptionCombination(
-                sku = "DEFAULT",
-                additionalPrice = BigDecimal.ZERO,
-                stock = 0L,
-                options = emptyList()
-            )
-            productOptionDao.save(defaultCombination, product.productId)
         }
 
-        // 이미지 업로드 처리 (첫 번째 이미지는 썸네일로 사용했으므로 제외)
-        uploadImages(product, request.images.drop(1))
+        if (request.images.isEmpty())
+            throw BaseException(ProductExceptionType.NO_IMAGE_PROVIDED)
 
-        return ProductResponse.from(product, productUrl)
+        // 이미지 업로드 처리
+        request.images.forEachIndexed { index, file ->
+            if (!file.isEmpty) {
+                val uploadUrl = fileStorageService.upload(file, ImageOwnerType.PRODUCT, product.productId)
+                imageDao.save(product.productId, ImageOwnerType.PRODUCT, uploadUrl)
+
+                if (index == 0) {
+                    productDao.updateThumbnail(product.productId, uploadUrl)
+                }
+            }
+        }
+        val productImages = getProductImages(product.productId)
+
+        return ProductResponse.from(product, productImages)
     }
 
     @Transactional(readOnly = true)
     fun getProduct(productId: Long): ProductResponse {
         val product = productDao.findById(productId) ?: throw BaseException(ProductExceptionType.PRODUCT_NOT_FOUND)
 
-        val productUrl = product.thumbnailUrl?.let { fileStorageService.getPresignedUrl(it) }
-            ?: throw BaseException(ProductExceptionType.NO_IMAGE_PROVIDED)
-
         val options = productOptionDao.findAllByProductId(productId).map { productOption ->
             val optionValues = optionValueDao.findAllByProductOptionId(productOption.productOptionId)
             ProductOptionResponse.from(productOption, optionValues.joinToString(", "))
         }
 
-        val optionDefinitions = optionKeyDao.findAllByProductId(productId).map { keyEntry ->
-            val values = optionValueDao.findAllByOptionKeyId(keyEntry.optionKeyId)
+        val optionDefinitions = optionKeyDao.findAllByProductId(productId).map { keys ->
+            val values = optionValueDao.findAllByOptionKeyId(keys.optionKeyId)
             OptionDefinitionResponse(
-                name = keyEntry.name,
+                name = keys.name,
                 values = values
             )
         }
 
         val productImages = getProductImages(productId)
 
-        return ProductResponse.from(product, productUrl).copy(
+        return ProductResponse.from(product, productImages).copy(
             options = options,
-            productImages = productImages,
             optionDefinitions = optionDefinitions
         )
     }
@@ -133,8 +124,8 @@ class ProductService(
         val productPage = productDao.searchProducts(request, pageable)
 
         val productResponses = productPage.content.map { product ->
-            val productUrl = product.thumbnailUrl?.let { fileStorageService.getPresignedUrl(it) }
-            ProductResponse.from(product, productUrl ?: "")
+            val productImages = getProductImages(product.productId)
+            ProductResponse.from(product, productImages)
         }
 
         return PageImpl(productResponses, pageable, productPage.totalElements)
@@ -170,11 +161,6 @@ class ProductService(
     }
 
     private fun uploadImages(product: Product, images: List<MultipartFile>) {
-        images.map { file ->
-            if (!file.isEmpty) {
-                val uploadUrl = fileStorageService.upload(file, ImageOwnerType.PRODUCT, product.productId)
-                imageDao.save(product.productId, ImageOwnerType.PRODUCT, uploadUrl)
-            }
-        }
+
     }
 }

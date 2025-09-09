@@ -25,6 +25,8 @@ server:
   port: 8080
   servlet:
     context-path: /
+  tomcat:
+    max-part-count: -1
 
 # 로깅 설정
 logging:

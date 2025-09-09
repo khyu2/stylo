@@ -69,11 +69,11 @@
                             <div class="card hover:shadow-2xl transition-shadow">
                                 <a th:href="@{/products/{productId}(productId=${product.productId})}">
                                     <figure class="px-4 pt-4">
-                                        <img th:if="${product.productUrl != null and product.productUrl != ''}"
-                                             th:src="${product.productUrl}"
+                                        <img th:if="${product.productImages[0].url != null and product.productImages[0].url != ''}"
+                                             th:src="${product.productImages[0].url}"
                                              th:alt="${product.name}"
                                              class="rounded-xl h-56 w-full object-cover" />
-                                        <img th:unless="${product.productUrl != null and product.productUrl != ''}"
+                                        <img th:unless="${product.productImages[0].url != null and product.productImages[0].url != ''}"
                                              src="/images/default_product.jpeg"
                                              th:alt="${product.name}"
                                              class="rounded-xl h-56 w-full object-cover" />

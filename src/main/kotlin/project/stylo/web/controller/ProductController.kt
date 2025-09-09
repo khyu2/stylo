@@ -1,7 +1,6 @@
 package project.stylo.web.controller
 
 import jakarta.validation.Valid
-import org.slf4j.LoggerFactory
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -23,10 +22,6 @@ class ProductController(
     private val productService: ProductService,
     private val categoryService: CategoryService,
 ) {
-    companion object {
-        private val logger = LoggerFactory.getLogger(ProductController::class.java)
-    }
-
     @GetMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
     fun showCreateForm(model: Model): String {
@@ -68,7 +63,6 @@ class ProductController(
     @PostMapping("/{productId}/edit")
     @PreAuthorize("hasRole('ADMIN')")
     fun updateProduct(
-        @Auth member: Member,
         @Valid @ModelAttribute request: ProductRequest,
         @PathVariable productId: Long,
         redirectAttributes: RedirectAttributes
