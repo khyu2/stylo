@@ -33,6 +33,7 @@ class SqlExecutor() : ExecuteListener {
 
     override fun executeStart(ctx: ExecuteContext?) {
         watch = StopWatch()
+        LatencyAspect.incrementQueryCount()
     }
 
     override fun executeEnd(ctx: ExecuteContext) {
