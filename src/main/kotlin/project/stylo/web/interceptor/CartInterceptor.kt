@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.servlet.HandlerInterceptor
 import org.springframework.web.servlet.ModelAndView
 import project.stylo.auth.service.dto.MemberDetails
+import project.stylo.auth.utils.SecurityUtils
 import project.stylo.web.service.CartService
 
 @Component
@@ -20,11 +21,8 @@ class CartInterceptor(
         handler: Any,
         modelAndView: ModelAndView?
     ) {
-        // 인증된 사용자인 경우에만 장바구니 개수 추가
-        val authentication = SecurityContextHolder.getContext().authentication
-        if (authentication != null && authentication.isAuthenticated &&
-            authentication.principal is MemberDetails
-        ) {
+        if (SecurityUtils.isAuthenticated()) {
+            val authentication = SecurityContextHolder.getContext().authentication
             val memberDetails = authentication.principal as MemberDetails
             val memberId = memberDetails.member.memberId
 

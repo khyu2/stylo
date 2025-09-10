@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
+import project.stylo.auth.resolver.Auth
+import project.stylo.web.domain.Member
 import project.stylo.web.dto.request.MemberCreateRequest
+import project.stylo.web.dto.request.MemberUpdateRequest
 import project.stylo.web.service.MemberService
 
 @Controller
@@ -64,5 +67,31 @@ class AuthController(
 
         redirectAttributes.addFlashAttribute("success", "회원가입이 완료되었습니다.")
         return "redirect:/login?success=true"
+    }
+
+    // OAuth2 첫 로그인 시 연락처 입력 강제 페이지
+    @GetMapping("/auth/contact")
+    fun contactForm(@Auth member: Member, model: Model): String {
+        model.addAttribute("request", MemberUpdateRequest(phone = member.phone))
+        return "auth/contact"
+    }
+
+    @PostMapping("/auth/contact")
+    fun submitContact(
+        @Auth member: Member,
+        @Valid @ModelAttribute("request") request: MemberUpdateRequest,
+        bindingResult: BindingResult,
+        redirectAttributes: RedirectAttributes
+    ): String {
+        if (request.phone.isNullOrBlank()) {
+            bindingResult.rejectValue("phone", "phone.required", "휴대폰 번호를 입력해주세요.")
+        }
+        if (bindingResult.hasErrors()) {
+            return "auth/contact"
+        }
+
+        memberService.updateProfile(member, request)
+        redirectAttributes.addFlashAttribute("success", "연락처가 저장되었습니다.")
+        return "redirect:/"
     }
 }

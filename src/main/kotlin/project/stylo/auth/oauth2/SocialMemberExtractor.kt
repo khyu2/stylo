@@ -1,14 +1,11 @@
 package project.stylo.auth.oauth2
 
-import org.slf4j.LoggerFactory
 import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.core.user.OAuth2User
 import project.stylo.auth.exception.AuthExceptionType
 import project.stylo.common.exception.BaseException
 
 object SocialMemberExtractor {
-    private val logger = LoggerFactory.getLogger(SocialMemberExtractor::class.java)
-
     fun extract(registrationId: String, auth: Authentication): SocialMember {
         val provider = when (registrationId.lowercase()) {
             "google" -> SocialProvider.GOOGLE
@@ -17,8 +14,6 @@ object SocialMemberExtractor {
         }
 
         val principal = auth.principal as OAuth2User
-
-        logger.info("OAuth2User attributes: ${principal.attributes}")
 
         return when (provider) {
             SocialProvider.GOOGLE -> extractGoogle(principal)

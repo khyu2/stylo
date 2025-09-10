@@ -41,6 +41,12 @@ class CustomOAuth2SuccessHandler(
         SecurityContextHolder.getContext().authentication = authToken
         request.session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext())
 
+        val phone = principal.member.phone
+        if (phone.isNullOrBlank()) {
+            response.sendRedirect("/auth/contact")
+            return
+        }
+
         response.sendRedirect("/")
     }
 }
