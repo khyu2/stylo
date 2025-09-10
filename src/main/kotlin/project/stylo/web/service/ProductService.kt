@@ -119,8 +119,14 @@ class ProductService(
     fun getProducts(request: ProductSearchRequest, pageable: Pageable): Page<ProductResponse> {
         val productPage = productDao.searchProducts(request, pageable)
 
+        // 상품 ID 별 이미지 일괄 조회
+        val productIds = productPage.content.map { it.productId }
+        val productImagesMap = imageDao.findAllByProductIds(productIds)
+
         val productResponses = productPage.content.map { product ->
-            val productImages = getProductImages(product.productId)
+            val productImages = productImagesMap[product.productId]?.map { imageUrl ->
+                fileStorageService.getPresignedUrl(imageUrl)
+            } ?: emptyList()
             ProductResponse.from(product, productImages)
         }
 
