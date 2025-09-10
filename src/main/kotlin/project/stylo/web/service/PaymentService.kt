@@ -19,6 +19,7 @@ import project.stylo.web.dao.ProductDao
 import project.stylo.web.dao.ProductOptionDao
 import project.stylo.web.domain.Member
 import project.stylo.web.domain.Payment
+import project.stylo.web.domain.enums.OrderStatus
 import project.stylo.web.dto.response.OrderItemResponse
 import project.stylo.web.dto.response.PaymentResponse
 import project.stylo.web.exception.OrderExceptionType
@@ -153,7 +154,13 @@ class PaymentService(
                 val orderUid = jsonObject["orderId"] as String
                 val paymentKeyRes = jsonObject["paymentKey"] as String
                 val transactionId = jsonObject["lastTransactionKey"] as String
-                paymentDao.confirm(orderUid, paymentKeyRes, transactionId)
+                val orderId = paymentDao.confirm(orderUid, paymentKeyRes, transactionId)
+
+                // 주문 상태를 결제 완료로 변경
+                ordersDao.updateStatus(orderId, OrderStatus.PAID)
+
+                // TODO: 관리자 알림톡 전송
+
             } catch (e: Exception) {
                 logger.warn("결제 정보 저장 중 오류", e)
             }

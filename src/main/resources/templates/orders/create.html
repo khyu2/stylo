@@ -299,7 +299,7 @@
 
                     await widgets.requestPayment({
                         orderId: data.orderId,
-                        orderName: "Stylo 주문",
+                        orderName: data.orderName,
                         successUrl: window.location.origin + "/payment/success",
                         failUrl: window.location.origin + "/payment/fail",
                         customerEmail: data.customerEmail,

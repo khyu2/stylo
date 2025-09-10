@@ -30,7 +30,11 @@ class PaymentDao(private val dsl: DSLContext) {
             .set(PAYMENT.UPDATED_AT, payment.updatedAt)
             .execute()
 
-    fun confirm(orderUid: String, paymentKey: String, transactionId: String) =
+    /**
+     * 결제 완료 처리
+     * @return orderId
+     */
+    fun confirm(orderUid: String, paymentKey: String, transactionId: String): Long =
         dsl.update(PAYMENT)
             .set(PAYMENT.PAYMENT_KEY, paymentKey)
             .set(PAYMENT.TRANSACTION_ID, transactionId)
@@ -39,7 +43,8 @@ class PaymentDao(private val dsl: DSLContext) {
             .set(PAYMENT.UPDATED_AT, LocalDateTime.now())
             .where(PAYMENT.PAYMENT_KEY.isNull)
             .and(PAYMENT.ORDER_UID.eq(orderUid))
-            .execute()
+            .returning(PAYMENT.ORDER_ID)
+            .fetchOne(PAYMENT.ORDER_ID)!!
 
     fun findByPaymentKey(paymentKey: String): Payment? =
         dsl.selectFrom(PAYMENT)

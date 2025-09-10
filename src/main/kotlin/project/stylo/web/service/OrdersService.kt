@@ -122,8 +122,13 @@ class OrdersService(
         session.setAttribute("orderId", orderUuid)
         session.setAttribute("totalAmount", totalAmount)
 
+        val orderName = if (items.size == 1)
+            productMap[optionMap[items[0].productOptionId]!!.productId]!!.name
+        else
+            "${productMap[optionMap[items[0].productOptionId]!!.productId]!!.name} 외 ${items.size - 1}건"
         return OrderCreateResponse(
             orderId = orderUuid,
+            orderName = orderName,
             amount = totalAmount,
             customerName = member.name,
             customerEmail = member.email,

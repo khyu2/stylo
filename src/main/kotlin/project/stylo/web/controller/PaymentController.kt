@@ -24,10 +24,12 @@ class PaymentController(
     @GetMapping("/fail")
     fun payFail(): String = "payment/fail"
 
+    // 결제 승인 요청 (PG 사로부터 결제 완료 후 호출)
     @PostMapping("/confirm")
     fun confirmPayment(@RequestBody jsonBody: String): ResponseEntity<JSONObject> =
         paymentService.confirmPayment(jsonBody)
 
+    // 결제 상세 조회
     @GetMapping("/detail")
     fun paymentDetail(
         @Auth member: Member,

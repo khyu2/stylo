@@ -4,6 +4,8 @@ import org.jooq.DSLContext
 import org.jooq.generated.tables.JOrders
 import org.springframework.stereotype.Repository
 import project.stylo.web.domain.Orders
+import project.stylo.web.domain.enums.OrderStatus
+import java.time.LocalDateTime
 
 @Repository
 class OrdersDao(private val dsl: DSLContext) {
@@ -32,4 +34,12 @@ class OrdersDao(private val dsl: DSLContext) {
             .and(ORDERS.DELETED_AT.isNull)
             .orderBy(ORDERS.ORDER_ID.desc())
             .fetchInto(Orders::class.java)
+
+    fun updateStatus(orderId: Long, status: OrderStatus) =
+        dsl.update(ORDERS)
+            .set(ORDERS.STATUS, status.name)
+            .set(ORDERS.UPDATED_AT, LocalDateTime.now())
+            .where(ORDERS.ORDER_ID.eq(orderId))
+            .and(ORDERS.DELETED_AT.isNull)
+            .execute()
 }
