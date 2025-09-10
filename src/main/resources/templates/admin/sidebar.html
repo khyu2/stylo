@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+<!-- Admin Sidebar Fragment -->
+<aside th:fragment="adminSidebar" class="lg:col-span-1">
+    <div class="card bg-base-100 border border-gray-200 shadow-sm">
+        <div class="card-body p-4">
+            <ul class="menu w-full">
+                <li>
+                    <a th:href="@{/admin}"
+                       th:classappend="${activeMenu == 'dashboard' ? 'active bg-primary text-primary-content' : ''}">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>대시보드
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/products}"
+                       th:classappend="${activeMenu == 'products' ? 'active bg-primary text-primary-content' : ''}">
+                        <i data-lucide="package" class="w-4 h-4"></i>상품 관리
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/orders}"
+                       th:classappend="${activeMenu == 'orders' ? 'active bg-primary text-primary-content' : ''}">
+                        <i data-lucide="shopping-bag" class="w-4 h-4"></i>주문 관리
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</aside>
+</body>
+</html>

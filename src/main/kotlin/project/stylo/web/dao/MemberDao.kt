@@ -71,4 +71,6 @@ class MemberDao(private val dsl: DSLContext) {
 
         return findById(id) ?: throw BaseException(BaseExceptionType.INTERNAL_SERVER_ERROR)
     }
+
+    fun countAll(): Int = dsl.fetchCount(dsl.selectFrom(MEMBER))
 }

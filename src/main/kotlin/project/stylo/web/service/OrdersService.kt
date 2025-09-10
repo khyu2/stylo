@@ -1,6 +1,8 @@
 package project.stylo.web.service
 
 import jakarta.servlet.http.HttpSession
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import project.stylo.common.exception.BaseException
@@ -19,6 +21,7 @@ import project.stylo.web.domain.enums.OrderStatus
 import project.stylo.web.domain.enums.PaymentStatus
 import project.stylo.web.domain.enums.PgProviderType
 import project.stylo.web.dto.request.OrderCreateRequest
+import project.stylo.web.dto.request.OrdersSearchRequest
 import project.stylo.web.dto.response.OrderCreateResponse
 import project.stylo.web.dto.response.OrderResponse
 import project.stylo.web.exception.MemberExceptionType
@@ -35,6 +38,11 @@ class OrdersService(
     private val productOptionDao: ProductOptionDao,
     private val paymentDao: PaymentDao
 ) {
+    @Transactional
+    fun updateStatus(orderId: Long, status: OrderStatus) {
+        ordersDao.updateStatus(orderId, status)
+    }
+
     // TODO: 주문 중복 검증, 재고 동시성 문제, 주문/결제 트랜잭션 분리, 주문 취소/환불 처리
     @Transactional
     fun createOrder(member: Member, request: OrderCreateRequest, session: HttpSession): OrderCreateResponse {
@@ -136,7 +144,10 @@ class OrdersService(
         )
     }
 
-    fun getOrders(member: Member): List<OrderResponse> {
+    fun getOrders(request: OrdersSearchRequest, pageable: Pageable): Page<OrderResponse> =
+        ordersDao.findAll(request, pageable)
+
+    fun getOrdersByMember(member: Member): List<OrderResponse> {
         val orders = ordersDao.findAllByMemberId(member.memberId!!)
         val orderIds = orders.mapNotNull { it.orderId }
         val paymentMap = paymentDao.findByOrderIds(orderIds)

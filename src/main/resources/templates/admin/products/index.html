@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="ko"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>상품 관리</title>
+</head>
+<body>
+<div layout:fragment="content" class="px-4 py-8">
+    <div class="container mx-auto space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <!-- Sidebar -->
+            <aside th:replace="~{admin/sidebar :: adminSidebar}"></aside>
+
+            <!-- Main -->
+            <section class="lg:col-span-4 space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold">상품 관리</h1>
+                    </div>
+                    <div class="join">
+                        <a href="/products/create" class="btn btn-primary join-item">
+                            <i data-lucide="plus" class="h-4 w-4"></i>
+                            상품 등록
+                        </a>
+                    </div>
+                </div>
+
+                <form action="/admin/products" method="get" class="space-y-4">
+                    <div class="flex gap-2 items-end">
+                        <div class="grid grid-cols-3 gap-2 flex-1">
+                            <select name="categoryId" class="select select-bordered">
+                                <option value="">전체 카테고리</option>
+                                <option th:each="cat : ${categories}" th:value="${cat.categoryId}" th:text="${cat.name}" th:selected="${categoryId == cat.categoryId}">카테고리</option>
+                            </select>
+                            <select name="sort" class="select select-bordered">
+                                <option value="createdAt,desc" th:selected="${sort == 'createdAt,desc'}">최신순</option>
+                                <option value="createdAt,asc" th:selected="${sort == 'createdAt,asc'}">오래된순</option>
+                                <option value="name,asc" th:selected="${sort == 'name,asc'}">이름순</option>
+                                <option value="price,asc" th:selected="${sort == 'price,asc'}">가격 낮은순</option>
+                                <option value="price,desc" th:selected="${sort == 'price,desc'}">가격 높은순</option>
+                            </select>
+                            <input type="text" name="keyword" th:value="${keyword}" class="input input-bordered" placeholder="상품명, 설명 검색">
+                        </div>
+                        <div class="join">
+                            <button class="btn btn-primary join-item" type="submit">검색</button>
+                            <a href="/admin/products" class="btn btn-ghost join-item">초기화</a>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="card bg-base-100 shadow">
+                    <div class="card-body p-0">
+                        <div class="overflow-x-auto">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>이미지</th>
+                                    <th>상품명</th>
+                                    <th class="text-center">가격</th>
+                                    <th class="text-center">상태</th>
+                                    <th class="text-center">관리</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="p : ${page.content}">
+                                    <td>
+                                        <div class="avatar">
+                                            <div class="mask mask-squircle w-12 h-12 bg-white">
+                                                <img th:src="${#lists.isEmpty(p.productImages) ? '/images/placeholder.png' : p.productImages.get(0)}" alt="thumb">
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="font-medium" th:text="${p.name}">상품명</div>
+                                        <div class="text-sm opacity-70 truncate max-w-[320px]" th:text="${p.description}">설명</div>
+                                    </td>
+                                    <td class="text-right" th:text="${'₩' + #numbers.formatDecimal(p.price, 1, 'COMMA', 0, 'POINT')}">₩0</td>
+                                    <td><span class="badge badge-success">ACTIVE</span></td>
+                                    <td class="text-right">
+                                        <div class="join join-horizontal">
+                                            <a th:href="${'/products/' + p.productId}" class="btn btn-sm btn-primary join-item">보기</a>
+                                            <a th:href="${'/products/' + p.productId + '/edit'}" class="btn btn-sm btn-soft btn-primary join-item">수정</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="text-sm opacity-70">
+                        <span th:text="${'총 ' + page.totalElements + '개'}">총 0개</span>
+                        <span class="ml-2" th:if="${page.totalPages > 0}" th:text="${(page.number + 1) + ' / ' + page.totalPages + ' 페이지'}">1 / 1 페이지</span>
+                    </div>
+                    <div class="join">
+                        <a class="btn btn-sm btn-ghost join-item"
+                           th:classappend="${page.first} ? 'btn-disabled'"
+                           th:href="@{/admin/products(page=${page.number - 1}, size=${page.size}, keyword=${keyword})}">이전</a>
+                        <a class="btn btn-sm btn-ghost join-item"
+                           th:classappend="${page.last} ? 'btn-disabled'"
+                           th:href="@{/admin/products(page=${page.number + 1}, size=${page.size}, keyword=${keyword})}">다음</a>
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <a href="/admin" class="btn btn-ghost">대시보드로</a>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+    <script>
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+        }
+    </script>
+</th:block>
+</body>
+</html>

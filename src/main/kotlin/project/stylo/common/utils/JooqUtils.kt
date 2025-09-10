@@ -52,9 +52,6 @@ class JooqUtils {
             }
         }
 
-        fun <T> List<T>?.inIfNotEmpty(field: Field<T>) =
-            if (!this.isNullOrEmpty()) field.`in`(this) else DSL.noCondition()
-
         /**
          * 리스트가 비어있지 않으면, 해당 조건을 만족하는 레코드가 존재하는지 체크
          *

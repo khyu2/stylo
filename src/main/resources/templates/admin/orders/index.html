@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="ko"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>주문 관리</title>
+</head>
+<body>
+<div layout:fragment="content" class="px-4 py-8">
+    <div class="container mx-auto space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <!-- Sidebar -->
+            <aside th:replace="~{admin/sidebar :: adminSidebar}"></aside>
+
+            <!-- Main -->
+            <section class="lg:col-span-4 space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold">주문 관리</h1>
+                    </div>
+                </div>
+
+                <form action="/admin/orders" method="get" class="space-y-4">
+                    <div class="flex flex-col gap-2">
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 flex-1">
+                            <input type="datetime-local" name="startDate"
+                                   th:value="${startDate != null ? #temporals.format(startDate, 'yyyy-MM-dd''T''HH:mm') : ''}"
+                                   class="input input-bordered" placeholder="시작일시">
+                            <input type="datetime-local" name="endDate"
+                                   th:value="${endDate != null ? #temporals.format(endDate, 'yyyy-MM-dd''T''HH:mm') : ''}"
+                                   class="input input-bordered" placeholder="종료일시">
+                            <input type="number" name="minPrice" min="0"
+                                   th:value="${minPrice}"
+                                   class="input input-bordered" placeholder="최소 금액">
+                            <input type="number" name="maxPrice" min="0"
+                                   th:value="${maxPrice}"
+                                   class="input input-bordered" placeholder="최대 금액">
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 flex-1">
+                            <input type="text" name="keyword" th:value="${keyword}"
+                                   class="input input-bordered" placeholder="주문번호 검색">
+                            <select name="orderStatus" class="select select-bordered">
+                                <option value="" th:selected="${orderStatus == null}">전체 주문 상태</option>
+                                <option th:each="s : ${statuses}"
+                                        th:value="${s}"
+                                        th:selected="${orderStatus == s}"
+                                        th:text="${s}">PENDING</option>
+                            </select>
+                            <select name="paymentStatus" class="select select-bordered">
+                                <option value="" th:selected="${paymentStatus == null}">전체 결제 상태</option>
+                                <option th:each="ps : ${paymentStatuses}"
+                                        th:value="${ps}"
+                                        th:selected="${paymentStatus == ps}"
+                                        th:text="${ps}">READY</option>
+                            </select>
+                        </div>
+                        <div class="join self-end">
+                            <button class="btn btn-primary join-item" type="submit">검색</button>
+                            <a href="/admin/orders" class="btn btn-ghost join-item">초기화</a>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="card bg-base-100 shadow">
+                    <div class="card-body p-0">
+                        <div class="overflow-x-auto">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>주문일</th>
+                                    <th>주문번호</th>
+                                    <th class="text-right">총 금액</th>
+                                    <th>주문 상태</th>
+                                    <th>결제 상태</th>
+                                    <th class="text-right">관리</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="o : ${page.content}">
+                                    <td th:text="${o.createdAt != null ? #temporals.format(o.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">-</td>
+                                    <td class="break-all" th:text="${o.orderUid} ?: '-'">-</td>
+                                    <td class="text-right" th:text="${'₩' + #numbers.formatDecimal(o.totalAmount, 1, 'COMMA', 0, 'POINT')}">₩0</td>
+                                    <td>
+                                        <span class="badge" th:classappend="${o.status.name() == 'PENDING' ? 'badge-warning' : (o.status.name() == 'PAID' ? 'badge-success' : 'badge-info')}"
+                                              th:text="${o.status}">PENDING</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${o.paymentStatus != null}"
+                                              th:text="${o.paymentStatus}"
+                                              class="badge badge-ghost">-</span>
+                                        <span th:unless="${o.paymentStatus != null}" class="opacity-60">-</span>
+                                    </td>
+                                    <td class="text-right">
+                                        <form th:action="${'/admin/orders/' + o.orderId + '/status'}" method="post" class="join">
+                                            <select name="status" class="select select-bordered select-sm join-item">
+                                                <option th:each="s : ${statuses}"
+                                                        th:value="${s}"
+                                                        th:selected="${s == o.status}"
+                                                        th:text="${s}">PENDING</option>
+                                            </select>
+                                            <button class="btn btn-sm btn-primary join-item" type="submit">변경</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="text-sm opacity-70">
+                        <span th:text="${'총 ' + page.totalElements + '개'}">총 0개</span>
+                        <span class="ml-2" th:if="${page.totalPages > 0}" th:text="${(page.number + 1) + ' / ' + page.totalPages + ' 페이지'}">1 / 1 페이지</span>
+                    </div>
+                    <div class="join">
+                        <a class="btn btn-sm btn-ghost join-item"
+                           th:classappend="${page.first} ? 'btn-disabled'"
+                           th:href="@{/admin/orders(page=${page.number - 1}, size=${page.size}, keyword=${keyword}, startDate=${startDate}, endDate=${endDate}, minPrice=${minPrice}, maxPrice=${maxPrice}, orderStatus=${orderStatus}, paymentStatus=${paymentStatus})}">이전</a>
+                        <a class="btn btn-sm btn-ghost join-item"
+                           th:classappend="${page.last} ? 'btn-disabled'"
+                           th:href="@{/admin/orders(page=${page.number + 1}, size=${page.size}, keyword=${keyword}, startDate=${startDate}, endDate=${endDate}, minPrice=${minPrice}, maxPrice=${maxPrice}, orderStatus=${orderStatus}, paymentStatus=${paymentStatus})}">다음</a>
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <a href="/admin" class="btn btn-ghost">대시보드로</a>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+    <script>
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+        }
+    </script>
+</th:block>
+</body>
+</html>

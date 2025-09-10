@@ -2,9 +2,13 @@ package project.stylo.web.dao
 
 import org.jooq.DSLContext
 import org.jooq.generated.tables.JPayment
+import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
 import project.stylo.web.domain.Payment
 import project.stylo.web.domain.enums.PaymentStatus
+import java.math.BigDecimal
+import java.sql.Date
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Repository
@@ -57,4 +61,35 @@ class PaymentDao(private val dsl: DSLContext) {
                 .where(PAYMENT.ORDER_ID.`in`(orderIds))
                 .fetchInto(Payment::class.java)
                 .associateBy { it.orderId }
+
+    fun totalSalesDone(): BigDecimal =
+        dsl.select(DSL.coalesce(DSL.sum(PAYMENT.AMOUNT), BigDecimal.ZERO))
+            .from(PAYMENT)
+            .where(PAYMENT.STATUS.eq(PaymentStatus.DONE.name))
+            .fetchOne(0, BigDecimal::class.java) ?: BigDecimal.ZERO
+
+    fun monthlySalesDone(start: LocalDateTime, end: LocalDateTime): BigDecimal =
+        dsl.select(DSL.coalesce(DSL.sum(PAYMENT.AMOUNT), BigDecimal.ZERO))
+            .from(PAYMENT)
+            .where(PAYMENT.STATUS.eq(PaymentStatus.DONE.name))
+            .and(PAYMENT.APPROVED_AT.ge(start))
+            .and(PAYMENT.APPROVED_AT.lt(end))
+            .fetchOne(0, BigDecimal::class.java) ?: BigDecimal.ZERO
+
+    fun salesByDaySince(since: LocalDate): Map<LocalDate, BigDecimal> {
+        val records = dsl.select(
+            DSL.cast(PAYMENT.APPROVED_AT.cast(Date::class.java), Date::class.java),
+            DSL.coalesce(DSL.sum(PAYMENT.AMOUNT), BigDecimal.ZERO)
+        )
+            .from(PAYMENT)
+            .where(PAYMENT.STATUS.eq(PaymentStatus.DONE.name))
+            .and(PAYMENT.APPROVED_AT.ge(since.atStartOfDay()))
+            .groupBy(DSL.cast(PAYMENT.APPROVED_AT.cast(Date::class.java), Date::class.java))
+            .fetch()
+        return records.associate { r ->
+            val date = r.get(0, Date::class.java).toLocalDate()
+            val amt = r.get(1, BigDecimal::class.java) ?: BigDecimal.ZERO
+            date to amt
+        }
+    }
 }

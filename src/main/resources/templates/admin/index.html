@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="ko"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>관리자 대시보드</title>
+</head>
+<body>
+<div layout:fragment="content" class="px-4 py-8">
+    <div class="container mx-auto space-y-8">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <!-- Sidebar -->
+            <aside th:replace="~{admin/sidebar :: adminSidebar}"></aside>
+
+            <!-- Main -->
+            <section class="lg:col-span-4 space-y-6">
+                <div>
+                    <h1 class="text-3xl font-bold">대시보드</h1>
+                    <p class="opacity-70">이번 달 누적된 매출, 주문, 회원, 상품 현황을 확인할 수 있습니다.</p>
+                </div>
+
+                <!-- Top Stat cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="card bg-base-100 shadow">
+                        <div class="card-body">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm opacity-70">총 매출</div>
+                                    <div class="text-2xl font-bold"
+                                         th:text="${'₩' + #numbers.formatDecimal(stats.totalSales, 1, 'COMMA', 0, 'POINT')}">
+                                        ₩0
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card bg-base-100 shadow">
+                        <div class="card-body">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm opacity-70">총 주문</div>
+                                    <div class="text-2xl font-bold" th:text="${stats.totalOrders}">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card bg-base-100 shadow">
+                        <div class="card-body">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm opacity-70">총 회원</div>
+                                    <div class="text-2xl font-bold" th:text="${stats.totalMembers}">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly transactions -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="card bg-base-100 shadow">
+                        <div class="card-body">
+                            <div class="text-sm opacity-70">이번 달 거래 수</div>
+                            <div class="text-2xl font-bold" th:text="${stats.monthlyOrderCount}">0</div>
+                        </div>
+                    </div>
+                    <div class="card bg-base-100 shadow">
+                        <div class="card-body">
+                            <div class="text-sm opacity-70">이번 달 거래 취소</div>
+                            <div class="text-2xl font-bold text-error" th:text="${stats.monthlyCancelledCount}">0</div>
+                        </div>
+                    </div>
+                    <div class="card bg-base-100 shadow">
+                        <div class="card-body">
+                            <div class="text-sm opacity-70">이번 달 거래 확정</div>
+                            <div class="text-2xl font-bold text-success" th:text="${stats.monthlyCompletedCount}">0
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card bg-base-100 shadow">
+                        <div class="card-body">
+                            <div class="text-sm opacity-70">이번 달 매출</div>
+                            <div class="text-2xl font-bold"
+                                 th:text="${'₩' + #numbers.formatDecimal(stats.monthlySales, 1, 'COMMA', 0, 'POINT')}">
+                                ₩0
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product status and category stats -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Product status -->
+                    <div class="card bg-base-100 shadow">
+                        <div class="card-body">
+                            <h2 class="card-title">현재 상품 현황</h2>
+                            <div class="grid grid-cols-2 gap-4 mt-2">
+                                <div class="p-4 rounded bg-base-200">
+                                    <div class="text-sm opacity-70">총 상품 수</div>
+                                    <div class="text-2xl font-bold" th:text="${stats.totalProducts}">0</div>
+                                </div>
+                                <div class="p-4 rounded bg-base-200">
+                                    <div class="text-sm opacity-70">품절 상품 수</div>
+                                    <div class="text-2xl font-bold text-error" th:text="${stats.outOfStockProducts}">
+                                        0
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category chart -->
+                    <div class="card bg-base-100 shadow">
+                        <div class="card-body">
+                            <h2 class="card-title">거래 카테고리 통계</h2>
+                            <div class="space-y-3 mt-2">
+                                <div class="flex items-center gap-2" th:each="c : ${stats.categoryItemCounts}">
+                                    <div class="w-24 text-sm opacity-70 truncate" th:text="${c.first}">카테고리</div>
+                                    <div class="flex-1 h-3 bg-base-200 rounded">
+                                        <div class="h-3 bg-primary rounded"
+                                             th:style="${'width:' + (c.second > 0 ? (c.second * 10 > 100 ? 100 : c.second * 10) : 2) + '%'}"></div>
+                                    </div>
+                                    <div class="w-10 text-right text-sm" th:text="${c.second}">0</div>
+                                </div>
+                                <div class="text-xs opacity-60">간단한 상대 막대 (개수 x10%)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales chart (last 7 days) -->
+                <div class="card bg-base-100 shadow">
+                    <div class="card-body">
+                        <h2 class="card-title">이번 주 거래 금액</h2>
+                        <div class="mt-4">
+                            <div class="grid grid-cols-7 gap-4 items-end h-40">
+                                <div class="flex flex-col items-center" th:each="entry : ${stats.salesLast7Days}">
+                                    <div class="w-8 bg-primary rounded-t"
+                                         th:style="${'height:' + (entry.second != null ? (entry.second.doubleValue() > 0 ? ((10 + entry.second.doubleValue() / 1000) > 100 ? 100 : (10 + entry.second.doubleValue() / 1000)) : 4) : 4) + '%'}"></div>
+                                    <div class="text-xs mt-2" th:text="${#strings.substring(entry.first, 5)}">09-01
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-sm opacity-60 mt-2">결제 승인 기준으로 실제 매출 합계를 표시합니다.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+    <script>
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+        }
+    </script>
+</th:block>
+</body>
+</html>

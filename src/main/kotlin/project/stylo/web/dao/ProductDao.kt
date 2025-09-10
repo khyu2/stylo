@@ -1,10 +1,12 @@
 package project.stylo.web.dao
 
 import org.jooq.DSLContext
+import org.jooq.generated.tables.JCategory
 import org.jooq.generated.tables.JOptionValue
 import org.jooq.generated.tables.JOptionVariant
 import org.jooq.generated.tables.JProduct
 import org.jooq.generated.tables.JProductOption
+import org.jooq.impl.DSL
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
@@ -29,6 +31,7 @@ class ProductDao(
         private val PRODUCT_OPTION = JProductOption.PRODUCT_OPTION
         private val OPTION_VALUE = JOptionValue.OPTION_VALUE
         private val OPTION_VARIANT = JOptionVariant.OPTION_VARIANT
+        private val CATEGORY = JCategory.CATEGORY
     }
 
     fun save(memberId: Long, request: ProductRequest): Product {
@@ -44,61 +47,7 @@ class ProductDao(
         return findById(id) ?: throw BaseException(BaseExceptionType.INTERNAL_SERVER_ERROR)
     }
 
-    fun findById(productId: Long): Product? =
-        dsl.selectFrom(PRODUCT)
-            .where(PRODUCT.PRODUCT_ID.eq(productId))
-            .and(PRODUCT.DELETED_AT.isNull)
-            .fetchOneInto(Product::class.java)
-
-    fun findByIds(productIds: Collection<Long>): Map<Long, Product> =
-        if (productIds.isEmpty()) emptyMap() else
-            dsl.selectFrom(PRODUCT)
-                .where(PRODUCT.PRODUCT_ID.`in`(productIds))
-                .and(PRODUCT.DELETED_AT.isNull)
-                .fetchInto(Product::class.java)
-                .associateBy { it.productId }
-
-    fun findAll(): List<Product> =
-        dsl.selectFrom(PRODUCT)
-            .where(PRODUCT.DELETED_AT.isNull)
-            .fetchInto(Product::class.java)
-
-    fun existsByName(name: String): Boolean =
-        dsl.fetchExists(
-            dsl.selectOne()
-                .from(PRODUCT)
-                .where(PRODUCT.NAME.eq(name))
-                .and(PRODUCT.DELETED_AT.isNull)
-        )
-
-    fun update(product: Product) =
-        dsl.update(PRODUCT)
-            .set(PRODUCT.CATEGORY_ID, product.categoryId)
-            .set(PRODUCT.NAME, product.name)
-            .set(PRODUCT.DESCRIPTION, product.description)
-            .set(PRODUCT.PRICE, product.price)
-            .set(PRODUCT.THUMBNAIL_URL, product.thumbnailUrl)
-            .set(PRODUCT.UPDATED_AT, LocalDateTime.now())
-            .where(PRODUCT.PRODUCT_ID.eq(product.productId))
-            .and(PRODUCT.DELETED_AT.isNull)
-            .execute()
-
-    fun updateThumbnail(productId: Long, thumbnailUrl: String?) =
-        dsl.update(PRODUCT)
-            .set(PRODUCT.THUMBNAIL_URL, thumbnailUrl)
-            .set(PRODUCT.UPDATED_AT, LocalDateTime.now())
-            .where(PRODUCT.PRODUCT_ID.eq(productId))
-            .and(PRODUCT.DELETED_AT.isNull)
-            .execute()
-
-    fun delete(productId: Long) =
-        dsl.update(PRODUCT)
-            .set(PRODUCT.DELETED_AT, LocalDateTime.now())
-            .where(PRODUCT.PRODUCT_ID.eq(productId))
-            .and(PRODUCT.DELETED_AT.isNull)
-            .execute()
-
-    fun searchProducts(request: ProductSearchRequest, pageable: Pageable): Page<Product> {
+    fun findAll(request: ProductSearchRequest, pageable: Pageable): Page<Product> {
         val baseQuery = dsl.selectDistinct(PRODUCT.asterisk())
             .from(PRODUCT)
             .leftJoin(PRODUCT_OPTION).on(PRODUCT.PRODUCT_ID.eq(PRODUCT_OPTION.PRODUCT_ID))
@@ -163,4 +112,82 @@ class ProductDao(
 
         return PageImpl(products, pageable, totalCount.toLong())
     }
+
+    fun findById(productId: Long): Product? =
+        dsl.selectFrom(PRODUCT)
+            .where(PRODUCT.PRODUCT_ID.eq(productId))
+            .and(PRODUCT.DELETED_AT.isNull)
+            .fetchOneInto(Product::class.java)
+
+    fun findByIds(productIds: Collection<Long>): Map<Long, Product> =
+        if (productIds.isEmpty()) emptyMap() else
+            dsl.selectFrom(PRODUCT)
+                .where(PRODUCT.PRODUCT_ID.`in`(productIds))
+                .and(PRODUCT.DELETED_AT.isNull)
+                .fetchInto(Product::class.java)
+                .associateBy { it.productId }
+
+    fun existsByName(name: String): Boolean =
+        dsl.fetchExists(
+            dsl.selectOne()
+                .from(PRODUCT)
+                .where(PRODUCT.NAME.eq(name))
+                .and(PRODUCT.DELETED_AT.isNull)
+        )
+
+    fun update(product: Product) =
+        dsl.update(PRODUCT)
+            .set(PRODUCT.CATEGORY_ID, product.categoryId)
+            .set(PRODUCT.NAME, product.name)
+            .set(PRODUCT.DESCRIPTION, product.description)
+            .set(PRODUCT.PRICE, product.price)
+            .set(PRODUCT.THUMBNAIL_URL, product.thumbnailUrl)
+            .set(PRODUCT.UPDATED_AT, LocalDateTime.now())
+            .where(PRODUCT.PRODUCT_ID.eq(product.productId))
+            .and(PRODUCT.DELETED_AT.isNull)
+            .execute()
+
+    fun updateThumbnail(productId: Long, thumbnailUrl: String?) =
+        dsl.update(PRODUCT)
+            .set(PRODUCT.THUMBNAIL_URL, thumbnailUrl)
+            .set(PRODUCT.UPDATED_AT, LocalDateTime.now())
+            .where(PRODUCT.PRODUCT_ID.eq(productId))
+            .and(PRODUCT.DELETED_AT.isNull)
+            .execute()
+
+    fun delete(productId: Long) =
+        dsl.update(PRODUCT)
+            .set(PRODUCT.DELETED_AT, LocalDateTime.now())
+            .where(PRODUCT.PRODUCT_ID.eq(productId))
+            .and(PRODUCT.DELETED_AT.isNull)
+            .execute()
+
+    fun countAll(): Int =
+        dsl.fetchCount(
+            dsl.selectFrom(PRODUCT).where(PRODUCT.DELETED_AT.isNull)
+        )
+
+    fun countOutOfStock(): Int {
+        val sub = dsl.selectOne()
+            .from(PRODUCT_OPTION)
+            .where(PRODUCT_OPTION.PRODUCT_ID.eq(PRODUCT.PRODUCT_ID))
+            .and(PRODUCT_OPTION.STOCK.gt(0L))
+        return dsl.fetchCount(
+            dsl.selectFrom(PRODUCT)
+                .where(PRODUCT.DELETED_AT.isNull)
+                .andNotExists(sub)
+        )
+    }
+
+    fun productCountsByCategory(): List<Pair<String, Int>> =
+        dsl.select(
+            CATEGORY.NAME,
+            DSL.countDistinct(PRODUCT.PRODUCT_ID)
+        )
+            .from(PRODUCT)
+            .join(CATEGORY).on(PRODUCT.CATEGORY_ID.eq(CATEGORY.CATEGORY_ID))
+            .where(PRODUCT.DELETED_AT.isNull)
+            .groupBy(CATEGORY.NAME)
+            .fetch { r -> (r.get(CATEGORY.NAME) ?: "미분류") to (r.get(1, Int::class.java) ?: 0) }
+
 }

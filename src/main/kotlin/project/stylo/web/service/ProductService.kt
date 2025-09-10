@@ -122,20 +122,20 @@ class ProductService(
 
     @Transactional(readOnly = true)
     fun getProducts(request: ProductSearchRequest, pageable: Pageable): Page<ProductResponse> {
-        val productPage = productDao.searchProducts(request, pageable)
+        val products = productDao.findAll(request, pageable)
 
         // 상품 ID 별 이미지 일괄 조회
-        val productIds = productPage.content.map { it.productId }
+        val productIds = products.content.map { it.productId }
         val productImagesMap = imageDao.findAllByProductIds(productIds)
 
-        val productResponses = productPage.content.map { product ->
+        val productResponses = products.content.map { product ->
             val productImages = productImagesMap[product.productId]?.map { imageUrl ->
                 fileStorageService.getPresignedUrl(imageUrl)
             } ?: emptyList()
             ProductResponse.from(product, productImages)
         }
 
-        return PageImpl(productResponses, pageable, productPage.totalElements)
+        return PageImpl(productResponses, pageable, products.totalElements)
     }
 
     fun updateProduct(productId: Long, request: ProductRequest) {

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import project.stylo.common.config.CacheConfig.Companion.CATEGORY_CACHE
 import project.stylo.web.dao.CategoryDao
+import project.stylo.web.dto.response.CategoryResponse
 
 @Service
 @Transactional
@@ -13,5 +14,5 @@ class CategoryService(
 ) {
     @Cacheable(CATEGORY_CACHE, key = "'categories'")
     @Transactional(readOnly = true)
-    fun getAllCategories() = categoryDao.findAll()
+    fun getAllCategories(): List<CategoryResponse> = categoryDao.findAll()
 }

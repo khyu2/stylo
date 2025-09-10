@@ -62,15 +62,9 @@
                 <!-- Admin Menu -->
                 <div sec:authorize="hasRole('ADMIN')">
                     <li>
-                        <a href="/products/create" class="text-primary">
-                            <i data-lucide="plus" class="h-4 w-4"></i>
-                            상품 등록
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/admin/products" class="text-primary">
-                            <i data-lucide="package" class="h-4 w-4"></i>
-                            상품 관리
+                        <a href="/admin" class="text-primary">
+                            <i data-lucide="settings" class="h-4 w-4"></i>
+                            관리자 페이지
                         </a>
                     </li>
                 </div>
