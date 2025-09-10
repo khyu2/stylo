@@ -13,7 +13,7 @@ import org.springframework.web.method.support.ModelAndViewContainer
 import project.stylo.auth.service.dto.MemberDetails
 import project.stylo.common.exception.BaseException
 import project.stylo.common.exception.BaseExceptionType
-import project.stylo.common.utils.SecurityUtils
+import project.stylo.auth.utils.SecurityUtils
 
 @Component
 class AuthArgumentResolver : HandlerMethodArgumentResolver {

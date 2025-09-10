@@ -6,14 +6,13 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.crypto.factory.PasswordEncoderFactories
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import project.stylo.auth.oauth2.CustomOAuth2SuccessHandler
 import project.stylo.auth.resolver.AuthArgumentResolver
 import project.stylo.auth.service.MemberDetailsService
 
@@ -22,7 +21,8 @@ import project.stylo.auth.service.MemberDetailsService
 @EnableMethodSecurity(securedEnabled = true)
 class SecurityConfig(
     private val authArgumentResolver: AuthArgumentResolver,
-    private val memberDetailsService: MemberDetailsService
+    private val memberDetailsService: MemberDetailsService,
+    private val customOAuth2SuccessHandler: CustomOAuth2SuccessHandler
 ) : WebMvcConfigurer {
 
     @Bean
@@ -45,7 +45,10 @@ class SecurityConfig(
                     "/favicon.ico",
                     "/swagger-ui/**",
                     "/api-docs/**",
-                    "/error"
+                    "/error",
+                    "/oauth2/**",
+                    "/login/oauth2/**",
+                    "/oauth2/authorization/**"
                 ).permitAll()
                 it.requestMatchers("/admin/**").hasRole("ADMIN")
                 it.anyRequest().authenticated()
@@ -58,6 +61,10 @@ class SecurityConfig(
                     .defaultSuccessUrl("/", true)
                     .failureUrl("/login?error=true")
                     .permitAll()
+            }
+            .oauth2Login {
+                it.loginPage("/login")
+                    .successHandler(customOAuth2SuccessHandler)
             }
             .rememberMe {
                 it.key("REMEMBER_ME_KEY")
@@ -93,9 +100,6 @@ class SecurityConfig(
             registerCorsConfiguration("/**", configuration)
         }
     }
-
-    @Bean
-    fun passwordEncoder(): PasswordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder()
 
     override fun addArgumentResolvers(argumentResolvers: MutableList<HandlerMethodArgumentResolver>) {
         argumentResolvers.add(authArgumentResolver)

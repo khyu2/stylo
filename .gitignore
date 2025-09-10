@@ -7,6 +7,7 @@ build/
 /src/generated/**
 caches/**
 output.css
+.env
 
 ### STS ###
 .apt_generated

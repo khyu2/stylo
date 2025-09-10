@@ -47,11 +47,12 @@
                 <div class="avatar mr-2">
                     <div class="w-10 rounded-full">
                         <img th:id="profileImage"
-                             th:src="${#authentication.principal.profileUrl != null ? #authentication.principal.profileUrl : '/images/default_profile.jpeg'}"
+                             th:with="p=${#authentication.principal},isOidc=${p instanceof T(org.springframework.security.oauth2.core.oidc.user.OidcUser)},isOauth2=${p instanceof T(org.springframework.security.oauth2.core.user.OAuth2User)},isMember=${p instanceof T(project.stylo.auth.service.dto.MemberDetails)},pic=${isMember}? ${p.profileUrl} : (${isOidc}? ${p.getAttribute('picture')} : (${isOauth2}? ${p.getAttribute('profile_image_url')} : null))"
+                             th:src="${pic != null ? pic : '/images/default_profile.jpeg'}"
                              alt="프로필 사진" />
                     </div>
                 </div>
-                <span sec:authentication="principal.member.name">사용자</span>님
+                <span th:text="${#authentication.principal instanceof T(project.stylo.auth.service.dto.MemberDetails) ? #authentication.principal.member.name : (#authentication.principal instanceof T(org.springframework.security.oauth2.core.oidc.user.OidcUser) ? #authentication.principal.getAttribute('name') : (#authentication.principal instanceof T(org.springframework.security.oauth2.core.user.OAuth2User) ? #authentication.principal.getAttribute('nickname') : '사용자'))}">사용자</span>님
                 <i data-lucide="chevron-down" class="h-4 w-4"></i>
             </div>
             <ul tabindex="0" class="menu dropdown-content mt-3 z-[1] p-2 shadow bg-white rounded-box w-52">

@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import project.stylo.common.exception.BaseException
 import project.stylo.common.s3.FileStorageService
-import project.stylo.common.utils.SecurityUtils
+import project.stylo.auth.utils.SecurityUtils
 import project.stylo.web.dao.AddressDao
 import project.stylo.web.dao.MemberDao
 import project.stylo.web.domain.Member

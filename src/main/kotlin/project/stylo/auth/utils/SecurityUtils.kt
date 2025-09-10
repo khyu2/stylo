@@ -1,4 +1,4 @@
-package project.stylo.common.utils
+package project.stylo.auth.utils
 
 import org.springframework.security.core.context.SecurityContextHolder
 import project.stylo.auth.service.dto.MemberDetails
