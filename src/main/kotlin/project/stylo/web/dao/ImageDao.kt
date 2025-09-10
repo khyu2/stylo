@@ -36,4 +36,11 @@ class ImageDao(private val dsl: DSLContext) {
                 { it.get(IMAGE.OWNER_ID) as Long },
                 { it.get(IMAGE.IMAGE_URL) as String }
             )
+
+    fun deleteAllByOwnerIdAndOwnerType(ownerId: Long, ownerType: ImageOwnerType) {
+        dsl.deleteFrom(IMAGE)
+            .where(IMAGE.OWNER_ID.eq(ownerId))
+            .and(IMAGE.OWNER_TYPE.eq(ownerType.name))
+            .execute()
+    }
 }

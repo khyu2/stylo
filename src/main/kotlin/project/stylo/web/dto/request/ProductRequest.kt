@@ -27,6 +27,9 @@ data class ProductRequest(
     // 이미지 파일들
     val images: List<MultipartFile> = emptyList(),
 
+    // 이미지 순서 토큰 JSON ("[\"existing:<path>\", \"new\", ...]")
+    val imageOrder: String? = null,
+
     // 옵션 정의 (새로운 구조)
     val options: List<OptionDefinition> = emptyList(),
 

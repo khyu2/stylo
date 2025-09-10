@@ -96,7 +96,7 @@
                                 </div>
                             </div>
 
-                            <!-- Product Images (optional) -->
+                            <!-- Product Images -->
                             <div id="imageUpload">
                                 <label class="label">
                                     <span class="label-text text-base">상품 이미지</span>
@@ -120,6 +120,7 @@
                                                        multiple
                                                        accept="image/*"
                                                        class="hidden">
+                                                <input type="hidden" id="imageOrder" name="imageOrder">
                                                 <button type="button"
                                                         id="selectFileBtn"
                                                         class="btn btn-primary">
@@ -444,6 +445,14 @@
                 this.updateImageGrid();
                 this.updateButtons();
                 this.updateFileInput();
+                this.updateImageOrderHidden();
+            },
+
+            updateImageOrderHidden() {
+                const input = document.getElementById('imageOrder');
+                if (!input) return;
+                const tokens = this.images.map(img => img.existing ? `existing:${img.raw || img.preview}` : 'new');
+                input.value = JSON.stringify(tokens);
             },
 
             updateImageGrid() {
@@ -606,12 +615,28 @@
         // Initialize image upload
         imageUpload.init();
 
-        // Preload existing images from server
         const serverImages = /*[[${productImages}]]*/ [];
-        if (Array.isArray(serverImages)) {
-            serverImages.forEach(img => {
-                if (img && img.url) {
-                    imageUpload.images.push({file: null, preview: img.url, name: '기존 이미지', size: '', existing: true});
+        const serverImagePaths = /*[[${productImagePaths}]]*/ [];
+        if (Array.isArray(serverImages) && serverImages.length > 0) {
+            serverImages.forEach((img, idx) => {
+                if (img) {
+                    const raw = Array.isArray(serverImagePaths) ? serverImagePaths[idx] : null;
+                    const nameFromUrl = (() => {
+                        try {
+                            const u = new URL(raw || img, window.location.origin);
+                            return decodeURIComponent(u.pathname.split('/').pop() || '기존 이미지');
+                        } catch (e) {
+                            return '기존 이미지';
+                        }
+                    })();
+                    imageUpload.images.push({
+                        file: null,
+                        preview: img,
+                        name: nameFromUrl,
+                        size: '',
+                        existing: true,
+                        raw: raw || img
+                    });
                 }
             });
             imageUpload.updateUI();

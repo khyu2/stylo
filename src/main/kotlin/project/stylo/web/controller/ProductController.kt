@@ -56,6 +56,7 @@ class ProductController(
         model.addAttribute("product", product)
         model.addAttribute("categories", categoryService.getAllCategories())
         model.addAttribute("productImages", product.productImages)
+        model.addAttribute("productImagePaths", productService.getProductImagePaths(productId))
         return "product/edit"
     }
 
