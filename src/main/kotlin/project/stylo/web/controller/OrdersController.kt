@@ -27,7 +27,7 @@ class OrdersController(
 ) {
     @GetMapping
     fun listOrders(@Auth member: Member, model: Model): String {
-        val orders = ordersService.listOrders(member)
+        val orders = ordersService.getOrders(member)
         model.addAttribute("orders", orders)
         return "orders/index"
     }

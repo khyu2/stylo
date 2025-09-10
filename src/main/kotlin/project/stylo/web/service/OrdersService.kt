@@ -20,6 +20,7 @@ import project.stylo.web.domain.enums.PaymentStatus
 import project.stylo.web.domain.enums.PgProviderType
 import project.stylo.web.dto.request.OrderCreateRequest
 import project.stylo.web.dto.response.OrderCreateResponse
+import project.stylo.web.dto.response.OrderResponse
 import project.stylo.web.exception.MemberExceptionType
 import project.stylo.web.exception.ProductExceptionType
 import java.math.BigDecimal
@@ -126,35 +127,17 @@ class OrdersService(
             amount = totalAmount,
             customerName = member.name,
             customerEmail = member.email,
-            customerPhone = member.phone,
+            customerPhone = member.phone!!,
         )
     }
 
-    data class OrderSummaryView(
-        val orderId: Long,
-        val createdAt: java.time.LocalDateTime?,
-        val totalAmount: java.math.BigDecimal,
-        val status: project.stylo.web.domain.enums.OrderStatus,
-        val orderUid: String?,
-        val paymentKey: String?,
-        val paymentStatus: project.stylo.web.domain.enums.PaymentStatus?,
-    )
-
-    fun listOrders(member: Member): List<OrderSummaryView> {
+    fun getOrders(member: Member): List<OrderResponse> {
         val orders = ordersDao.findAllByMemberId(member.memberId!!)
         val orderIds = orders.mapNotNull { it.orderId }
         val paymentMap = paymentDao.findByOrderIds(orderIds)
         return orders.map { o ->
             val p = o.orderId?.let { paymentMap[it] }
-            OrderSummaryView(
-                orderId = o.orderId!!,
-                createdAt = o.createdAt,
-                totalAmount = o.totalAmount,
-                status = o.status,
-                orderUid = p?.orderUid,
-                paymentKey = p?.paymentKey,
-                paymentStatus = p?.status,
-            )
+            OrderResponse.from(o, p)
         }
     }
 }
