@@ -30,6 +30,7 @@ import project.stylo.web.exception.ProductExceptionType
 import java.math.BigDecimal
 
 @Service
+@Transactional
 class OrdersService(
     private val cartDao: CartDao,
     private val addressDao: AddressDao,
@@ -39,13 +40,7 @@ class OrdersService(
     private val productOptionDao: ProductOptionDao,
     private val paymentDao: PaymentDao
 ) {
-    @Transactional
-    fun updateStatus(orderId: Long, status: OrderStatus) {
-        ordersDao.updateStatus(orderId, status)
-    }
-
     // TODO: 주문 중복 검증, 재고 동시성 문제, 주문/결제 트랜잭션 분리, 주문 취소/환불 처리
-    @Transactional
     fun createOrder(member: Member, request: OrderCreateRequest, session: HttpSession): OrderCreateResponse {
         val address = request.addressId?.let { addressDao.findById(it) }
             ?: throw BaseException(MemberExceptionType.ADDRESS_NOT_FOUND)
@@ -146,9 +141,15 @@ class OrdersService(
         )
     }
 
+    @Transactional(readOnly = true)
     fun getOrders(request: OrdersSearchRequest, pageable: Pageable): Page<OrderResponse> =
         ordersDao.findAll(request, pageable)
 
+    @Transactional(readOnly = true)
     fun getOrdersByMember(member: Member, pageable: Pageable): Page<OrderResponse> =
         ordersDao.findAllByMemberId(member.memberId!!, pageable)
+
+    fun updateStatus(orderId: Long, status: OrderStatus) {
+        ordersDao.updateStatus(orderId, status)
+    }
 }
