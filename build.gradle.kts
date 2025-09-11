@@ -7,6 +7,8 @@ plugins {
     id("org.springframework.boot") version "3.5.4"
     id("io.spring.dependency-management") version "1.1.7"
     id("nu.studer.jooq") version "9.0"
+    id("com.google.cloud.tools.jib") version "3.4.4"
+    id("co.uzzu.dotenv.gradle") version "2.0.0"
 }
 
 group = "project"
@@ -159,5 +161,39 @@ sourceSets {
         java {
             setSrcDirs(listOf("src/main/kotlin", "src/generated"))
         }
+    }
+}
+
+jib {
+    from {
+        image = "eclipse-temurin:17-jre"
+        platforms {
+            // platform {
+            //     architecture = "amd64"
+            //     os = "linux"
+            // }
+            platform {
+                architecture = "arm64"
+                os = "linux"
+            }
+        }
+    }
+    to {
+        image = env.DOCKER_IMAGE.orElse("docker.io/${project.name}")
+        tags = setOf(project.version.toString(), "latest")
+
+        auth {
+            username = env.DOCKER_USERNAME.orElse("")
+            password = env.DOCKER_PASSWORD.orElse("")
+        }
+    }
+    container {
+        ports = listOf("8080")
+        jvmFlags = listOf(
+            "-Duser.timezone=Asia/Seoul",
+            // "-Dspring.profiles.active=local",
+        )
+        creationTime = "USE_CURRENT_TIMESTAMP"
+        setAllowInsecureRegistries(true) // 보안이 적용되지 않은 레지스트리 허용
     }
 }
