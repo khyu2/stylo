@@ -29,21 +29,32 @@
                     <table class="table">
                         <thead>
                         <tr>
-                            <th>주문일</th>
                             <th>주문번호</th>
+                            <th>주문일</th>
                             <th class="text-right">총 금액</th>
                             <th>주문 상태</th>
                             <th>결제 상태</th>
-                            <th></th>
+                            <th class="text-right"></th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="o : ${orders}">
-                            <td th:text="${o.createdAt != null ? #temporals.format(o.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">-</td>
                             <td class="break-all" th:text="${o.orderUid} ?: '-'">-</td>
-                            <td class="text-right" th:text="${'₩' + #numbers.formatDecimal(o.totalAmount, 1, 'COMMA', 0, 'POINT')}">₩0</td>
-                            <td><span class="badge badge-primary" th:text="${o.status}">PENDING</span></td>
-                            <td>
+                            <td th:text="${o.createdAt != null ? #temporals.format(o.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">
+                                -
+                            </td>
+                            <td class="text-right"
+                                th:text="${'₩' + #numbers.formatDecimal(o.totalAmount, 1, 'COMMA', 0, 'POINT')}">₩0
+                            </td>
+                            <td><span class="badge badge-soft"
+                                      th:classappend="${o.status.name() == 'PENDING' ? 'badge-warning'
+                                       : (o.status.name() == 'PAID' ? 'badge-success'
+                                       : (o.status.name() == 'SHIPPING' ? 'badge-info'
+                                       : (o.status.name() == 'COMPLETED' ? 'badge-primary'
+                                       : (o.status.name() == 'CANCELLED' ? 'badge-error' : 'badge-ghost'))))}"
+                                      th:text="${o.status}">PENDING</span>
+                            </td>
+                            <td class="text-center">
                                 <span th:if="${o.paymentStatus != null}"
                                       th:text="${o.paymentStatus}"
                                       class="badge badge-success">-</span>
@@ -52,7 +63,7 @@
                             <td class="text-right">
                                 <a th:if="${o.paymentKey != null}"
                                    th:href="${'/payment/detail?paymentKey=' + o.paymentKey}"
-                                   class="btn btn-sm btn-ghost">상세</a>
+                                   class="btn btn-sm btn-primary">상세</a>
                                 <span th:unless="${o.paymentKey != null}" class="text-sm opacity-60">결제 대기</span>
                             </td>
                         </tr>

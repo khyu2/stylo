@@ -45,14 +45,16 @@
                                 <option th:each="s : ${statuses}"
                                         th:value="${s}"
                                         th:selected="${orderStatus == s}"
-                                        th:text="${s}">PENDING</option>
+                                        th:text="${s}">PENDING
+                                </option>
                             </select>
                             <select name="paymentStatus" class="select select-bordered">
                                 <option value="" th:selected="${paymentStatus == null}">전체 결제 상태</option>
                                 <option th:each="ps : ${paymentStatuses}"
                                         th:value="${ps}"
                                         th:selected="${paymentStatus == ps}"
-                                        th:text="${ps}">READY</option>
+                                        th:text="${ps}">READY
+                                </option>
                             </select>
                         </div>
                         <div class="join self-end">
@@ -78,12 +80,22 @@
                                 </thead>
                                 <tbody>
                                 <tr th:each="o : ${page.content}">
-                                    <td th:text="${o.createdAt != null ? #temporals.format(o.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">-</td>
+                                    <td th:text="${o.createdAt != null ? #temporals.format(o.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">
+                                        -
+                                    </td>
                                     <td class="break-all" th:text="${o.orderUid} ?: '-'">-</td>
-                                    <td class="text-right" th:text="${'₩' + #numbers.formatDecimal(o.totalAmount, 1, 'COMMA', 0, 'POINT')}">₩0</td>
+                                    <td class="text-right"
+                                        th:text="${'₩' + #numbers.formatDecimal(o.totalAmount, 1, 'COMMA', 0, 'POINT')}">
+                                        ₩0
+                                    </td>
                                     <td>
-                                        <span class="badge" th:classappend="${o.status.name() == 'PENDING' ? 'badge-warning' : (o.status.name() == 'PAID' ? 'badge-success' : 'badge-info')}"
-                                              th:text="${o.status}">PENDING</span>
+<span class="badge badge-soft"
+      th:classappend="${o.status.name() == 'PENDING' ? 'badge-warning'
+       : (o.status.name() == 'PAID' ? 'badge-success'
+       : (o.status.name() == 'SHIPPING' ? 'badge-info'
+       : (o.status.name() == 'COMPLETED' ? 'badge-primary'
+       : (o.status.name() == 'CANCELLED' ? 'badge-error' : 'badge-ghost'))))}"
+      th:text="${o.status}">PENDING</span>
                                     </td>
                                     <td>
                                         <span th:if="${o.paymentStatus != null}"
@@ -92,12 +104,14 @@
                                         <span th:unless="${o.paymentStatus != null}" class="opacity-60">-</span>
                                     </td>
                                     <td class="text-right">
-                                        <form th:action="${'/admin/orders/' + o.orderId + '/status'}" method="post" class="join">
+                                        <form th:action="${'/admin/orders/' + o.orderId + '/status'}" method="post"
+                                              class="join">
                                             <select name="status" class="select select-bordered select-sm join-item">
                                                 <option th:each="s : ${statuses}"
                                                         th:value="${s}"
                                                         th:selected="${s == o.status}"
-                                                        th:text="${s}">PENDING</option>
+                                                        th:text="${s}">PENDING
+                                                </option>
                                             </select>
                                             <button class="btn btn-sm btn-primary join-item" type="submit">변경</button>
                                         </form>
@@ -112,7 +126,8 @@
                 <div class="flex items-center justify-between">
                     <div class="text-sm opacity-70">
                         <span th:text="${'총 ' + page.totalElements + '개'}">총 0개</span>
-                        <span class="ml-2" th:if="${page.totalPages > 0}" th:text="${(page.number + 1) + ' / ' + page.totalPages + ' 페이지'}">1 / 1 페이지</span>
+                        <span class="ml-2" th:if="${page.totalPages > 0}"
+                              th:text="${(page.number + 1) + ' / ' + page.totalPages + ' 페이지'}">1 / 1 페이지</span>
                     </div>
                     <div class="join">
                         <a class="btn btn-sm btn-ghost join-item"
