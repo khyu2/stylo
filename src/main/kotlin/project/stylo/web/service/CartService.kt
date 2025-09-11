@@ -2,6 +2,7 @@ package project.stylo.web.service
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import project.stylo.auth.utils.SecurityUtils
 import project.stylo.common.exception.BaseException
 import project.stylo.common.s3.FileStorageService
 import project.stylo.web.dao.CartDao
@@ -38,7 +39,6 @@ class CartService(
         // productOptionId가 null인 경우 기본 옵션을 찾음
         val finalProductOptionId = request.productOptionId ?: run {
             // 옵션이 없는 상품의 경우 기본 ProductOption을 찾음
-            // 기본적으로 "DEFAULT" SKU를 가진 옵션을 찾음
             val defaultOptions = productOptionDao.findAllByProductId(request.productId)
             val defaultOption = defaultOptions.find { it.sku == "DEFAULT" }
                 ?: throw BaseException(ProductExceptionType.PRODUCT_OPTION_NOT_FOUND)
@@ -60,6 +60,8 @@ class CartService(
         )
 
         cartDao.save(cartItem)
+
+        SecurityUtils.updateCartCount((getCartItemCount(member.memberId)))
     }
 
     fun updateQuantity(member: Member, request: CartUpdateRequest) {
@@ -88,10 +90,14 @@ class CartService(
             throw BaseException(CartExceptionType.CART_ITEM_NOT_OWNED)
 
         cartDao.delete(member.memberId, cartItemId)
+
+        SecurityUtils.updateCartCount((getCartItemCount(member.memberId)))
     }
 
     fun clearCart(member: Member) {
         cartDao.deleteAll(member.memberId!!)
+
+        SecurityUtils.updateCartCount((getCartItemCount(member.memberId)))
     }
 
     fun getCartItemCount(memberId: Long): Long {

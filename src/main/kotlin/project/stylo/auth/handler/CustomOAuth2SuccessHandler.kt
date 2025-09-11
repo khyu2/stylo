@@ -1,4 +1,4 @@
-package project.stylo.auth.oauth2
+package project.stylo.auth.handler
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -7,10 +7,14 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import org.springframework.stereotype.Component
+import project.stylo.auth.oauth2.SocialMemberExtractor
+import project.stylo.auth.oauth2.SocialMemberService
 import project.stylo.auth.service.dto.MemberDetails
+import project.stylo.web.service.CartService
 
 @Component
 class CustomOAuth2SuccessHandler(
+    private val cartService: CartService,
     private val socialMemberService: SocialMemberService,
 ) : AuthenticationSuccessHandler {
 
@@ -30,8 +34,9 @@ class CustomOAuth2SuccessHandler(
 
         val info = SocialMemberExtractor.extract(registrationId, authentication)
         val member = socialMemberService.findOrCreate(info)
+        val cartCount = member.memberId?.let { cartService.getCartItemCount(it) } ?: 0L
 
-        val principal = MemberDetails(member, info.profileImageUrl)
+        val principal = MemberDetails(member, info.profileImageUrl, cartCount)
         val authToken = UsernamePasswordAuthenticationToken(
             principal,
             null,

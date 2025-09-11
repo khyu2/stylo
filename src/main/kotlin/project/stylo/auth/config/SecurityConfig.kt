@@ -12,7 +12,8 @@ import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
-import project.stylo.auth.oauth2.CustomOAuth2SuccessHandler
+import project.stylo.auth.handler.CustomFormLoginSuccessHandler
+import project.stylo.auth.handler.CustomOAuth2SuccessHandler
 import project.stylo.auth.resolver.AuthArgumentResolver
 import project.stylo.auth.service.MemberDetailsService
 
@@ -22,7 +23,8 @@ import project.stylo.auth.service.MemberDetailsService
 class SecurityConfig(
     private val authArgumentResolver: AuthArgumentResolver,
     private val memberDetailsService: MemberDetailsService,
-    private val customOAuth2SuccessHandler: CustomOAuth2SuccessHandler
+    private val customOAuth2SuccessHandler: CustomOAuth2SuccessHandler,
+    private val customFormLoginSuccessHandler: CustomFormLoginSuccessHandler
 ) : WebMvcConfigurer {
 
     @Bean
@@ -58,7 +60,7 @@ class SecurityConfig(
                     .loginProcessingUrl("/login")
                     .usernameParameter("email")
                     .passwordParameter("password")
-                    .defaultSuccessUrl("/", true)
+                    .successHandler(customFormLoginSuccessHandler)
                     .failureUrl("/login?error=true")
                     .permitAll()
             }
@@ -73,6 +75,8 @@ class SecurityConfig(
                     .alwaysRemember(false)
                     .useSecureCookie(false) // HTTPS 환경에서만 쿠키 사용
                     .userDetailsService(memberDetailsService)
+                    // cartCount 동기화를 위해 성공 핸들러 재설정. 일반적으로 필요 X
+                    .authenticationSuccessHandler(customFormLoginSuccessHandler)
             }
             .logout {
                 it.logoutUrl("/logout")

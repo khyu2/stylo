@@ -10,9 +10,6 @@ class SecurityUtils {
             SecurityContextHolder.getContext().authentication.isAuthenticated &&
                     SecurityContextHolder.getContext().authentication.name != "anonymousUser"
 
-        fun getUsername(): String? =
-            SecurityContextHolder.getContext().authentication.name.takeIf { isAuthenticated() }
-
         fun updateProfile(member: Member) {
             val authentication = SecurityContextHolder.getContext().authentication
             if (authentication.principal is MemberDetails) {
@@ -26,6 +23,14 @@ class SecurityUtils {
             if (authentication.principal is MemberDetails) {
                 val principal = authentication.principal as MemberDetails
                 principal.profileUrl = profileUrl
+            }
+        }
+
+        fun updateCartCount(cartCount: Long?) {
+            val authentication = SecurityContextHolder.getContext().authentication
+            if (authentication.principal is MemberDetails) {
+                val principal = authentication.principal as MemberDetails
+                principal.cartCount = cartCount
             }
         }
     }

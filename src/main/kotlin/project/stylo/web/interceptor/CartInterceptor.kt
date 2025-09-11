@@ -8,12 +8,9 @@ import org.springframework.web.servlet.HandlerInterceptor
 import org.springframework.web.servlet.ModelAndView
 import project.stylo.auth.service.dto.MemberDetails
 import project.stylo.auth.utils.SecurityUtils
-import project.stylo.web.service.CartService
 
 @Component
-class CartInterceptor(
-    private val cartService: CartService
-) : HandlerInterceptor {
+class CartInterceptor() : HandlerInterceptor {
 
     override fun postHandle(
         request: HttpServletRequest,
@@ -24,11 +21,9 @@ class CartInterceptor(
         if (SecurityUtils.isAuthenticated()) {
             val authentication = SecurityContextHolder.getContext().authentication
             val memberDetails = authentication.principal as MemberDetails
-            val memberId = memberDetails.member.memberId
 
-            if (memberId != null) {
-                val cartItemCount = cartService.getCartItemCount(memberId)
-                modelAndView?.addObject("cartItemCount", cartItemCount)
+            memberDetails.member.memberId?.let {
+                modelAndView?.addObject("cartItemCount", memberDetails.cartCount)
             }
         } else {
             modelAndView?.addObject("cartItemCount", 0)
