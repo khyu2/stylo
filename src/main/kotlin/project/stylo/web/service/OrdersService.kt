@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import project.stylo.auth.utils.SecurityUtils
 import project.stylo.common.exception.BaseException
 import project.stylo.web.dao.AddressDao
 import project.stylo.web.dao.CartDao
@@ -105,6 +106,7 @@ class OrdersService(
 
         // 장바구니 비우기
         cartDao.deleteAll(member.memberId)
+        SecurityUtils.updateCartCount(0L)
 
         // 재고 차감
         val affected = productOptionDao.decreaseStockInBatch(aggregatedQty)
