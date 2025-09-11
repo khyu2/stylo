@@ -49,6 +49,9 @@ dependencies {
     // minio
     implementation("io.minio:minio:8.5.17")
 
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+
     // jooq
     implementation("org.springframework.boot:spring-boot-starter-jooq")
     jooqGenerator(project(":jooq"))

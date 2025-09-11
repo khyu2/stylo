@@ -1,6 +1,10 @@
 package project.stylo.web.service
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -47,8 +51,7 @@ class ProductService(
         val product = productDao.save(member.memberId!!, request)
 
         // 옵션 및 옵션 값, 옵션 조합 생성
-        if (request.combinations.isEmpty())
-            throw BaseException(ProductExceptionType.NO_COMBINATION_PROVIDED)
+        if (request.combinations.isEmpty()) throw BaseException(ProductExceptionType.NO_COMBINATION_PROVIDED)
 
         request.combinations.forEach { combination ->
             val productOptionId = productOptionDao.save(combination, product.productId)
@@ -65,8 +68,7 @@ class ProductService(
             }
         }
 
-        if (request.images.isEmpty())
-            throw BaseException(ProductExceptionType.NO_IMAGE_PROVIDED)
+        if (request.images.isEmpty()) throw BaseException(ProductExceptionType.NO_IMAGE_PROVIDED)
 
         // 이미지 업로드 처리
         request.images.forEachIndexed { index, file ->
@@ -96,23 +98,21 @@ class ProductService(
         val optionDefinitions = optionKeyDao.findAllByProductId(productId).map { keys ->
             val values = optionValueDao.findAllByOptionKeyId(keys.optionKeyId)
             OptionDefinitionResponse(
-                name = keys.name,
-                values = values
+                name = keys.name, values = values
             )
         }
 
         val productImages = getProductImages(productId)
 
         return ProductResponse.from(product, productImages).copy(
-            options = options,
-            optionDefinitions = optionDefinitions
+            options = options, optionDefinitions = optionDefinitions
         )
     }
 
     @Transactional(readOnly = true)
     fun getProductImages(productId: Long): List<String> {
         val imageUrls = imageDao.findAllByProductId(productId)
-        return imageUrls.map { imageUrl -> fileStorageService.getPresignedUrl(imageUrl) }
+        return getAllPresignedUrl(imageUrls)
     }
 
     @Transactional(readOnly = true)
@@ -128,19 +128,28 @@ class ProductService(
         val productIds = products.content.map { it.productId }
         val productImagesMap = imageDao.findAllByProductIds(productIds)
 
+        // 모든 이미지 URL을 한 번에 수집
+        val allImageUrls = products.content.flatMap { product ->
+            productImagesMap[product.productId] ?: emptyList()
+        }
+
+        // 모든 이미지를 한 번에 병렬로 presign
+        val allPresignedUrls = getAllPresignedUrl(allImageUrls)
+
+        // presigned URL을 다시 상품별로 매핑
+        var urlIndex = 0
         val productResponses = products.content.map { product ->
-            val productImages = productImagesMap[product.productId]?.map { imageUrl ->
-                fileStorageService.getPresignedUrl(imageUrl)
-            } ?: emptyList()
-            ProductResponse.from(product, productImages)
+            val productImages = productImagesMap[product.productId] ?: emptyList()
+            val presignedImages = allPresignedUrls.subList(urlIndex, urlIndex + productImages.size)
+            urlIndex += productImages.size
+            ProductResponse.from(product, presignedImages)
         }
 
         return PageImpl(productResponses, pageable, products.totalElements)
     }
 
     fun updateProduct(productId: Long, request: ProductRequest) {
-        val product = productDao.findById(productId)
-            ?: throw BaseException(ProductExceptionType.PRODUCT_NOT_FOUND)
+        val product = productDao.findById(productId) ?: throw BaseException(ProductExceptionType.PRODUCT_NOT_FOUND)
 
         updateProductImages(request, product)
 
@@ -177,8 +186,7 @@ class ProductService(
             val mapper = jacksonObjectMapper()
             request.imageOrder?.let {
                 mapper.readValue(
-                    it,
-                    mapper.typeFactory.constructCollectionType(List::class.java, String::class.java)
+                    it, mapper.typeFactory.constructCollectionType(List::class.java, String::class.java)
                 )
             } ?: emptyList()
         } catch (e: Exception) {
@@ -186,12 +194,9 @@ class ProductService(
         }
 
         // 2) 유지해야 할 기존 경로 집합 계산
-        val keptExistingPaths: Set<String> = orderTokens
-            .asSequence()
-            .filter { it.startsWith("existing:") }
-            .map { it.removePrefix("existing:").trim() }
-            .filter { it.isNotBlank() }
-            .toSet()
+        val keptExistingPaths: Set<String> =
+            orderTokens.asSequence().filter { it.startsWith("existing:") }.map { it.removePrefix("existing:").trim() }
+                .filter { it.isNotBlank() }.toSet()
 
         // 3) 현재 저장된 모든 이미지 경로 조회 후, 유지 대상이 아닌 파일만 스토리지에서 삭제
         val currentPaths = imageDao.findAllByProductId(product.productId)
@@ -223,8 +228,7 @@ class ProductService(
                     if (newFileIndex < request.images.size) {
                         val file = request.images[newFileIndex++]
                         if (!file.isEmpty) {
-                            val uploadUrl =
-                                fileStorageService.upload(file, ImageOwnerType.PRODUCT, product.productId)
+                            val uploadUrl = fileStorageService.upload(file, ImageOwnerType.PRODUCT, product.productId)
                             imageDao.save(product.productId, ImageOwnerType.PRODUCT, uploadUrl)
                             if (!thumbnailSet) {
                                 productDao.updateThumbnail(product.productId, uploadUrl)
@@ -236,4 +240,9 @@ class ProductService(
             }
         }
     }
+
+    fun getAllPresignedUrl(urls: List<String>): List<String> =
+        runBlocking {
+            urls.map { async(Dispatchers.IO) { fileStorageService.getPresignedUrl(it) } }.awaitAll()
+        }
 }
