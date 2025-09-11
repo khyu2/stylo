@@ -37,12 +37,30 @@ class OrdersDao(private val dsl: DSLContext) {
             .and(ORDERS.DELETED_AT.isNull)
             .fetchOneInto(Orders::class.java)
 
-    fun findAllByMemberId(memberId: Long): List<Orders> =
-        dsl.selectFrom(ORDERS)
+    fun findAllByMemberId(memberId: Long, pageable: Pageable): Page<OrderResponse> {
+        val baseQuery = dsl.select(
+            ORDERS.ORDER_ID.`as`("orderId"),
+            ORDERS.TOTAL_AMOUNT.`as`("totalAmount"),
+            ORDERS.STATUS.`as`("status"),
+            PAYMENT.ORDER_UID.`as`("orderUid"),
+            PAYMENT.PAYMENT_KEY.`as`("paymentKey"),
+            PAYMENT.STATUS.`as`("paymentStatus"),
+            ORDERS.CREATED_AT.`as`("createdAt"),
+        )
+            .from(ORDERS)
+            .leftJoin(PAYMENT).on(PAYMENT.ORDER_ID.eq(ORDERS.ORDER_ID))
             .where(ORDERS.MEMBER_ID.eq(memberId))
             .and(ORDERS.DELETED_AT.isNull)
-            .orderBy(ORDERS.ORDER_ID.desc())
-            .fetchInto(Orders::class.java)
+
+        val total = dsl.fetchCount(baseQuery)
+
+        val content = baseQuery.orderBy(ORDERS.CREATED_AT.desc())
+            .limit(pageable.pageSize)
+            .offset(pageable.offset)
+            .fetchInto(OrderResponse::class.java)
+
+        return PageImpl(content, pageable, total.toLong())
+    }
 
     fun findAll(request: OrdersSearchRequest, pageable: Pageable): Page<OrderResponse> {
         val baseQuery = dsl.select(

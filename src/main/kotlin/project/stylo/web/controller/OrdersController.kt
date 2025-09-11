@@ -2,6 +2,8 @@ package project.stylo.web.controller
 
 import jakarta.servlet.http.HttpSession
 import jakarta.validation.Valid
+import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -26,9 +28,10 @@ class OrdersController(
     private val ordersService: OrdersService
 ) {
     @GetMapping
-    fun listOrders(@Auth member: Member, model: Model): String {
-        val orders = ordersService.getOrdersByMember(member)
-        model.addAttribute("orders", orders)
+    fun listOrders(@Auth member: Member, @PageableDefault(size = 20) pageable: Pageable, model: Model): String {
+        val orders = ordersService.getOrdersByMember(member, pageable)
+        model.addAttribute("page", orders)
+        model.addAttribute("orders", orders.content)
         return "orders/index"
     }
 

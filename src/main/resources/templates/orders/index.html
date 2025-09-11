@@ -73,6 +73,21 @@
             </div>
         </div>
 
+        <div class="flex items-center justify-between">
+            <div class="text-sm opacity-70">
+                <span th:text="${'총 ' + page.totalElements + '개'}">총 0개</span>
+                <span class="ml-2" th:if="${page.totalPages > 0}" th:text="${(page.number + 1) + ' / ' + page.totalPages + ' 페이지'}">1 / 1 페이지</span>
+            </div>
+            <div class="join">
+                <a class="btn btn-sm btn-ghost join-item"
+                   th:classappend="${page.first} ? 'btn-disabled'"
+                   th:href="@{/orders(page=${page.number - 1}, size=${page.size}, keyword=${keyword})}">이전</a>
+                <a class="btn btn-sm btn-ghost join-item"
+                   th:classappend="${page.last} ? 'btn-disabled'"
+                   th:href="@{/orders(page=${page.number + 1}, size=${page.size}, keyword=${keyword})}">다음</a>
+            </div>
+        </div>
+
         <div class="flex justify-end">
             <a href="/" class="btn btn-ghost">홈으로</a>
         </div>

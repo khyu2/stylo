@@ -147,13 +147,6 @@ class OrdersService(
     fun getOrders(request: OrdersSearchRequest, pageable: Pageable): Page<OrderResponse> =
         ordersDao.findAll(request, pageable)
 
-    fun getOrdersByMember(member: Member): List<OrderResponse> {
-        val orders = ordersDao.findAllByMemberId(member.memberId!!)
-        val orderIds = orders.mapNotNull { it.orderId }
-        val paymentMap = paymentDao.findByOrderIds(orderIds)
-        return orders.map { o ->
-            val p = o.orderId?.let { paymentMap[it] }
-            OrderResponse.from(o, p)
-        }
-    }
+    fun getOrdersByMember(member: Member, pageable: Pageable): Page<OrderResponse> =
+        ordersDao.findAllByMemberId(member.memberId!!, pageable)
 }
