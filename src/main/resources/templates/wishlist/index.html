@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="ko"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>위시리스트</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Page Header -->
+        <div class="mb-8 text-center">
+            <h1 class="text-4xl font-bold">위시리스트</h1>
+            <p class="text-lg opacity-70 mt-2">찜한 상품들을 한곳에서 관리하세요.</p>
+        </div>
+
+        <!-- Flash Messages -->
+        <div th:if="${success}" class="alert alert-success mb-6">
+            <i data-lucide="check-circle" class="h-5 w-5"></i>
+            <span th:text="${success}">성공 메시지</span>
+        </div>
+        <div th:if="${info}" class="alert alert-info mb-6">
+            <i data-lucide="info" class="h-5 w-5"></i>
+            <span th:text="${info}">정보 메시지</span>
+        </div>
+        <div th:if="${error}" class="alert alert-error mb-6">
+            <i data-lucide="alert-circle" class="h-5 w-5"></i>
+            <span th:text="${error}">오류 메시지</span>
+        </div>
+
+        <!-- Wishlist Grid -->
+        <div th:if="${items != null and !items.isEmpty()}"
+             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div th:each="item : ${items}" class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow">
+                <figure class="p-4">
+                    <a th:href="@{'/products/' + ${item.productId}}" class="block">
+                        <img th:src="${item.thumbnailUrl != null ? item.thumbnailUrl : '/images/default_product.jpeg'}"
+                             th:alt="${item.name}"
+                             class="w-full h-52 object-cover rounded-xl"/>
+                    </a>
+                </figure>
+                <div class="card-body pt-0">
+                    <a th:href="@{'/products/' + ${item.productId}}">
+                        <h3 class="card-title text-base justify-center" th:text="${item.name}">상품명</h3>
+                    </a>
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg font-semibold text-primary"
+                              th:text="${'₩' + #numbers.formatDecimal(item.price, 1, 'COMMA', 0, 'POINT')}">₩0</span>
+                        <span th:if="${!item.available}" class="badge badge-error badge-sm">품절</span>
+                        <span th:if="${item.available}" class="badge badge-success badge-sm">구매 가능</span>
+                        <form th:action="@{/wishlist/remove}" method="post" class="ml-auto">
+                            <input type="hidden" name="productId" th:value="${item.productId}"/>
+                            <button type="submit" class="btn btn-ghost text-error"
+                                    onclick="return confirm('위시리스트에서 제거하시겠습니까?')">
+                                <i data-lucide="trash-2" class="h-5 w-5"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${items == null or items.isEmpty()}" class="text-center py-4">
+            <div class="max-w-md mx-auto">
+                <i data-lucide="heart" class="h-16 w-16 text-base-content/30 mx-auto mb-16"></i>
+                <h3 class="text-lg font-medium mb-2">위시리스트가 비어있습니다</h3>
+                <p class="opacity-70 mb-6">마음에 드는 상품을 찜해보세요.</p>
+                <a href="/" class="btn btn-primary btn-lg">
+                    <i data-lucide="shopping-bag" class="h-5 w-5 mr-2"></i>
+                    쇼핑하러 가기
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

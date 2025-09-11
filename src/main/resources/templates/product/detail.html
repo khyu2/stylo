@@ -63,7 +63,6 @@
                                         </div>
 
                                         <!-- Additional product images -->
-                                        <!-- Additional product images -->
                                         <div th:each="image, iterStat : ${product.productImages}"
                                              th:if="${iterStat.index > 0}"
                                              class="flex-shrink-0">
@@ -199,11 +198,16 @@
                                             </div>
                                         </div>
 
-                                        <button type="submit"
-                                                id="addToCartBtn"
-                                                class="btn btn-primary w-full btn-lg">
-                                            <i data-lucide="shopping-cart" class="h-5 w-5 mr-2"></i>장바구니에 추가
-                                        </button>
+                                        <div sec:authorize="isAuthenticated()" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <button type="button" onclick="toggleWishlist()" class="btn btn-ghost w-full btn-lg">
+                                                <i data-lucide="heart" class="h-5 w-5 mr-2"></i>찜하기
+                                            </button>
+                                            <button type="submit"
+                                                    id="addToCartBtn"
+                                                    class="btn btn-primary w-full btn-lg">
+                                                <i data-lucide="shopping-cart" class="h-5 w-5 mr-2"></i>장바구니에 추가
+                                            </button>
+                                        </div>
                                     </form>
 
                                     <button th:if="${product.totalStock <= 0}"
@@ -231,6 +235,21 @@
 </div>
 
 <script layout:fragment="scripts" th:inline="javascript">
+    function toggleWishlist() {
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = '/wishlist/toggle';
+
+        const productIdInput = document.createElement('input');
+        productIdInput.type = 'hidden';
+        productIdInput.name = 'productId';
+        productIdInput.value = '[[${product.productId}]]';
+
+        form.appendChild(productIdInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+
     function changeMainImage(src, clickedElement = null) {
         const mainImage = document.getElementById('mainImage');
         mainImage.src = src;
@@ -277,7 +296,6 @@
             const selectedOption = optionSelect.options[optionSelect.selectedIndex];
             const optionText = selectedOption.textContent.split(' - ')[0]; // 재고 정보 제외
             const additionalPrice = parseFloat(selectedOption.dataset.additionalPrice) || 0;
-            const stock = parseInt(selectedOption.dataset.stock) || 0;
 
             selectedOptionText.textContent = optionText;
             additionalPriceInfo.textContent = additionalPrice > 0 ? `추가 금액: +₩${additionalPrice.toLocaleString()}` : '추가 금액: ₩0';
