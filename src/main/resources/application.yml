@@ -11,6 +11,10 @@ spring:
     password: ${DB_PASSWORD:root}
     driver-class-name: org.postgresql.Driver
 
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/stylo}
+
   # 세션 설정
   session:
     timeout: 30m # 30분
