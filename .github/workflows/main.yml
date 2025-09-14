@@ -14,21 +14,24 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
+          cache: gradle
 
-      - name: Build and Push Docker Image with Jib
-        shell: bash
+      - name: Create .env file
         run: |
-          export DOCKER_IMAGE=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/stylo:latest
-          export DOCKER_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
-          export DOCKER_PASSWORD=${{ secrets.DOCKERHUB_TOKEN }}
-          ./gradlew clean build jib
+          echo "DOCKER_IMAGE=${{ secrets.DOCKER_IMAGE }}" >> .env
+          echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" >> .env
+          echo "DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}" >> .env
+
+      - name: Build and Push Docker Image
+        shell: bash
+        run: ./gradlew clean build jib
 
       - name: Deploy to Server
         uses: appleboy/ssh-action@v0.1.6
