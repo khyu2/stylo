@@ -32,6 +32,9 @@ jobs:
           echo "JOOQ_USERNAME=${{ secrets.JOOQ_USERNAME }}" >> .env
           echo "JOOQ_PASSWORD=${{ secrets.JOOQ_PASSWORD }}" >> .env
 
+      - name: Generate JOOQ Code
+        run: ./gradlew generateJooq
+
       - name: Build and Push Docker Image
         shell: bash
         run: ./gradlew clean build jib
