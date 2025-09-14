@@ -40,7 +40,7 @@ class ProductController(
         @Valid @ModelAttribute request: ProductRequest,
         redirectAttributes: RedirectAttributes
     ): String {
-        val productResponse = productService.createProduct(member, request)
+        productService.createProduct(member, request)
         redirectAttributes.addFlashAttribute("success", "상품이 성공적으로 등록되었습니다.")
         return "redirect:/products/${'$'}{productResponse.productId}"
     }

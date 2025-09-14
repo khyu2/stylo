@@ -26,11 +26,10 @@ jobs:
         run: ./gradlew clean build
 
       - name: Build and Push Docker Image with Jib
-        run: ./gradlew jib
-        env:
-          DOCKER_IMAGE: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/stylo:latest
-          DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: ./gradlew jib \
+          -Denv.DOCKER_IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/stylo:latest \
+          -Denv.DOCKER_USERNAME=${{ secrets.DOCKERHUB_USERNAME }} \
+          -Denv.DOCKER_PASSWORD=${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Deploy to Server
         uses: appleboy/ssh-action@v0.1.6
