@@ -123,9 +123,9 @@ jooq {
             jooqConfiguration.apply {
                 jdbc.apply {
                     driver = "org.postgresql.Driver"
-                    url = "jdbc:postgresql://localhost:5555/stylo"
-                    user = "postgres"
-                    password = "root"
+                    url = env.JOOQ_URL.orElse("jdbc:postgresql://localhost:5555/stylo")
+                    user = env.JOOQ_USERNAME.orElse("postgres")
+                    password = env.JOOQ_PASSWORD.orElse("1234")
                 }
 
                 generator.apply {

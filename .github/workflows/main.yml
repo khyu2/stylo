@@ -28,6 +28,9 @@ jobs:
           echo "DOCKER_IMAGE=${{ secrets.DOCKER_IMAGE }}" >> .env
           echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" >> .env
           echo "DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}" >> .env
+          echo "JOOQ_URL=${{ secrets.JOOQ_URL }}" >> .env
+          echo "JOOQ_USERNAME=${{ secrets.JOOQ_USERNAME }}" >> .env
+          echo "JOOQ_PASSWORD=${{ secrets.JOOQ_PASSWORD }}" >> .env
 
       - name: Build and Push Docker Image
         shell: bash
