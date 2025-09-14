@@ -2,31 +2,35 @@ package project.stylo.web.domain
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
+import project.stylo.common.ua.UserAgentInfo
+import project.stylo.web.domain.enums.ActionCode
+import project.stylo.web.domain.enums.EventType
 import java.time.Instant
 
 @Document(collection = "action_logs")
 data class ActionLog(
     @Id
     val id: String? = null,
-    val eventType: String, // e.g., CLICK, VIEW, ADD_TO_CART, ORDER_CREATED
-    val action: String,    // e.g., "product.view", "cart.add"
-    val memberId: Long?,   // nullable when guest
+    val eventType: EventType,
+    val action: ActionCode,
+    val memberId: Long?,
     val sessionId: String?,
     val ip: String?,
-    val userAgent: String?,
+    val userAgent: UserAgentInfo?,
     val path: String?,
     val params: Map<String, Any?>?,
     val metadata: Map<String, Any?>?,
     val timestamp: Instant = Instant.now(),
 )
 
+
 data class ActionLogPayload(
-    val eventType: String,
-    val action: String,
+    val eventType: EventType,
+    val action: ActionCode,
     val memberId: Long? = null,
     val sessionId: String? = null,
     val ip: String? = null,
-    val userAgent: String? = null,
+    val userAgent: UserAgentInfo? = null,
     val path: String? = null,
     val params: Map<String, Any?>? = null,
     val metadata: Map<String, Any?>? = null,

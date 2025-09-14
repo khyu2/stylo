@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import project.stylo.auth.resolver.Auth
+import project.stylo.common.aop.LoggedAction
 import project.stylo.web.domain.Member
+import project.stylo.web.domain.enums.ActionCode
+import project.stylo.web.domain.enums.EventType
 import project.stylo.web.service.PaymentService
 
 @Controller
@@ -26,11 +29,13 @@ class PaymentController(
 
     // 결제 승인 요청 (PG 사로부터 결제 완료 후 호출)
     @PostMapping("/confirm")
+    @LoggedAction(eventType = EventType.PAYMENT_CONFIRM, action = ActionCode.PAYMENT_CONFIRM, includeArgs = true)
     fun confirmPayment(@RequestBody jsonBody: String): ResponseEntity<JSONObject> =
         paymentService.confirmPayment(jsonBody)
 
     // 결제 상세 조회
     @GetMapping("/detail")
+    @LoggedAction(eventType = EventType.VIEW, action = ActionCode.PAYMENT_DETAIL, includeArgs = true)
     fun paymentDetail(
         @Auth member: Member,
         @RequestParam paymentKey: String,

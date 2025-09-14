@@ -34,6 +34,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     runtimeOnly("org.postgresql:postgresql")
@@ -66,6 +67,9 @@ dependencies {
 
     // json
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
+
+    // user agent parser
+    implementation("nl.basjes.parse.useragent:yauaa:6.12")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 

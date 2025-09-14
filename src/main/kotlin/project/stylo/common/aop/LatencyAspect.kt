@@ -1,4 +1,4 @@
-package project.stylo.common.config
+package project.stylo.common.aop
 
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around

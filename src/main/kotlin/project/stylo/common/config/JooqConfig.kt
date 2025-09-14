@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.jooq.DefaultConfigurationCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import project.stylo.common.aop.LatencyAspect
 import java.time.Duration
 
 @Configuration

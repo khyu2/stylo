@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 import project.stylo.auth.resolver.Auth
+import project.stylo.common.aop.LoggedAction
 import project.stylo.web.domain.Member
+import project.stylo.web.domain.enums.ActionCode
+import project.stylo.web.domain.enums.EventType
 import project.stylo.web.dto.request.OrderCreateRequest
 import project.stylo.web.dto.response.OrderCreateResponse
 import project.stylo.web.service.CartService
@@ -25,9 +28,10 @@ import project.stylo.web.service.OrdersService
 class OrdersController(
     private val cartService: CartService,
     private val memberService: MemberService,
-    private val ordersService: OrdersService
+    private val ordersService: OrdersService,
 ) {
     @GetMapping
+    @LoggedAction(eventType = EventType.VIEW, action = ActionCode.ORDERS_LIST)
     fun listOrders(@Auth member: Member, @PageableDefault(size = 20) pageable: Pageable, model: Model): String {
         val orders = ordersService.getOrdersByMember(member, pageable)
         model.addAttribute("page", orders)
@@ -36,6 +40,7 @@ class OrdersController(
     }
 
     @GetMapping("/create")
+    @LoggedAction(eventType = EventType.VIEW, action = ActionCode.ORDERS_CREATE_VIEW)
     fun createOrderPage(@Auth member: Member, model: Model): String {
         val cartItems = cartService.getCartItems(member)
         val addresses = memberService.getAddresses(member)
@@ -46,6 +51,7 @@ class OrdersController(
 
     @ResponseBody
     @PostMapping("/create")
+    @LoggedAction(eventType = EventType.CREATE, action = ActionCode.ORDERS_CREATE)
     fun createOrder(
         @Auth member: Member,
         @Valid @ModelAttribute request: OrderCreateRequest,
@@ -55,6 +61,7 @@ class OrdersController(
         if (request.addressId == null && request.addressRequest != null)
             memberService.createAddress(member, request.addressRequest).let { request.addressId = it.addressId }
 
-        return ResponseEntity.ok(ordersService.createOrder(member, request, session))
+        val response = ordersService.createOrder(member, request, session)
+        return ResponseEntity.ok(response)
     }
 }
