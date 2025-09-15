@@ -34,6 +34,10 @@ jobs:
           echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
           echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env
 
+      - name: Debug .env
+        run: |
+          cat .env
+
       - name: Generate JOOQ Code
         run: ./gradlew generateJooq
 
