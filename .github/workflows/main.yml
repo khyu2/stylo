@@ -31,6 +31,10 @@ jobs:
           echo "JOOQ_URL=${{ secrets.JOOQ_URL }}" >> .env
           echo "JOOQ_USERNAME=${{ secrets.JOOQ_USERNAME }}" >> .env
           echo "JOOQ_PASSWORD=${{ secrets.JOOQ_PASSWORD }}" >> .env
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+          echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
+          echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
 
       - name: Generate JOOQ Code
         run: ./gradlew generateJooq
