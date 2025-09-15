@@ -236,6 +236,6 @@ jib {
             // "-Dspring.profiles.active=local",
         )
         creationTime = "USE_CURRENT_TIMESTAMP"
-        setAllowInsecureRegistries(true) // 보안이 적용되지 않은 레지스트리 허용
+        setAllowInsecureRegistries(false)
     }
 }
