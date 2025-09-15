@@ -15,7 +15,7 @@ class SocialMemberService(
 ) {
     @Transactional
     fun findOrCreate(info: SocialMember): Member {
-        val email = info.email ?: syntheticEmail(info)
+        val email = info.email ?: syntheticEmail()
         val existing = memberDao.findByEmail(email)
         if (existing != null) return existing
 
@@ -35,7 +35,7 @@ class SocialMemberService(
         return memberDao.save(member)
     }
 
-    private fun syntheticEmail(info: SocialMember): String {
+    private fun syntheticEmail(): String {
         return "${'$'}{info.provider.name.lowercase()}_${'$'}{info.providerId}@social.local"
     }
 }
