@@ -51,7 +51,7 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            cd /stylo
+            cd ./stylo
             docker-compose pull
             docker-compose down stylo
             docker-compose up -d
