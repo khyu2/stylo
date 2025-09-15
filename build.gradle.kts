@@ -1,12 +1,15 @@
+import org.jooq.meta.jaxb.Database
 import org.jooq.meta.jaxb.ForcedType
+import org.jooq.meta.jaxb.Generate
 import org.jooq.meta.jaxb.SchemaMappingType
+import org.jooq.meta.jaxb.Strategy
 
 plugins {
     kotlin("jvm") version "1.9.25"
     kotlin("plugin.spring") version "1.9.25"
     id("org.springframework.boot") version "3.5.4"
     id("io.spring.dependency-management") version "1.1.7"
-    id("nu.studer.jooq") version "9.0" // Jooq plugin
+    id("dev.monosoul.jooq-docker") version "6.0.14" // jOOQ Docker plugin
     id("com.google.cloud.tools.jib") version "3.4.4" // Docker image build plugin
     id("co.uzzu.dotenv.gradle") version "2.0.0" // .env support
 }
@@ -39,6 +42,10 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     runtimeOnly("org.postgresql:postgresql")
 
+    // flyway
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
+
     // thymeleaf
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.2.1")
@@ -55,11 +62,14 @@ dependencies {
 
     // jooq
     implementation("org.springframework.boot:spring-boot-starter-jooq")
-    jooqGenerator(project(":jooq"))
     implementation("org.jooq:jooq:${jooqVersion}")
-    jooqGenerator("org.jooq:jooq:${jooqVersion}")
-    jooqGenerator("org.jooq:jooq-meta:${jooqVersion}")
-    jooqGenerator("org.postgresql:postgresql:42.7.3")
+    jooqCodegen(project(":jooq"))
+    jooqCodegen("org.jooq:jooq:${jooqVersion}")
+    jooqCodegen("org.jooq:jooq-meta:${jooqVersion}")
+    jooqCodegen("org.jooq:jooq-codegen:${jooqVersion}")
+    jooqCodegen("org.flywaydb:flyway-core:11.2.0")
+    jooqCodegen("org.flywaydb:flyway-database-postgresql:10.10.0")
+    jooqCodegen("org.postgresql:postgresql:42.6.0")
 
     // cache
     implementation("org.springframework.boot:spring-boot-starter-cache")
@@ -83,6 +93,11 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    // Testcontainers for tests
+    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:jdbc")
 }
 
 kotlin {
@@ -93,6 +108,10 @@ kotlin {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.register("cleanGeneratedJooq") {
+    doLast { delete("src/generated") }
 }
 
 // npm을 사용하여 Tailwind CSS 빌드
@@ -116,49 +135,65 @@ tasks.named("bootJar") {
 }
 
 jooq {
-    version.set(jooqVersion)
+    version = jooqVersion
 
-    configurations {
-        create("main") {
-            jooqConfiguration.apply {
-                jdbc.apply {
-                    driver = "org.postgresql.Driver"
-                    url = env.JOOQ_URL.orElse("jdbc:postgresql://localhost:5555/stylo")
-                    user = env.JOOQ_USERNAME.orElse("postgres")
-                    password = env.JOOQ_PASSWORD.orElse("1234")
-                }
+    withContainer {
+        image {
+            name = "postgres"
+            envVars = mapOf(
+                "POSTGRES_USER" to "postgres",
+                "POSTGRES_PASSWORD" to "1234",
+                "POSTGRES_DB" to "stylo",
+            )
 
-                generator.apply {
-                    name = "org.jooq.codegen.KotlinGenerator"
-                    database.apply {
-                        name = "org.jooq.meta.postgres.PostgresDatabase"
-                        schemata.add(
-                            SchemaMappingType().withInputSchema("public")
-                        )
-                        forcedTypes.addAll(
-                            listOf(
-                                ForcedType()
-                                    .withUserType("java.lang.Long")
-                                    .withIncludeExpression(".*\\.id"),
-                                ForcedType()
-                                    .withUserType("java.lang.Long")
-                                    .withIncludeTypes("int4|integer|serial|bigserial")
-                            )
-                        )
-                    }
-                    generate.apply {
-                        isDaos = false
-                        isRecords = false
-                        isFluentSetters = true
-                        isJavaTimeTypes = true
-                        isDeprecated = false
-                    }
-                    target.apply {
-                        directory = "src/generated"
-                    }
-                    strategy.name = "jooq.custom.generator.JPrefixGeneratorStrategy"
+            db {
+                username = "postgres"
+                password = "1234"
+                name = "stylo"
+                jdbc {
+                    schema = "jdbc:postgresql"
+                    driverClassName = "org.postgresql.Driver"
                 }
             }
+        }
+    }
+}
+
+tasks {
+    generateJooqClasses {
+        schemas = listOf("public")
+        outputDirectory = project.layout.projectDirectory.dir("src/generated")
+        includeFlywayTable = false
+
+        usingJavaConfig {
+            name = "org.jooq.codegen.KotlinGenerator"
+
+            generate = Generate()
+                .withDaos(false)
+                .withRecords(false)
+                .withFluentSetters(true)
+                .withJavaTimeTypes(true)
+                .withDeprecated(false)
+
+            withStrategy(Strategy().withName("jooq.custom.generator.JPrefixGeneratorStrategy"))
+
+            withDatabase(
+                Database()
+                    .withName("org.jooq.meta.postgres.PostgresDatabase")
+
+                    .withSchemata(
+                        SchemaMappingType()
+                            .withInputSchema("public")
+                    )
+                    .withForcedTypes(
+                        ForcedType()
+                            .withUserType("java.lang.Long")
+                            .withIncludeExpression(".*\\.id"),
+                        ForcedType()
+                            .withUserType("java.lang.Long")
+                            .withIncludeTypes("int4|integer|serial|bigserial")
+                    )
+            )
         }
     }
 }
