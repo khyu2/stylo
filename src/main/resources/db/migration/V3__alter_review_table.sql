@@ -1,0 +1,1 @@
+ALTER TABLE public.review ALTER COLUMN rating TYPE numeric(10, 2);

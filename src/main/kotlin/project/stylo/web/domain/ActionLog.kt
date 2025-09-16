@@ -23,7 +23,6 @@ data class ActionLog(
     val timestamp: Instant = Instant.now(),
 )
 
-
 data class ActionLogPayload(
     val eventType: EventType,
     val action: ActionCode,
