@@ -8,24 +8,10 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import project.stylo.common.exception.BaseException
-import project.stylo.common.s3.FileStorageService
-import project.stylo.web.dao.AddressDao
-import project.stylo.web.dao.MemberDao
-import project.stylo.web.dao.OrderItemDao
 import project.stylo.web.dao.OrdersDao
 import project.stylo.web.dao.PaymentDao
-import project.stylo.web.dao.ProductDao
-import project.stylo.web.dao.ProductOptionDao
-import project.stylo.web.domain.Member
-import project.stylo.web.domain.Payment
 import project.stylo.web.domain.enums.OrderStatus
-import project.stylo.web.dto.response.OrderItemResponse
-import project.stylo.web.dto.response.PaymentResponse
-import project.stylo.web.exception.OrderExceptionType
-import project.stylo.web.exception.PaymentExceptionType
 import java.io.InputStreamReader
-import java.math.BigDecimal
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.StandardCharsets
@@ -36,64 +22,11 @@ import java.util.*
 class PaymentService(
     private val paymentDao: PaymentDao,
     private val ordersDao: OrdersDao,
-    private val orderItemDao: OrderItemDao,
-    private val productOptionDao: ProductOptionDao,
-    private val productDao: ProductDao,
-    private val addressDao: AddressDao,
-    private val memberDao: MemberDao,
-    private val fileStorageService: FileStorageService,
     @Value("\${payments.toss.secretKey:test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6}")
     private val widgetSecretKey: String,
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(PaymentService::class.java)
-    }
-
-    @Transactional(readOnly = true)
-    fun getPayment(paymentKey: String): Payment? = paymentDao.findByPaymentKey(paymentKey)
-
-    @Transactional(readOnly = true)
-    fun getPaymentDetail(member: Member, paymentKey: String): PaymentResponse {
-        val payment = paymentDao.findByPaymentKey(paymentKey)
-            ?: throw BaseException(PaymentExceptionType.PAYMENT_NOT_FOUND)
-
-        if (payment.memberId != member.memberId) {
-            throw BaseException(PaymentExceptionType.PAYMENT_ACCESS_DENIED)
-        }
-
-        val order = ordersDao.findById(payment.orderId)
-            ?: throw BaseException(OrderExceptionType.ORDER_NOT_FOUND)
-
-        val items = orderItemDao.findByOrderId(order.orderId!!)
-        val optionIds = items.map { it.productOptionId }.toSet()
-        val optionMap = if (optionIds.isNotEmpty()) productOptionDao.findByIds(optionIds) else emptyMap()
-        val productIds = optionMap.values.map { it.productId }.toSet()
-        val productMap = if (productIds.isNotEmpty()) productDao.findByIds(productIds) else emptyMap()
-
-        val enrichedItems = items.map { oi ->
-            val opt = optionMap[oi.productOptionId]
-            val prod = opt?.let { productMap[it.productId] }
-            val presignedUrl = fileStorageService.getPresignedUrl(prod?.thumbnailUrl!!)
-            OrderItemResponse(
-                name = prod.name,
-                thumbnailUrl = presignedUrl,
-                optionSku = opt.sku,
-                quantity = oi.quantity,
-                unitPrice = oi.price,
-                totalPrice = oi.price.multiply(BigDecimal.valueOf(oi.quantity))
-            )
-        }
-
-        val address = addressDao.findById(order.addressId)
-        val buyer = memberDao.findById(order.memberId)
-
-        return PaymentResponse(
-            payment = payment,
-            order = order,
-            orderItems = enrichedItems,
-            buyer = buyer,
-            shipping = address
-        )
     }
 
     fun confirmPayment(jsonBody: String): ResponseEntity<JSONObject> {
@@ -155,6 +88,8 @@ class PaymentService(
                 val paymentKeyRes = jsonObject["paymentKey"] as String
                 val transactionId = jsonObject["lastTransactionKey"] as String
                 val orderId = paymentDao.confirm(orderUid, paymentKeyRes, transactionId)
+
+                jsonObject.put("orderId", orderId)
 
                 // 주문 상태를 결제 완료로 변경
                 ordersDao.updateStatus(orderId, OrderStatus.PAID)

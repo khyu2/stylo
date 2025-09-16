@@ -5,7 +5,7 @@
       layout:decorate="~{layout/base}">
 <head>
     <meta charset="utf-8"/>
-    <title>주문 상세 - Stylo</title>
+    <title>주문 상세</title>
 </head>
 <body>
 <div layout:fragment="content">
@@ -25,11 +25,8 @@
             <!-- Overview Card -->
             <div class="card bg-base-100 shadow-sm">
                 <div class="card-body p-6">
-                    <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                        <div class="flex items-start gap-3">
-                            <div class="w-10 h-10 rounded-full bg-primary text-primary-content flex items-center justify-center">
-                                <i data-lucide="receipt" class="w-5 h-5"></i>
-                            </div>
+                    <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                        <div class="flex items-start gap-4">
                             <div>
                                 <div class="text-sm opacity-70">주문 번호</div>
                                 <div class="font-semibold break-all" th:text="${payment.orderUid}">ORDER-XXXX</div>
@@ -46,9 +43,13 @@
                             <div>
                                 <div class="text-sm opacity-70">주문 상태</div>
                                 <div>
-                                    <span class="badge badge-primary"
-                                          th:classappend="${(order != null ? order.status : payment.status)} == 'DONE' ? ' badge-success' : (${(order != null ? order.status : payment.status)} == 'CANCEL' ? ' badge-error' : ' badge-warning')"
-                                          th:text="${order != null ? order.status : payment.status}">DONE</span>
+                                    <span class="badge badge-soft"
+                                          th:classappend="${order.status.name() == 'PENDING' ? 'badge-warning'
+                                       : (order.status.name() == 'PAID' ? 'badge-success'
+                                       : (order.status.name() == 'SHIPPING' ? 'badge-info'
+                                       : (order.status.name() == 'COMPLETED' ? 'badge-primary'
+                                       : (order.status.name() == 'CANCELLED' ? 'badge-error' : 'badge-ghost'))))}"
+                                          th:text="${order.status}">PENDING</span>
                                 </div>
                             </div>
                             <div>
@@ -111,15 +112,15 @@
                                 </div>
                                 <div class="space-y-2">
                                     <div>
-                                        <div class="text-sm opacity-70">주문자명</div>
+                                        <div class="text-sm opacity-70 mb-1">주문자명</div>
                                         <div class="font-medium" th:text="${buyer?.name}">-</div>
                                     </div>
                                     <div>
-                                        <div class="text-sm opacity-70">전화번호</div>
+                                        <div class="text-sm opacity-70 mb-1">전화번호</div>
                                         <div class="font-medium" th:text="${buyer?.phone}">-</div>
                                     </div>
                                     <div>
-                                        <div class="text-sm opacity-70">이메일 주소</div>
+                                        <div class="text-sm opacity-70 mb-1">이메일 주소</div>
                                         <div class="font-medium break-all" th:text="${buyer?.email}">-</div>
                                     </div>
                                 </div>
@@ -133,11 +134,11 @@
                                 </div>
                                 <div class="space-y-2">
                                     <div>
-                                        <div class="text-sm opacity-70">받으시는 분</div>
+                                        <div class="text-sm opacity-70 mb-1">받으시는 분</div>
                                         <div class="font-medium" th:text="${shipping?.recipient}">-</div>
                                     </div>
                                     <div>
-                                        <div class="text-sm opacity-70">주소</div>
+                                        <div class="text-sm opacity-70 mb-1">주소</div>
                                         <div class="font-medium break-all"
                                              th:text="${shipping != null ? (shipping.address + (shipping.addressDetail != null ? ', ' + shipping.addressDetail : '') + (shipping.postalCode != null ? ' (' + shipping.postalCode + ')' : '')) : '-'}">
                                             -
@@ -145,16 +146,16 @@
                                     </div>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
-                                            <div class="text-sm opacity-70">전화번호</div>
+                                            <div class="text-sm opacity-70 mb-1">전화번호</div>
                                             <div class="font-medium" th:text="${shipping?.phone}">-</div>
                                         </div>
                                         <div>
-                                            <div class="text-sm opacity-70">휴대폰 번호</div>
+                                            <div class="text-sm opacity-70 mb-1">휴대폰 번호</div>
                                             <div class="font-medium" th:text="${shipping?.phone}">-</div>
                                         </div>
                                     </div>
                                     <div th:if="${shipping?.requestMessage}">
-                                        <div class="text-sm opacity-70">배송 메시지</div>
+                                        <div class="text-sm opacity-70 mb-1">배송 메시지</div>
                                         <div class="font-medium" th:text="${shipping?.requestMessage}">-</div>
                                     </div>
                                 </div>

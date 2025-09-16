@@ -14,6 +14,7 @@ data class OrderResponse(
     val orderUid: String?,
     val paymentKey: String?,
     val paymentStatus: PaymentStatus?,
+    var orderItems: List<OrderItemResponse>? = null,
     val createdAt: LocalDateTime?,
 ) {
     companion object {

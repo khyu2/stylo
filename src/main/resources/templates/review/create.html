@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="ko"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>리뷰 작성</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="bg-base-100">
+        <div class="container mx-auto px-4 py-8">
+            <!-- Page Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold">리뷰 작성</h1>
+                <p class="text-lg opacity-70 mt-2">주문한 상품에 대한 리뷰를 작성해주세요.</p>
+            </div>
+
+            <div th:if="${success}" class="alert alert-success mb-6">
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
+                <span th:text="${success}"></span>
+            </div>
+            <div th:if="${error}" class="alert alert-error mb-6">
+                <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Review Form -->
+            <div class="max-w-2xl mx-auto">
+                <div class="card bg-base-100 shadow-xl">
+                    <div class="card-body p-6">
+                        <form th:action="@{/reviews/create}" method="post" class="space-y-6">
+                            <input type="hidden" name="orderUid" th:value="${orderUid}">
+                            <input type="hidden" name="productId" th:value="${productId}">
+
+                            <!-- Rating -->
+                            <div class="form-control">
+                                <label class="label">
+                                    <span class="label-text text-base">별점 <span class="text-error">*</span></span>
+                                </label>
+                                <div class="rating rating-lg">
+                                    <input type="radio" name="rating" value="1" class="mask mask-star-2 bg-orange-400" />
+                                    <input type="radio" name="rating" value="2" class="mask mask-star-2 bg-orange-400" />
+                                    <input type="radio" name="rating" value="3" class="mask mask-star-2 bg-orange-400" checked />
+                                    <input type="radio" name="rating" value="4" class="mask mask-star-2 bg-orange-400" />
+                                    <input type="radio" name="rating" value="5" class="mask mask-star-2 bg-orange-400" />
+                                </div>
+                            </div>
+
+                            <!-- Review Content -->
+                            <div class="form-control">
+                                <label class="label" for="content">
+                                    <span class="label-text text-base">리뷰 내용 <span class="text-error">*</span></span>
+                                </label>
+                                <textarea id="content"
+                                          name="content"
+                                          rows="6"
+                                          required
+                                          class="textarea textarea-bordered w-full"
+                                          placeholder="상품에 대한 솔직한 리뷰를 남겨주세요."></textarea>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="divider"></div>
+                            <div class="flex justify-end gap-4">
+                                <a th:href="@{/orders}"
+                                   class="btn btn-outline">
+                                    <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                                    취소
+                                </a>
+                                <button type="submit"
+                                        class="btn btn-primary">
+                                    <i data-lucide="check" class="w-4 h-4 mr-2"></i>
+                                    리뷰 등록
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+    <script>
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+        }
+    </script>
+</th:block>
+</body>
+</html>

@@ -1,8 +1,11 @@
 package project.stylo.web.dao
 
 import org.jooq.DSLContext
+import org.jooq.generated.tables.JOrderItem
 import org.jooq.generated.tables.JOrders
 import org.jooq.generated.tables.JPayment
+import org.jooq.generated.tables.JProduct
+import org.jooq.generated.tables.JProductOption
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
@@ -19,7 +22,10 @@ import java.time.LocalDateTime
 class OrdersDao(private val dsl: DSLContext) {
     companion object {
         private val ORDERS = JOrders.ORDERS
+        private val ORDER_ITEM = JOrderItem.ORDER_ITEM
         private val PAYMENT = JPayment.PAYMENT
+        private val PRODUCT = JProduct.PRODUCT
+        private val PRODUCT_OPTION = JProductOption.PRODUCT_OPTION
     }
 
     fun save(orders: Orders): Long =

@@ -7,13 +7,16 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import project.stylo.auth.utils.SecurityUtils
 import project.stylo.common.exception.BaseException
+import project.stylo.common.s3.FileStorageService
 import project.stylo.web.dao.AddressDao
 import project.stylo.web.dao.CartDao
+import project.stylo.web.dao.MemberDao
 import project.stylo.web.dao.OrderItemDao
 import project.stylo.web.dao.OrdersDao
 import project.stylo.web.dao.PaymentDao
 import project.stylo.web.dao.ProductDao
 import project.stylo.web.dao.ProductOptionDao
+import project.stylo.web.dao.ReviewDao
 import project.stylo.web.domain.Member
 import project.stylo.web.domain.OrderItem
 import project.stylo.web.domain.Orders
@@ -23,9 +26,16 @@ import project.stylo.web.domain.enums.PaymentStatus
 import project.stylo.web.domain.enums.PgProviderType
 import project.stylo.web.dto.request.OrderCreateRequest
 import project.stylo.web.dto.request.OrdersSearchRequest
+import project.stylo.web.dto.response.AddressResponse
+import project.stylo.web.dto.response.MemberResponse
 import project.stylo.web.dto.response.OrderCreateResponse
+import project.stylo.web.dto.response.OrderDetailResponse
+import project.stylo.web.dto.response.OrderItemResponse
 import project.stylo.web.dto.response.OrderResponse
+import project.stylo.web.dto.response.PaymentResponse
 import project.stylo.web.exception.MemberExceptionType
+import project.stylo.web.exception.OrderExceptionType
+import project.stylo.web.exception.PaymentExceptionType
 import project.stylo.web.exception.ProductExceptionType
 import java.math.BigDecimal
 
@@ -33,12 +43,15 @@ import java.math.BigDecimal
 @Transactional
 class OrdersService(
     private val cartDao: CartDao,
+    private val memberDao: MemberDao,
     private val addressDao: AddressDao,
     private val ordersDao: OrdersDao,
     private val orderItemDao: OrderItemDao,
     private val productDao: ProductDao,
     private val productOptionDao: ProductOptionDao,
-    private val paymentDao: PaymentDao
+    private val paymentDao: PaymentDao,
+    private val reviewDao: ReviewDao,
+    private val fileStorageService: FileStorageService
 ) {
     // TODO: 주문 중복 검증, 재고 동시성 문제, 주문/결제 트랜잭션 분리, 주문 취소/환불 처리
     fun createOrder(member: Member, request: OrderCreateRequest, session: HttpSession): OrderCreateResponse {
@@ -146,8 +159,89 @@ class OrdersService(
         ordersDao.findAll(request, pageable)
 
     @Transactional(readOnly = true)
-    fun getOrdersByMember(member: Member, pageable: Pageable): Page<OrderResponse> =
-        ordersDao.findAllByMemberId(member.memberId!!, pageable)
+    fun getOrderDetail(member: Member, orderId: Long): OrderDetailResponse {
+        val order = ordersDao.findById(orderId)
+            ?: throw BaseException(OrderExceptionType.ORDER_NOT_FOUND)
+
+        val payment = paymentDao.findByOrderId(orderId)
+            ?: throw BaseException(PaymentExceptionType.PAYMENT_NOT_FOUND)
+
+        if (payment.memberId != member.memberId) {
+            throw BaseException(PaymentExceptionType.PAYMENT_ACCESS_DENIED)
+        }
+
+        val items = orderItemDao.findAllByOrderId(orderId)
+        val optionIds = items.map { it.productOptionId }.toSet()
+        val optionMap = productOptionDao.findByIds(optionIds)
+        val productIds = optionMap.values.map { it.productId }.toSet()
+        val productMap = productDao.findByIds(productIds)
+
+        val orderItems = items.map { oi ->
+            val opt = optionMap[oi.productOptionId]
+            val prod = opt?.let { productMap[it.productId] }
+            val presignedUrl = fileStorageService.getPresignedUrl(prod?.thumbnailUrl!!)
+            val hasReview = reviewDao.existsByOrderItemId(oi.orderItemId!!)
+
+            OrderItemResponse(
+                productId = prod.productId,
+                name = prod.name,
+                thumbnailUrl = presignedUrl,
+                optionSku = opt.sku,
+                quantity = oi.quantity,
+                unitPrice = oi.price,
+                totalPrice = oi.price.multiply(BigDecimal.valueOf(oi.quantity)),
+                hasReview = hasReview
+            )
+        }
+
+        val address = addressDao.findById(order.addressId)
+            ?: throw BaseException(MemberExceptionType.ADDRESS_NOT_FOUND)
+        val member = memberDao.findById(order.memberId)
+            ?: throw BaseException(MemberExceptionType.MEMBER_NOT_FOUND)
+
+        return OrderDetailResponse(
+            payment = PaymentResponse.from(payment),
+            order = OrderResponse.from(order, payment),
+            orderItems = orderItems,
+            buyer = MemberResponse.from(member),
+            shipping = AddressResponse.from(address)
+        )
+    }
+
+    @Transactional(readOnly = true)
+    fun getOrdersByMember(member: Member, pageable: Pageable): Page<OrderResponse> {
+        val orders = ordersDao.findAllByMemberId(member.memberId!!, pageable)
+
+        orders.content.forEach {
+            val items = orderItemDao.findAllByOrderId(it.orderId)
+            val optionIds = items.map { it.productOptionId }.toSet()
+            val optionMap = productOptionDao.findByIds(optionIds)
+            val productIds = optionMap.values.map { it.productId }.toSet()
+            val productMap = productDao.findByIds(productIds)
+
+            val orderItems = items.map { oi ->
+                val opt = optionMap[oi.productOptionId]
+                val prod = opt?.let { productMap[it.productId] }
+                val presignedUrl = fileStorageService.getPresignedUrl(prod?.thumbnailUrl!!)
+                val hasReview = reviewDao.existsByOrderItemId(oi.orderItemId!!)
+
+                OrderItemResponse(
+                    productId = prod.productId,
+                    name = prod.name,
+                    thumbnailUrl = presignedUrl,
+                    optionSku = opt.sku,
+                    quantity = oi.quantity,
+                    unitPrice = oi.price,
+                    totalPrice = oi.price.multiply(BigDecimal.valueOf(oi.quantity)),
+                    hasReview = hasReview
+                )
+            }
+
+            it.orderItems = orderItems
+        }
+
+        return orders
+    }
 
     fun updateStatus(orderId: Long, status: OrderStatus) {
         ordersDao.updateStatus(orderId, status)

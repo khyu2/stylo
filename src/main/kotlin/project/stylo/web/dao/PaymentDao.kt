@@ -55,6 +55,11 @@ class PaymentDao(private val dsl: DSLContext) {
             .where(PAYMENT.PAYMENT_KEY.eq(paymentKey))
             .fetchOneInto(Payment::class.java)
 
+    fun findByOrderId(orderId: Long): Payment? =
+        dsl.selectFrom(PAYMENT)
+            .where(PAYMENT.ORDER_ID.eq(orderId))
+            .fetchOneInto(Payment::class.java)
+
     fun findByOrderIds(orderIds: Collection<Long>): Map<Long, Payment> =
         if (orderIds.isEmpty()) emptyMap() else
             dsl.selectFrom(PAYMENT)
