@@ -5,7 +5,7 @@
       layout:decorate="~{layout/base}">
 <head>
     <meta charset="utf-8"/>
-    <title>주문 내역 - Stylo</title>
+    <title>주문 내역</title>
 </head>
 <body>
 <div layout:fragment="content" class="px-4 py-8">
@@ -13,9 +13,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-3xl font-bold">주문 내역</h1>
-                <p class="opacity-70">내가 주문한 내역과 결제 상태를 확인하세요.</p>
             </div>
-            <a href="/orders/create" class="btn btn-primary">새 주문</a>
         </div>
 
         <div th:if="${orders == null or #lists.isEmpty(orders)}" class="alert">
@@ -23,60 +21,121 @@
             <span>아직 주문 내역이 없습니다.</span>
         </div>
 
-        <div th:if="${orders != null and !#lists.isEmpty(orders)}" class="card bg-base-100 shadow">
-            <div class="card-body p-0">
-                <div class="overflow-x-auto">
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th>주문번호</th>
-                            <th>주문일</th>
-                            <th class="text-right">총 금액</th>
-                            <th>주문 상태</th>
-                            <th>결제 상태</th>
-                            <th class="text-right"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="o : ${orders}">
-                            <td class="break-all" th:text="${o.orderUid} ?: '-'">-</td>
-                            <td th:text="${o.createdAt != null ? #temporals.format(o.createdAt, 'yyyy-MM-dd HH:mm') : '-'}">
-                                -
-                            </td>
-                            <td class="text-right"
-                                th:text="${'₩' + #numbers.formatDecimal(o.totalAmount, 1, 'COMMA', 0, 'POINT')}">₩0
-                            </td>
-                            <td><span class="badge badge-soft"
-                                      th:classappend="${o.status.name() == 'PENDING' ? 'badge-warning'
-                                       : (o.status.name() == 'PAID' ? 'badge-success'
-                                       : (o.status.name() == 'SHIPPING' ? 'badge-info'
-                                       : (o.status.name() == 'COMPLETED' ? 'badge-primary'
-                                       : (o.status.name() == 'CANCELLED' ? 'badge-error' : 'badge-ghost'))))}"
-                                      th:text="${o.status}">PENDING</span>
-                            </td>
-                            <td class="text-center">
-                                <span th:if="${o.paymentStatus != null}"
-                                      th:text="${o.paymentStatus}"
-                                      class="badge badge-success">-</span>
-                                <span th:unless="${o.paymentStatus != null}" class="opacity-60">-</span>
-                            </td>
-                            <td class="text-right">
-                                <a th:if="${o.paymentKey != null}"
-                                   th:href="${'/payment/detail?paymentKey=' + o.paymentKey}"
-                                   class="btn btn-sm btn-primary">상세</a>
-                                <span th:unless="${o.paymentKey != null}" class="text-sm opacity-60">결제 대기</span>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+        <div th:if="${orders != null and !#lists.isEmpty(orders)}" class="space-y-6">
+            <!-- Order Card -->
+            <div th:each="o : ${orders}" class="card bg-base-100 shadow-lg">
+                <!-- Static Top Part -->
+                <div class="card-body p-6">
+                    <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
+                        <!-- Left Side: Order Info -->
+                        <div>
+                            <div class="flex items-center gap-4">
+                                <span class="font-bold text-xl"
+                                      th:text="${#temporals.format(o.createdAt, 'yyyy년 MM월 dd일 a hh:mm', #locale)}"></span>
+                                <span class="font-semibold">총 금액: <span class="text-primary"
+                                                                        th:text="${'₩' + #numbers.formatDecimal(o.totalAmount, 1, 'COMMA', 0, 'POINT')}"></span></span>
+                                <span class="badge badge-soft badge-lg"
+                                      th:if="${o.paymentKey != null}"
+                                      th:classappend="${o.paymentStatus.name() == 'READY' ? 'badge-info'
+                                                       : (o.paymentStatus.name() == 'DONE' ? 'badge-success'
+                                                       : (o.paymentStatus.name() == 'FAILED' ? 'badge-error'
+                                                       : (o.paymentStatus.name() == 'CANCELED' ? 'badge-error' : 'badge-ghost')))}"
+                                      th:text="${o.paymentStatus.label}"></span>
+                                <span class="badge badge-soft badge-lg" th:unless="${o.paymentKey != null}">결제 대기</span>
+                            </div>
+                            <div class="mt-2 flex items-center gap-4">
+                                <span class="text-sm text-base-content/70" th:text="${o.orderUid}"></span>
+                            </div>
+                        </div>
+                        <!-- Right Side: Detail Button -->
+                        <div th:if="${o.paymentKey != null}" class="flex-shrink-0">
+                            <a th:href="${'/orders/' + o.orderId}" class="btn btn-primary">주문 상세</a>
+                        </div>
+                        <div th:unless="${o.paymentKey != null}" class="flex-shrink-0">
+                            <span class="btn">결제 대기</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Collapsible Part -->
+                <div class="collapse">
+                    <input type="checkbox" th:id="'collapsible-' + ${o.orderId}" class="peer" checked/>
+
+                    <!-- Collapsed Content: Product Table -->
+                    <div class="collapse-content !p-0">
+                        <div class="overflow-x-auto">
+                            <table class="table">
+                                <!-- Table Head -->
+                                <thead>
+                                <tr>
+                                    <th>상품 정보</th>
+                                    <th class="text-right">가격</th>
+                                    <th class="text-center">수량</th>
+                                    <th class="text-center">주문 상태</th>
+                                    <th class="text-right"></th>
+                                </tr>
+                                </thead>
+                                <!-- Table Body -->
+                                <tbody>
+                                <tr th:each="item : ${o.orderItems}">
+                                    <td>
+                                        <div class="flex items-center space-x-3">
+                                            <div class="avatar me-8">
+                                                <div class="mask mask-squircle w-24 h-24">
+                                                    <img th:src="${item.thumbnailUrl ?: '/images/placeholder.png'}"
+                                                         alt="Product Image"/>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="font-bold" th:text="${item.name}">상품명</div>
+                                                <div class="text-sm opacity-50" th:text="${item.optionSku}">옵션명</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-right"
+                                        th:text="${'₩' + #numbers.formatDecimal(item.unitPrice, 1, 'COMMA', 0, 'POINT')}">
+                                        가격
+                                    </td>
+                                    <td class="text-center" th:text="${item.quantity}">수량</td>
+                                    <td class="text-center">
+                                        <span class="badge"
+                                              th:classappend="${o.status.name() == 'PENDING' ? 'badge-warning'
+                                                               : (o.status.name() == 'PAID' ? 'badge-success'
+                                                               : (o.status.name() == 'SHIPPING' ? 'badge-info'
+                                                               : (o.status.name() == 'COMPLETED' ? 'badge-primary'
+                                                               : (o.status.name() == 'CANCELLED' ? 'badge-error' : 'badge-ghost'))))}"
+                                              th:text="${o.status}"></span>
+                                    </td>
+                                    <td class="text-right">
+                                        <a th:if="${o.status.name() == 'COMPLETED' and !item.hasReview}"
+                                           th:href="@{/reviews/create(orderUid=${o.orderUid}, productId=${item.productId})}"
+                                           class="btn btn-sm btn-outline">리뷰 작성</a>
+                                        <span th:if="${o.status.name() == 'COMPLETED' and item.hasReview}"
+                                              class="badge badge-success badge-outline">리뷰 작성 완료</span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Toggle Button -->
+                    <div class="collapse-title !p-0">
+                        <label th:for="'collapsible-' + ${o.orderId}" class="divider">
+                            <span class="peer-checked:hidden text-sm font-medium flex items-center justify-center gap-1">
+                                상품 목록 보기<i data-lucide="chevron-down" class="w-4 h-4"></i></span>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- Pagination and other elements -->
         <div class="flex items-center justify-between">
             <div class="text-sm opacity-70">
                 <span th:text="${'총 ' + page.totalElements + '개'}">총 0개</span>
-                <span class="ml-2" th:if="${page.totalPages > 0}" th:text="${(page.number + 1) + ' / ' + page.totalPages + ' 페이지'}">1 / 1 페이지</span>
+                <span class="ml-2" th:if="${page.totalPages > 0}"
+                      th:text="${(page.number + 1) + ' / ' + page.totalPages + ' 페이지'}">1 / 1 페이지</span>
             </div>
             <div class="join">
                 <a class="btn btn-sm btn-ghost join-item"
