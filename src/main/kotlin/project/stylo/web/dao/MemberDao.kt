@@ -21,7 +21,7 @@ class MemberDao(private val dsl: DSLContext) {
                 .where(MEMBER.EMAIL.eq(email))
         )
 
-    fun findById(id: Long) =
+    fun findById(id: Long): Member? =
         dsl.selectFrom(MEMBER)
             .where(MEMBER.MEMBER_ID.eq(id))
             .fetchOneInto(Member::class.java)

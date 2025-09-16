@@ -35,6 +35,7 @@ class LatencyAspect {
         val result = joinPoint.proceed()
         val end = System.nanoTime()
         val durationMs = (end - start) / 1_000_000
+        val durationS = durationMs / 1000.0
         val count = getAndResetQueryCount()
 
         val request = (RequestContextHolder.currentRequestAttributes() as ServletRequestAttributes).request
@@ -42,7 +43,7 @@ class LatencyAspect {
         val method = request.method
 
         val logMessage =
-            "API 경로: [${method}] $uri 응답시간: ${durationMs}ms, 쿼리 호출: ${count}회"
+            "API 경로: [${method}] $uri 응답시간: ${String.format("%.3f", durationS)}s, 쿼리 호출: ${count}회"
         if (durationMs >= 3000) {
             logger.warn("API 응답시간이 3초를 초과했습니다. $logMessage")
         } else {

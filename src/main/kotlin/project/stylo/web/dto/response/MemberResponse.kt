@@ -6,6 +6,7 @@ data class MemberResponse(
     val memberId: Long,
     val email: String,
     val name: String,
+    val phone: String,
     val role: String,
     val isTerm: Boolean = true,
     val isMarketing: Boolean = false
@@ -16,6 +17,7 @@ data class MemberResponse(
                 memberId = member.memberId!!,
                 email = member.email,
                 name = member.name,
+                phone = member.phone,
                 role = member.role.name,
                 isTerm = member.isTerm,
                 isMarketing = member.isMarketing

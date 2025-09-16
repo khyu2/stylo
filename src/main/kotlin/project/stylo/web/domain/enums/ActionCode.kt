@@ -19,6 +19,7 @@ enum class ActionCode(val code: String) {
 
     // orders
     ORDERS_LIST("orders.list"),
+    ORDERS_DETAIL("orders.detail"),
     ORDERS_CREATE_VIEW("orders.create.view"),
     ORDERS_CREATE("orders.create"),
 
