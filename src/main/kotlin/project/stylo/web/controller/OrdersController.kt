@@ -47,13 +47,17 @@ class OrdersController(
         @PathVariable orderId: Long,
         model: Model
     ): String {
-        val detail = ordersService.getOrderDetail(member, orderId)
-        model.addAttribute("payment", detail.payment)
-        model.addAttribute("order", detail.order)
-        model.addAttribute("orderItems", detail.orderItems)
-        model.addAttribute("buyer", detail.buyer)
-        model.addAttribute("shipping", detail.shipping)
-        return "orders/detail"
+        try {
+            val detail = ordersService.getOrderDetail(member, orderId)
+            model.addAttribute("payment", detail.payment)
+            model.addAttribute("order", detail.order)
+            model.addAttribute("orderItems", detail.orderItems)
+            model.addAttribute("buyer", detail.buyer)
+            model.addAttribute("shipping", detail.shipping)
+            return "orders/detail"
+        } catch (e: Exception) {
+            return "redirect:/error"
+        }
     }
 
     @GetMapping("/create")
