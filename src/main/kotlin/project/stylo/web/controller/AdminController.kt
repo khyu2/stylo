@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import project.stylo.web.domain.enums.OrderStatus
 import project.stylo.web.domain.enums.PaymentStatus
+import project.stylo.web.dto.request.ActionLogSearchRequest
 import project.stylo.web.dto.request.OrdersSearchRequest
 import project.stylo.web.dto.request.ProductSearchRequest
 import project.stylo.web.service.AdminService
@@ -94,5 +95,18 @@ class AdminController(
     ): String {
         ordersService.updateStatus(orderId, status)
         return "redirect:/admin/orders"
+    }
+
+    @GetMapping("/logs")
+    fun manageLogs(
+        @ModelAttribute request: ActionLogSearchRequest,
+        @PageableDefault(size = 20) pageable: Pageable,
+        model: Model
+    ): String {
+        val logs = adminService.getActionLogs(request, pageable)
+        model.addAttribute("page", logs)
+        model.addAttribute("logs", logs.content)
+        model.addAttribute("activeMenu", "logs")
+        return "admin/logs/index"
     }
 }

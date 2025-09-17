@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/sidebar}">
+<head>
+    <meta charset="UTF-8">
+    <title>사용자 로그</title>
+</head>
+<body>
+<div layout:fragment="content" class="container mx-auto p-4">
+    <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold">사용자 로그 & 에러 로그 통합 대시보드</h1>
+    </div>
+
+    <!-- 1. 상단 요약 KPI 카드 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <!-- KPI 카드 내용 생략 -->
+    </div>
+
+    <!-- 2. 필터 / 검색 영역 -->
+    <div class="card bg-base-100 shadow-xl mb-8">
+        <div class="card-body">
+            <form th:action="@{/admin/logs}" method="get">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">시작일</span></label>
+                        <input type="date" name="startDate" th:value="${#temporals.format(param.startDate, 'yyyy-MM-dd')}" class="input input-bordered">
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">종료일</span></label>
+                        <input type="date" name="endDate" th:value="${#temporals.format(param.endDate, 'yyyy-MM-dd')}" class="input input-bordered">
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">사용자 ID</span></label>
+                        <input type="text" name="memberId" th:value="${param.memberId}" placeholder="사용자 ID" class="input input-bordered">
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">이벤트 유형</span></label>
+                        <input type="text" name="eventType" th:value="${param.eventType}" placeholder="예: VIEW, CLICK" class="input input-bordered">
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">작업</span></label>
+                        <input type="text" name="action" th:value="${param.action}" placeholder="예: PRODUCT_DETAILS" class="input input-bordered">
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">IP 주소</span></label>
+                        <input type="text" name="ip" th:value="${param.ip}" placeholder="IP 주소" class="input input-bordered">
+                    </div>
+                </div>
+                <div class="mt-4 flex justify-end">
+                    <button type="submit" class="btn btn-primary">검색</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. 로그 테이블 -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <div class="overflow-x-auto">
+                <table class="table w-full">
+                    <thead>
+                    <tr>
+                        <th>로그 ID</th>
+                        <th>사용자 ID</th>
+                        <th>이벤트 유형</th>
+                        <th>작업</th>
+                        <th>IP</th>
+                        <th>요청 시간</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="log : ${logs}">
+                        <td th:text="${log.id}"></td>
+                        <td th:text="${log.memberId}"></td>
+                        <td th:text="${log.eventType}"></td>
+                        <td th:text="${log.action}"></td>
+                        <td th:text="${log.ip}"></td>
+                        <td th:text="${#temporals.format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

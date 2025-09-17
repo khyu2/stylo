@@ -1,5 +1,7 @@
 package project.stylo.web.domain.enums
 
+import com.fasterxml.jackson.annotation.JsonCreator
+
 /**
  * 사용자 액션 로그를 기록하기 위한 액션 코드
  */
@@ -29,4 +31,12 @@ enum class ActionCode(val code: String) {
     ;
 
     override fun toString(): String = code
+
+    companion object {
+        @JvmStatic
+        @JsonCreator
+        fun fromCode(code: String): ActionCode =
+            ActionCode.entries.find { it.code == code }
+                ?: throw IllegalArgumentException("Unknown ActionCode: $code")
+    }
 }

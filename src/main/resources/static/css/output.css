@@ -50,8 +50,6 @@
     --radius-md: 0.375rem;
     --radius-lg: 0.5rem;
     --radius-xl: 0.75rem;
-    --radius-2xl: 1rem;
-    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
     --default-transition-duration: 150ms;
     --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     --default-font-family: var(--font-sans);
@@ -486,24 +484,6 @@
       &:before {
         display: none;
       }
-    }
-  }
-  .collapse-arrow {
-    > .collapse-title:after {
-      position: absolute;
-      display: block;
-      height: 0.5rem;
-      width: 0.5rem;
-      transform: translateY(-100%) rotate(45deg);
-      transition-property: all;
-      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-      transition-duration: 0.2s;
-      top: 1.9rem;
-      inset-inline-end: 1.4rem;
-      content: "";
-      transform-origin: 75% 75%;
-      box-shadow: 2px 2px;
-      pointer-events: none;
     }
   }
   .dropdown {
@@ -1854,9 +1834,6 @@
       border-width: var(--border, 1px) 0 var(--border, 1px) var(--border, 1px);
     }
   }
-  .me-4 {
-    margin-inline-end: calc(var(--spacing) * 4);
-  }
   .me-8 {
     margin-inline-end: calc(var(--spacing) * 8);
   }
@@ -2506,13 +2483,6 @@
       margin-inline-end: calc(calc(var(--spacing) * 3) * calc(1 - var(--tw-space-x-reverse)));
     }
   }
-  .space-x-4 {
-    :where(& > :not(:last-child)) {
-      --tw-space-x-reverse: 0;
-      margin-inline-start: calc(calc(var(--spacing) * 4) * var(--tw-space-x-reverse));
-      margin-inline-end: calc(calc(var(--spacing) * 4) * calc(1 - var(--tw-space-x-reverse)));
-    }
-  }
   .divide-y {
     :where(& > :not(:last-child)) {
       --tw-divide-y-reverse: 0;
@@ -2572,18 +2542,6 @@
   .rounded-t-lg {
     border-top-left-radius: var(--radius-lg);
     border-top-right-radius: var(--radius-lg);
-  }
-  .rounded-b-2xl {
-    border-bottom-right-radius: var(--radius-2xl);
-    border-bottom-left-radius: var(--radius-2xl);
-  }
-  .rounded-b-box {
-    border-bottom-left-radius: var(--radius-box);
-    border-bottom-right-radius: var(--radius-box);
-  }
-  .rounded-b-box {
-    border-bottom-right-radius: var(--radius-box);
-    border-bottom-left-radius: var(--radius-box);
   }
   .border {
     border-style: var(--tw-border-style);
@@ -2691,11 +2649,6 @@
   }
   .bg-white {
     background-color: var(--color-white);
-  }
-  .divider-primary {
-    &:before, &:after {
-      background-color: var(--color-primary);
-    }
   }
   .bg-gradient-to-br {
     --tw-gradient-position: to bottom right in oklab;
@@ -3049,14 +3002,6 @@
     --tw-duration: 200ms;
     transition-duration: 200ms;
   }
-  .duration-300 {
-    --tw-duration: 300ms;
-    transition-duration: 300ms;
-  }
-  .ease-in-out {
-    --tw-ease: var(--ease-in-out);
-    transition-timing-function: var(--ease-in-out);
-  }
   .btn-outline {
     &:not( .btn-active, :hover, :active:focus, :focus-visible, :disabled, [disabled], .btn-disabled, :checked ) {
       --btn-shadow: "";
@@ -3201,16 +3146,6 @@
       }
     }
   }
-  .peer-checked\:block {
-    &:is(:where(.peer):checked ~ *) {
-      display: block;
-    }
-  }
-  .peer-checked\:flex {
-    &:is(:where(.peer):checked ~ *) {
-      display: flex;
-    }
-  }
   .peer-checked\:hidden {
     &:is(:where(.peer):checked ~ *) {
       display: none;
@@ -3274,13 +3209,6 @@
     &:hover {
       @media (hover: hover) {
         background-color: var(--color-base-200);
-      }
-    }
-  }
-  .hover\:bg-base-300 {
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-base-300);
       }
     }
   }
@@ -3372,11 +3300,6 @@
       &, &:focus, &:focus-within {
         --input-color: var(--color-primary);
       }
-    }
-  }
-  .sm\:mt-0 {
-    @media (width >= 40rem) {
-      margin-top: calc(var(--spacing) * 0);
     }
   }
   .sm\:inline-flex {
@@ -5025,10 +4948,6 @@ input[type="number"]::-webkit-inner-spin-button {
   syntax: "*";
   inherits: false;
 }
-@property --tw-ease {
-  syntax: "*";
-  inherits: false;
-}
 @property --tw-scale-x {
   syntax: "*";
   inherits: false;
@@ -5084,7 +5003,6 @@ input[type="number"]::-webkit-inner-spin-button {
       --tw-ring-offset-color: #fff;
       --tw-ring-offset-shadow: 0 0 #0000;
       --tw-duration: initial;
-      --tw-ease: initial;
       --tw-scale-x: 1;
       --tw-scale-y: 1;
       --tw-scale-z: 1;

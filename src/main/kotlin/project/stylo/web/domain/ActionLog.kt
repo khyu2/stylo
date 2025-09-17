@@ -12,11 +12,11 @@ data class ActionLog(
     @Id
     val id: String? = null,
     val eventType: EventType,
-    val action: ActionCode,
+    val action: String,
     val memberId: Long?,
     val sessionId: String?,
     val ip: String?,
-    val userAgent: UserAgentInfo?,
+    val userAgent: String?,
     val path: String?,
     val params: Map<String, Any?>?,
     val metadata: Map<String, Any?>?,
@@ -37,11 +37,11 @@ data class ActionLogPayload(
 ) {
     fun toDocument(): ActionLog = ActionLog(
         eventType = eventType,
-        action = action,
+        action = action.code,
         memberId = memberId,
         sessionId = sessionId,
         ip = ip,
-        userAgent = userAgent,
+        userAgent = userAgent.toString(),
         path = path,
         params = params,
         metadata = metadata,
