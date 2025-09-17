@@ -212,32 +212,11 @@ class OrdersService(
     fun getOrdersByMember(member: Member, pageable: Pageable): Page<OrderResponse> {
         val orders = ordersDao.findAllByMemberId(member.memberId!!, pageable)
 
-        orders.content.forEach {
-            val items = orderItemDao.findAllByOrderId(it.orderId)
-            val optionIds = items.map { it.productOptionId }.toSet()
-            val optionMap = productOptionDao.findByIds(optionIds)
-            val productIds = optionMap.values.map { it.productId }.toSet()
-            val productMap = productDao.findByIds(productIds)
-
-            val orderItems = items.map { oi ->
-                val opt = optionMap[oi.productOptionId]
-                val prod = opt?.let { productMap[it.productId] }
-                val presignedUrl = fileStorageService.getPresignedUrl(prod?.thumbnailUrl!!)
-                val hasReview = reviewDao.existsByOrderItemId(oi.orderItemId!!)
-
-                OrderItemResponse(
-                    productId = prod.productId,
-                    name = prod.name,
-                    thumbnailUrl = presignedUrl,
-                    optionSku = opt.sku,
-                    quantity = oi.quantity,
-                    unitPrice = oi.price,
-                    totalPrice = oi.price.multiply(BigDecimal.valueOf(oi.quantity)),
-                    hasReview = hasReview
-                )
+        // 한번에 가져온 뒤 presignedUrl 만 변환
+        orders.content.forEach { order ->
+            order.orderItems?.forEach { item ->
+                item.thumbnailUrl = fileStorageService.getPresignedUrl(item.thumbnailUrl)
             }
-
-            it.orderItems = orderItems
         }
 
         return orders

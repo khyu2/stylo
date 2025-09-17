@@ -5,7 +5,7 @@ import java.math.BigDecimal
 data class OrderItemResponse(
     val productId: Long,
     val name: String,
-    val thumbnailUrl: String,
+    var thumbnailUrl: String,
     val optionSku: String,
     val quantity: Long,
     val unitPrice: BigDecimal,

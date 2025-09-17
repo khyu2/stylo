@@ -51,9 +51,6 @@
                         <div th:if="${o.paymentKey != null}" class="flex-shrink-0">
                             <a th:href="${'/orders/' + o.orderId}" class="btn btn-primary">주문 상세</a>
                         </div>
-                        <div th:unless="${o.paymentKey != null}" class="flex-shrink-0">
-                            <span class="btn">결제 대기</span>
-                        </div>
                     </div>
                 </div>
 
@@ -72,7 +69,7 @@
                                     <th class="text-right">가격</th>
                                     <th class="text-center">수량</th>
                                     <th class="text-center">주문 상태</th>
-                                    <th class="text-right"></th>
+                                    <th class="text-center"></th>
                                 </tr>
                                 </thead>
                                 <!-- Table Body -->
@@ -98,7 +95,7 @@
                                     </td>
                                     <td class="text-center" th:text="${item.quantity}">수량</td>
                                     <td class="text-center">
-                                        <span class="badge"
+                                        <span class="badge badge-soft"
                                               th:classappend="${o.status.name() == 'PENDING' ? 'badge-warning'
                                                                : (o.status.name() == 'PAID' ? 'badge-success'
                                                                : (o.status.name() == 'SHIPPING' ? 'badge-info'
@@ -106,7 +103,7 @@
                                                                : (o.status.name() == 'CANCELLED' ? 'badge-error' : 'badge-ghost'))))}"
                                               th:text="${o.status}"></span>
                                     </td>
-                                    <td class="text-right">
+                                    <td class="text-center">
                                         <a th:if="${o.status.name() == 'COMPLETED' and !item.hasReview}"
                                            th:href="@{/reviews/create(orderUid=${o.orderUid}, productId=${item.productId})}"
                                            class="btn btn-sm btn-outline">리뷰 작성</a>
